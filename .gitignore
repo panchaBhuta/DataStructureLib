@@ -1,0 +1,10 @@
+*.swp
+.vscode/
+
+build*/
+
+### Linux ###
+*~
+*.swp
+
+# refer   https://www.toptal.com/developers/gitignore/api/macos,windows,linux,cmake,c++,c,visualstudiocode

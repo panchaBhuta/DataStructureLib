@@ -1,4 +1,6 @@
 #
+# URL:      https://github.com/panchaBhuta/versionedObject
+#
 # Copyright (c) 2023-2023 Gautam Dhar
 # All rights reserved.
 #
@@ -35,7 +37,8 @@ endmacro(add_perf_test)
 
 
 # Unit tests
-add_unit_test(testBasicTimeline)
+add_unit_test(testBuildForwardTimeline)
+add_unit_test(testBuildReverseTimeline)
 #[===========================================[
 add_unit_test(testAllTemplateInstantiation)
 add_unit_test(testBasicConversions)

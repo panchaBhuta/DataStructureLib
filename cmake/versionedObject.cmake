@@ -1,4 +1,6 @@
 #
+# URL:      https://github.com/panchaBhuta/versionedObject
+#
 # Copyright (c) 2023-2023 Gautam Dhar
 # All rights reserved.
 #
@@ -23,7 +25,7 @@ set(windows_os "$<BOOL:${WIN32}>")
 
 function(versionedObject_getversion version_arg)
     # Parse the current version from the versionedObject header
-    file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/include/versionedObject/versionedObject.h" versionedObject_version_defines
+    file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/include/versionedObject/VersionedObject.h" versionedObject_version_defines
         REGEX "#define VERSIONEDOBJECT_VERSION_(MAJOR|MINOR|PATCH)")
     foreach(ver ${versionedObject_version_defines})
         if(ver MATCHES "#define VERSIONEDOBJECT_VERSION_(MAJOR|MINOR|PATCH) +([^ ]+)$")
@@ -94,7 +96,7 @@ macro(fetch_dependencies)
     #  add_subdirectory(${${CONVERTERLIB}_SOURCE_DIR} ${${CONVERTERLIB}_BINARY_DIR} EXCLUDE_FROM_ALL)
     endif()
     #]==================]
-    
+
     #if (NOT TARGET converter::converter)
     #    find_package(converter REQUIRED)
     #endif()

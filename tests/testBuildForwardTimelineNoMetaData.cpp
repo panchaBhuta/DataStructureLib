@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include <versionedObject/VersionedObject.h>
+#include <versionedObject/VersionedObjectBuilder.h>
 
 #include "unittest.h"
 
@@ -22,9 +23,9 @@ ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,13-MAY-2004,10,1,INE435A01028,10
 NOTE: columns { SYMBOL, NAME OF COMPANY, ... } 
 */
 
-using t_symbol = std::string;
+using t_symbol      = std::string;
 using t_companyName = std::string;
-using t_series = std::string;
+using t_series      = std::string;
 using t_listingDate = std::chrono::year_month_day;
 using t_paidUpValue = uint16_t;
 using t_marketLot   = uint16_t;
@@ -43,9 +44,7 @@ namespace unittest
   struct SScompatible<versionedObject::DataSet<COMPANYINFO_TYPE_LIST>> {
     inline static std::string getVal(const versionedObject::DataSet<COMPANYINFO_TYPE_LIST>& val)
     {
-      std::ostringstream oss;
-      val.toCSV(oss);
-      return oss.str();
+      return val.toCSV();
     }
   };
 }
@@ -67,19 +66,19 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
     t_companyInfo symChgOldInfo1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("APPAPER,,,0,0,,0");
     t_companyInfo symChgNewInfo1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("IPAPPM,,,0,0,,0");
-    versionedObject::ChangesInDataSet<COMPANYINFO_TYPE_LIST> symbolChange1 {"symbolchange", symbolChangeIdx, symChgOldInfo1, symChgNewInfo1};
+    versionedObject::ChangesInDataSet<COMPANYINFO_TYPE_LIST> symbolChange1 {symbolChangeIdx, symChgOldInfo1, symChgNewInfo1};
     insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))), symbolChange1);
     unittest::ExpectEqual(bool, true, insertResult);
 
     t_companyInfo symChgOldInfo2 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("IPAPPM,,,0,0,,0");
     t_companyInfo symChgNewInfo2 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("ANDPAPER,,,0,0,,0");
-    versionedObject::ChangesInDataSet<COMPANYINFO_TYPE_LIST> symbolChange2 {"symbolchange", symbolChangeIdx, symChgOldInfo2, symChgNewInfo2};
+    versionedObject::ChangesInDataSet<COMPANYINFO_TYPE_LIST> symbolChange2 { symbolChangeIdx, symChgOldInfo2, symChgNewInfo2};
     insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))), symbolChange2);
     unittest::ExpectEqual(bool, true, insertResult);
 
     t_companyInfo symChgOldInfo3 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("ANDPAPER,,,0,0,,0");
     t_companyInfo symChgNewInfo3 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("ANDHRAPAP,,,0,0,,0");
-    versionedObject::ChangesInDataSet<COMPANYINFO_TYPE_LIST> symbolChange3 {"symbolchange", symbolChangeIdx, symChgOldInfo3, symChgNewInfo3};
+    versionedObject::ChangesInDataSet<COMPANYINFO_TYPE_LIST> symbolChange3 {symbolChangeIdx, symChgOldInfo3, symChgNewInfo3};
     insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5))), symbolChange3);
     unittest::ExpectEqual(bool, true, insertResult);
 
@@ -90,37 +89,32 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 //  ANDHRAPAP,International Paper APPM Limited,ANDHRA PAPER LIMITED,22-JAN-2020
     t_companyInfo namChgOldInfo1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",International Paper APPM Limited,,0,0,,0");
     t_companyInfo namChgNewInfo1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",ANDHRA PAPER LIMITED,,0,0,,0");
-    versionedObject::ChangesInDataSet<COMPANYINFO_TYPE_LIST> nameChange1 {"namechange", nameChangeIdx, namChgOldInfo1, namChgNewInfo1};
+    versionedObject::ChangesInDataSet<COMPANYINFO_TYPE_LIST> nameChange1 {nameChangeIdx, namChgOldInfo1, namChgNewInfo1};
     insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))), nameChange1);
     unittest::ExpectEqual(bool, true, insertResult);
 
 
-
-//  NOTE: the row below is not a versioned information, but info from EQUITY_L.csv
-//       ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,13-MAY-2004,10,1,INE435A01028,10
-    t_companyInfo companyInfoLatest = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
-      "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10"    );
-
-    versionedObject::DataSet<COMPANYINFO_TYPE_LIST> companyRecordLatest {"EQUITY_L", companyInfoLatest};
-
-    versionedObject::VersionedObject<COMPANYINFO_TYPE_LIST> vo
-                  = vob.buildReverseTimeline(t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))),
-                                             companyRecordLatest);
-
-
-//#################### check all versioned objects
 
 //  NOTE : the row below is manually deduced
 //  APPAPER,International Paper APPM Limited,EQ,13-MAY-2004,10,1,INE435A01028,10
     t_companyInfo companyInfoStart = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
       "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10"    );
 
-    versionedObject::DataSet<COMPANYINFO_TYPE_LIST> companyRecordStart {"-symbolchange", companyInfoStart};
+    versionedObject::DataSet<COMPANYINFO_TYPE_LIST> companyRecordStart {companyInfoStart};
 
+    versionedObject::VersionedObject<COMPANYINFO_TYPE_LIST> vo
+                  = vob.buildForwardTimeline(t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))),
+                                             companyRecordStart);
+
+
+//#################### check all versioned objects
+
+//  NOTE : the row below is manually deduced
+//  APPAPER,International Paper APPM Limited,EQ,13-MAY-2004,10,1,INE435A01028,10
     std::optional<versionedObject::DataSet<COMPANYINFO_TYPE_LIST>> companyRecordFirstActual =
       vo.getVersionAt(t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))));
 
-    unittest::ExpectEqual(bool, true, companyRecordFirstActual.has_value()); // has versionedObject::DataSet<COMPANYINFO_TYPE_LIST>
+    unittest::ExpectEqual(bool, true, companyRecordFirstActual.has_value()); // has versionedObject::DataSet<COMPANYMETAINFO_TYPE_LIST>
 
     unittest::ExpectEqual(versionedObject::DataSet<COMPANYINFO_TYPE_LIST>, companyRecordStart,
                                                                            companyRecordFirstActual.value());
@@ -130,12 +124,12 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     t_companyInfo companyInfoSecond = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
       "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10"    );
 
-    versionedObject::DataSet<COMPANYINFO_TYPE_LIST> companyRecordSecondExpected {"-namechange-symbolchange", companyInfoSecond};
+    versionedObject::DataSet<COMPANYINFO_TYPE_LIST> companyRecordSecondExpected {companyInfoSecond};
 
     std::optional<versionedObject::DataSet<COMPANYINFO_TYPE_LIST>> companyRecordSecondActual =
       vo.getVersionAt(t_listingDate(std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))));
 
-    unittest::ExpectEqual(bool, true, companyRecordSecondActual.has_value()); // has versionedObject::DataSet<COMPANYINFO_TYPE_LIST>
+    unittest::ExpectEqual(bool, true, companyRecordSecondActual.has_value()); // has versionedObject::DataSet<COMPANYMETAINFO_TYPE_LIST>
 
     unittest::ExpectEqual(versionedObject::DataSet<COMPANYINFO_TYPE_LIST>, companyRecordSecondExpected,
                                                                            companyRecordSecondActual.value());
@@ -146,12 +140,12 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     t_companyInfo companyInfoThird = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
       "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10"    );
 
-    versionedObject::DataSet<COMPANYINFO_TYPE_LIST> companyRecordThirdExpected {"-symbolchange", companyInfoThird};
+    versionedObject::DataSet<COMPANYINFO_TYPE_LIST> companyRecordThirdExpected {companyInfoThird};
 
     std::optional<versionedObject::DataSet<COMPANYINFO_TYPE_LIST>> companyRecordThirdActual =
       vo.getVersionAt(t_listingDate(std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))));
 
-    unittest::ExpectEqual(bool, true, companyRecordThirdActual.has_value()); // has versionedObject::DataSet<COMPANYINFO_TYPE_LIST>
+    unittest::ExpectEqual(bool, true, companyRecordThirdActual.has_value()); // has versionedObject::DataSet<COMPANYMETAINFO_TYPE_LIST>
 
     unittest::ExpectEqual(versionedObject::DataSet<COMPANYINFO_TYPE_LIST>, companyRecordThirdExpected,
                                                                            companyRecordThirdActual.value());
@@ -160,12 +154,17 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 //  ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 //  NOTE: the row below is not a versioned information, but info from EQUITY_L.csv
 //       ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,13-MAY-2004,10,1,INE435A01028,10
+    t_companyInfo companyInfoLatest = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
+      "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10"    );
+
+    versionedObject::DataSet<COMPANYINFO_TYPE_LIST> companyRecordLatestExpected {companyInfoLatest};
+
     std::optional<versionedObject::DataSet<COMPANYINFO_TYPE_LIST>> companyRecordLatestActual =
       vo.getVersionAt(t_listingDate(std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5))));
 
-    unittest::ExpectEqual(bool, true, companyRecordLatestActual.has_value()); // has versionedObject::DataSet<COMPANYINFO_TYPE_LIST>
+    unittest::ExpectEqual(bool, true, companyRecordLatestActual.has_value()); // has versionedObject::DataSet<COMPANYMETAINFO_TYPE_LIST>
 
-    unittest::ExpectEqual(versionedObject::DataSet<COMPANYINFO_TYPE_LIST>, companyRecordLatest,
+    unittest::ExpectEqual(versionedObject::DataSet<COMPANYINFO_TYPE_LIST>, companyRecordLatestExpected,
                                                                            companyRecordLatestActual.value());
   } catch (const std::exception& ex) {
     std::cout << ex.what() << std::endl;

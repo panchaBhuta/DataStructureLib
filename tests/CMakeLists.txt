@@ -37,25 +37,11 @@ endmacro(add_perf_test)
 
 
 # Unit tests
-add_unit_test(testBuildForwardTimeline)
-add_unit_test(testBuildReverseTimeline)
-#[===========================================[
-add_unit_test(testAllTemplateInstantiation)
-add_unit_test(testBasicConversions)
-add_unit_test(testFloatingPointNaN)
-add_unit_test(testIntegerNaN)
+add_unit_test(testBuildForwardTimelineMetaData)
+add_unit_test(testBuildReverseTimelineMetaData)
 
-add_unit_test(testFloatingPointPrecision)
-add_unit_test(testUserDefinedConverter_lowerPrecision)
-add_unit_test(testUserDefinedConverter_locale)
-add_unit_test(testFloatingPointLocale)
-
-add_unit_test(testDateConversions)
-add_unit_test(testDateConversionFormat)
-add_unit_test(testDateConversionWindowsHeader)
-add_unit_test(testTupleConversions)
-#]===========================================]
-
+add_unit_test(testBuildForwardTimelineNoMetaData)
+add_unit_test(testBuildReverseTimelineNoMetaData)
 
 
 

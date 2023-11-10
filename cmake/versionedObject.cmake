@@ -26,7 +26,7 @@ set(windows_os "$<BOOL:${WIN32}>")
 function(versionedObject_getversion version_arg)
     # Parse the current version from the versionedObject header
     file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/include/versionedObject/VersionedObject.h" versionedObject_version_defines
-        REGEX "#define VERSIONEDOBJECT_VERSION_(MAJOR|MINOR|PATCH)")
+         REGEX "#define VERSIONEDOBJECT_VERSION_(MAJOR|MINOR|PATCH)")
     foreach(ver ${versionedObject_version_defines})
         if(ver MATCHES "#define VERSIONEDOBJECT_VERSION_(MAJOR|MINOR|PATCH) +([^ ]+)$")
             set(VERSIONEDOBJECT_VERSION_${CMAKE_MATCH_1} "${CMAKE_MATCH_2}" CACHE INTERNAL "")

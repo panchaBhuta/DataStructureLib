@@ -1,7 +1,7 @@
 /*
  * versionedObject.h
  *
- * Version:  v1.0.0
+ * Version:  v1.3.0
  *
  * Copyright (C) 2023-2023 Gautam Dhar
  * All rights reserved.
@@ -25,7 +25,7 @@
 #include <converter/converter.h>
 
 #define VERSIONEDOBJECT_VERSION_MAJOR 1
-#define VERSIONEDOBJECT_VERSION_MINOR 2
+#define VERSIONEDOBJECT_VERSION_MINOR 3
 #define VERSIONEDOBJECT_VERSION_PATCH 0
 
 
@@ -117,8 +117,8 @@ namespace versionedObject
     {}
 
     MetaDataSource()
-      : _source(""),
-        _prefix(0)
+      : _source("DefaultConstructor"),
+        _prefix('@')
     {}
 
     //MetaDataSource() = default;
@@ -251,6 +251,8 @@ namespace versionedObject
     const t_record    _record;       // value(s) of elements after change
   };
 
+
+
   template <typename ... MT>
   class VersionedObject
   {
@@ -263,12 +265,6 @@ namespace versionedObject
     t_versionLedger  _versionRepo;
 
   public:
-    static constexpr char _dbY_fmt[] = "%d-%b-%Y";  // string literal object with static storage duration
-
-    static constexpr std::string (*_To_dbY)(const std::chrono::year_month_day& val) =
-                      &converter::ConvertFromVal< std::chrono::year_month_day,
-                                                  converter::T2S_Format_StreamYMD< _dbY_fmt >
-                                                >::ToStr;
 
     VersionedObject() : _versionRepo() {}
 
@@ -281,14 +277,14 @@ namespace versionedObject
     inline bool insertVersion(const std::chrono::year_month_day& forDate,
                               const DataSet<MT...>& newEntry)
     {
-      VERSIONEDOBJECT_DEBUG_LOG( "date=" << _To_dbY(forDate) << ", newEntry={ " << newEntry.toLog() << " }");
+      VERSIONEDOBJECT_DEBUG_LOG( "date=" << converter::toStr_dbY(forDate) << ", newEntry={ " << newEntry.toLog() << " }");
       const auto [ iter, success ] = _versionRepo.emplace(forDate, newEntry);
       if( (!success) && (iter->second != newEntry) )  // different record exits in _versionRepo
       {
         static std::string errMsg("ERROR : failure in VersionedObject<MT...>::insertVersion() : different record exits in _versionRepo");
 #if ENABLE_VERSIONEDOBJECT_DEBUG_LOG == 1
         std::ostringstream eoss;
-        eoss << errMsg << " : forDate=" << _To_dbY(forDate) << " : prevEntry={ " << iter->second.toLog();
+        eoss << errMsg << " : forDate=" << converter::toStr_dbY(forDate) << " : prevEntry={ " << iter->second.toLog();
         eoss << " } : newEntry={ metaData=" << newEntry.toLog() << " }";
         VERSIONEDOBJECT_DEBUG_LOG(eoss.str());
 #endif

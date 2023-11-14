@@ -261,7 +261,7 @@ namespace versionedObject
     {
       for(auto iter : _deltaEntries)
       {
-        oss << VersionedObject<MT...>::_To_dbY(iter.first) << ",";
+        oss << converter::toStr_dbY(iter.first) << ",";
         iter.second.toCSV(oss);
         oss << std::endl;
       }
@@ -284,8 +284,8 @@ namespace versionedObject
       {
         std::ostringstream eoss;
         eoss << "ERROR(1) : failure in _VersionedObjectBuilderBase<MT...>::buildForwardTimeline() : startDate[";
-        eoss << VersionedObject<MT...>::_To_dbY(startDate) << "] should be less than first-changeDate[";
-        eoss << VersionedObject<MT...>::_To_dbY(_deltaEntries.begin()->first) << std::endl;
+        eoss << converter::toStr_dbY(startDate) << "] should be less than first-changeDate[";
+        eoss << converter::toStr_dbY(_deltaEntries.begin()->first) << std::endl;
         firstVersion.toCSV(eoss);
         _toCSV(eoss);
         throw std::invalid_argument(eoss.str());
@@ -371,8 +371,8 @@ namespace versionedObject
       {
         std::ostringstream eoss;
         eoss << "ERROR(1) : failure in _VersionedObjectBuilderBase<MT...>::_buildReverseTimeline() : startDate[";
-        eoss << VersionedObject<MT...>::_To_dbY(startDate) << "] should be less than first-changeDate[";
-        eoss << VersionedObject<MT...>::_To_dbY(_deltaEntries.begin()->first) << std::endl;
+        eoss << converter::toStr_dbY(startDate) << "] should be less than first-changeDate[";
+        eoss << converter::toStr_dbY(_deltaEntries.begin()->first) << std::endl;
         _toCSV(eoss);
         lastVersion.toCSV(eoss);
         throw std::invalid_argument(eoss.str());

@@ -62,34 +62,34 @@ ANDHRA PAPER LIMITED,APPAPER,IPAPPM,21-JAN-2014
 ANDHRA PAPER LIMITED,IPAPPM,ANDPAPER,22-JAN-2020
 ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 */
-    const std::array <bool, std::tuple_size_v<t_companyInfo> > symbolChangeIdx = {true, false, false, false, false, false, false};
+    const std::array <bool, std::tuple_size_v<t_companyInfo> > symbolChangeFlg = {true, false, false, false, false, false, false};
 
     t_companyInfo symChgOldInfo1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("APPAPER,,,0,0,,0");
     t_companyInfo symChgNewInfo1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("IPAPPM,,,0,0,,0");
-    versionedObject::ChangesInDataSet<COMPANYINFO_TYPE_LIST> symbolChange1 {symbolChangeIdx, symChgOldInfo1, symChgNewInfo1};
+    versionedObject::ChangesInDataSet<COMPANYINFO_TYPE_LIST> symbolChange1 {symbolChangeFlg, symChgOldInfo1, symChgNewInfo1};
     insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))), symbolChange1);
     unittest::ExpectEqual(bool, true, insertResult);
 
     t_companyInfo symChgOldInfo2 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("IPAPPM,,,0,0,,0");
     t_companyInfo symChgNewInfo2 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("ANDPAPER,,,0,0,,0");
-    versionedObject::ChangesInDataSet<COMPANYINFO_TYPE_LIST> symbolChange2 { symbolChangeIdx, symChgOldInfo2, symChgNewInfo2};
+    versionedObject::ChangesInDataSet<COMPANYINFO_TYPE_LIST> symbolChange2 { symbolChangeFlg, symChgOldInfo2, symChgNewInfo2};
     insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))), symbolChange2);
     unittest::ExpectEqual(bool, true, insertResult);
 
     t_companyInfo symChgOldInfo3 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("ANDPAPER,,,0,0,,0");
     t_companyInfo symChgNewInfo3 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("ANDHRAPAP,,,0,0,,0");
-    versionedObject::ChangesInDataSet<COMPANYINFO_TYPE_LIST> symbolChange3 {symbolChangeIdx, symChgOldInfo3, symChgNewInfo3};
+    versionedObject::ChangesInDataSet<COMPANYINFO_TYPE_LIST> symbolChange3 {symbolChangeFlg, symChgOldInfo3, symChgNewInfo3};
     insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5))), symbolChange3);
     unittest::ExpectEqual(bool, true, insertResult);
 
 
-    const std::array <bool, std::tuple_size_v<t_companyInfo> > nameChangeIdx = {false, true, false, false, false, false, false};
+    const std::array <bool, std::tuple_size_v<t_companyInfo> > nameChangeFlg = {false, true, false, false, false, false, false};
 
 //  NOTE : the row below is from namechange.csv
 //  ANDHRAPAP,International Paper APPM Limited,ANDHRA PAPER LIMITED,22-JAN-2020
     t_companyInfo namChgOldInfo1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",International Paper APPM Limited,,0,0,,0");
     t_companyInfo namChgNewInfo1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",ANDHRA PAPER LIMITED,,0,0,,0");
-    versionedObject::ChangesInDataSet<COMPANYINFO_TYPE_LIST> nameChange1 {nameChangeIdx, namChgOldInfo1, namChgNewInfo1};
+    versionedObject::ChangesInDataSet<COMPANYINFO_TYPE_LIST> nameChange1 {nameChangeFlg, namChgOldInfo1, namChgNewInfo1};
     insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))), nameChange1);
     unittest::ExpectEqual(bool, true, insertResult);
 

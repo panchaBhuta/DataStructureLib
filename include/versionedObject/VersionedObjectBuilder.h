@@ -1,7 +1,7 @@
 /*
  * VersionedObjectBuilder.h
  *
- * Version:  v1.0.0
+ * Version:  v1.4.0
  *
  * Copyright (C) 2023-2023 Gautam Dhar
  * All rights reserved.
@@ -250,29 +250,21 @@ namespace versionedObject
   class _VersionedObjectBuilderBase
   {
   protected:
-    using t_record   = typename DataSet<MT...>::t_record;
-    using t_metaData = typename DataSet<MT...>::t_metaData;
+    using t_versionedObject  = VersionedObject<MT...>;
+    using t_dataset          = DataSet<MT...>;
+    using t_record           = typename t_dataset::t_record;
+    using t_metaData         = typename t_dataset::t_metaData;
 
     std::multimap < std::chrono::year_month_day, ChangesInDataSet<MT...> >  _deltaEntries;
 
     _VersionedObjectBuilderBase() : _deltaEntries() {}
 
-    inline void _toCSV(std::ostream& oss) const
-    {
-      for(auto iter : _deltaEntries)
-      {
-        oss << converter::toStr_dbY(iter.first) << ",";
-        iter.second.toCSV(oss);
-        oss << std::endl;
-      }
-    }
-
-    VersionedObject<MT...> _buildForwardTimeline(
+    t_versionedObject _buildForwardTimeline(
                   const std::chrono::year_month_day& startDate,
-                  const DataSet<MT...>& firstVersion,
+                  const t_dataset& firstVersion,
                   const t_metaData* const metaDataResetCloner = nullptr) // nullptr when MetaData is NOT used
     {
-      VersionedObject<MT...> vo;
+      t_versionedObject vo;
       vo.insertVersion(startDate,firstVersion);
 
       if(_deltaEntries.empty())
@@ -287,11 +279,11 @@ namespace versionedObject
         eoss << converter::toStr_dbY(startDate) << "] should be less than first-changeDate[";
         eoss << converter::toStr_dbY(_deltaEntries.begin()->first) << std::endl;
         firstVersion.toCSV(eoss);
-        _toCSV(eoss);
+        toCSV(eoss);
         throw std::invalid_argument(eoss.str());
       }
 
-      [[maybe_unused]] t_metaData metaData = (DataSet<MT...>::hasMetaData()) ?
+      [[maybe_unused]] t_metaData metaData = (t_dataset::hasMetaData()) ?
                                                   (*metaDataResetCloner):
                                                   t_metaData();
 
@@ -308,12 +300,12 @@ namespace versionedObject
       {
         if(nextRecordDate != iterDelta.first)
         {
-          if constexpr ( DataSet<MT...>::hasMetaData() )
+          if constexpr ( t_dataset::hasMetaData() )
           {
-            vo.insertVersion(nextRecordDate, DataSet<MT...>(metaData, record) );
+            vo.insertVersion(nextRecordDate, t_dataset(metaData, record) );
             metaData = (*metaDataResetCloner); // reset of metaData values
           } else {
-            vo.insertVersion(nextRecordDate, DataSet<MT...>(record) );
+            vo.insertVersion(nextRecordDate, t_dataset(record) );
           }
 
           // two consecutive changes , but on different dates.
@@ -324,7 +316,7 @@ namespace versionedObject
           }
         }
 
-        if constexpr ( DataSet<MT...>::hasMetaData() ) {
+        if constexpr ( t_dataset::hasMetaData() ) {
           metaData.appendMetaInfo(iterDelta.second.getMetaData());
         }
 
@@ -337,29 +329,29 @@ namespace versionedObject
           eoss << "ERROR(2) : failure in _VersionedObjectBuilderBase<MT...>::buildForwardTimeline() : "
                << err.what() << std::endl;
           firstVersion.toCSV(eoss);
-          _toCSV(eoss);
+          toCSV(eoss);
           throw std::invalid_argument(eoss.str());
         }
 
         nextRecordDate = iterDelta.first;
       }
-      if constexpr ( DataSet<MT...>::hasMetaData() )
+      if constexpr ( t_dataset::hasMetaData() )
       {
-        vo.insertVersion(nextRecordDate, DataSet<MT...>(metaData, record) );
+        vo.insertVersion(nextRecordDate, t_dataset(metaData, record) );
       } else {
-        vo.insertVersion(nextRecordDate, DataSet<MT...>(record) );
+        vo.insertVersion(nextRecordDate, t_dataset(record) );
       }
       //VERSIONEDOBJECT_DEBUG_LOG("LAST change record=" << converter::ConvertFromTuple<MT...>::ToStr(record));
       _deltaEntries.clear();
       return vo;
     }
 
-    VersionedObject<MT...> _buildReverseTimeline(
+    t_versionedObject _buildReverseTimeline(
                   const std::chrono::year_month_day& startDate,
-                  const DataSet<MT...>& lastVersion,
+                  const t_dataset& lastVersion,
                   const t_metaData* const metaDataResetCloner = nullptr) // nullptr when MetaData is NOT used
     {
-      VersionedObject<MT...> vo;
+      t_versionedObject vo;
 
       if(_deltaEntries.empty())
       {
@@ -373,14 +365,14 @@ namespace versionedObject
         eoss << "ERROR(1) : failure in _VersionedObjectBuilderBase<MT...>::_buildReverseTimeline() : startDate[";
         eoss << converter::toStr_dbY(startDate) << "] should be less than first-changeDate[";
         eoss << converter::toStr_dbY(_deltaEntries.begin()->first) << std::endl;
-        _toCSV(eoss);
+        toCSV(eoss);
         lastVersion.toCSV(eoss);
         throw std::invalid_argument(eoss.str());
       }
 
       vo.insertVersion(_deltaEntries.rbegin()->first, lastVersion);
 
-      [[maybe_unused]] t_metaData metaData = (DataSet<MT...>::hasMetaData()) ?
+      [[maybe_unused]] t_metaData metaData = (t_dataset::hasMetaData()) ?
                                                   (*metaDataResetCloner):
                                                   t_metaData();
 
@@ -397,12 +389,12 @@ namespace versionedObject
       {
         if(previousRecordDate != rIterDelta->first)
         {
-          if constexpr ( DataSet<MT...>::hasMetaData() )
+          if constexpr ( t_dataset::hasMetaData() )
           {
-            vo.insertVersion(rIterDelta->first, DataSet<MT...>(metaData, record) );
+            vo.insertVersion(rIterDelta->first, t_dataset(metaData, record) );
             metaData = (*metaDataResetCloner); // reset of metaData values
           } else {
-            vo.insertVersion(rIterDelta->first, DataSet<MT...>(record) );
+            vo.insertVersion(rIterDelta->first, t_dataset(record) );
           }
 
           // two consecutive changes , but on different dates.
@@ -413,7 +405,7 @@ namespace versionedObject
           }
         }
 
-        if constexpr ( DataSet<MT...>::hasMetaData() ) {
+        if constexpr ( t_dataset::hasMetaData() ) {
           metaData.appendMetaInfo(rIterDelta->second.getMetaData());
         }
 
@@ -424,7 +416,7 @@ namespace versionedObject
           std::ostringstream eoss;
           eoss << "ERROR(2) : failure in _VersionedObjectBuilderBase<MT...>::_buildReverseTimeline() : "
                << err.what() << std::endl;
-          _toCSV(eoss);
+          toCSV(eoss);
           lastVersion.toCSV(eoss);
           throw std::invalid_argument(eoss.str());
         }
@@ -432,11 +424,11 @@ namespace versionedObject
         previousRecordDate = rIterDelta->first;
         ++rIterDelta;
       }
-      if constexpr ( DataSet<MT...>::hasMetaData() )
+      if constexpr ( t_dataset::hasMetaData() )
       {
-        vo.insertVersion(startDate, DataSet<MT...>(metaData, record) );
+        vo.insertVersion(startDate, t_dataset(metaData, record) );
       } else {
-        vo.insertVersion(startDate, DataSet<MT...>(record) );
+        vo.insertVersion(startDate, t_dataset(record) );
       }
       _deltaEntries.clear();
       return vo;
@@ -458,6 +450,26 @@ namespace versionedObject
       [[maybe_unused]] const auto iter = _deltaEntries.emplace(forDate, chgEntry);
       return true;
     }
+
+    inline void toCSV(const std::string& prefix, std::ostream& oss) const
+    {
+      for(auto iter : _deltaEntries)
+      {
+        oss << prefix << converter::toStr_dbY(iter.first) << ",";
+        iter.second.toCSV(oss);
+        oss << std::endl;
+      }
+    }
+
+    inline void toCSV(std::ostream& oss) const
+    {
+      for(auto iter : _deltaEntries)
+      {
+        oss << converter::toStr_dbY(iter.first) << ",";
+        iter.second.toCSV(oss);
+        oss << std::endl;
+      }
+    }
   };
 
   template <typename M, typename ... T>
@@ -467,23 +479,24 @@ namespace versionedObject
   class VersionedObjectBuilder<M, T...> : public _VersionedObjectBuilderBase<M, T...>
   {
   public:
-    using t_record   = typename DataSet<M, T...>::t_record;
-    using t_metaData = typename DataSet<M, T...>::t_metaData;
+    using t_versionedObject  = VersionedObject<M, T...>;
+    using t_dataset          = DataSet<M, T...>;
+    using t_record           = typename t_dataset::t_record;
+    using t_metaData         = typename t_dataset::t_metaData;
 
-  public:
     VersionedObjectBuilder() : _VersionedObjectBuilderBase<M, T...>() {}
 
-    VersionedObject<M, T...> buildForwardTimeline(
+    inline VersionedObject<M, T...> buildForwardTimeline(
             const std::chrono::year_month_day& startDate,
-            const DataSet<M, T...>& firstVersion,
+            const t_dataset& firstVersion,
             const t_metaData& metaDataResetCloner) // when MetaData is used
     {
       return this->_buildForwardTimeline(startDate, firstVersion, &metaDataResetCloner);
     }
 
-    VersionedObject<M, T...> buildReverseTimeline(
+    inline VersionedObject<M, T...> buildReverseTimeline(
             const std::chrono::year_month_day& startDate,
-            const DataSet<M, T...>& lastVersion,
+            const t_dataset& lastVersion,
             const t_metaData& metaDataResetCloner) // when MetaData is used
     {
       return this->_buildReverseTimeline(startDate, lastVersion, &metaDataResetCloner);
@@ -494,22 +507,23 @@ namespace versionedObject
   class VersionedObjectBuilder<T1, TR...> : public _VersionedObjectBuilderBase<T1, TR...>
   {
   public:
-    using t_record   = typename DataSet<T1, TR...>::t_record;
-    using t_metaData = typename DataSet<T1, TR...>::t_metaData;
+    using t_versionedObject  = VersionedObject<T1, TR...>;
+    using t_dataset          = DataSet<T1, TR...>;
+    using t_record           = typename t_dataset::t_record;
+    using t_metaData         = typename t_dataset::t_metaData;
 
-  public:
     VersionedObjectBuilder() : _VersionedObjectBuilderBase<T1, TR...>() {}
 
-    VersionedObject<T1, TR...> buildForwardTimeline(
+    inline VersionedObject<T1, TR...> buildForwardTimeline(
             const std::chrono::year_month_day& startDate,
-            const DataSet<T1, TR...>& firstVersion) // when MetaData is NOT used
+            const t_dataset& firstVersion) // when MetaData is NOT used
     {
       return this->_buildForwardTimeline(startDate, firstVersion);
     }
 
-    VersionedObject<T1, TR...> buildReverseTimeline(
+    inline VersionedObject<T1, TR...> buildReverseTimeline(
             const std::chrono::year_month_day& startDate,
-            const DataSet<T1, TR...>& lastVersion) // when MetaData is NOT used
+            const t_dataset& lastVersion) // when MetaData is NOT used
     {
       return this->_buildReverseTimeline(startDate, lastVersion);
     }

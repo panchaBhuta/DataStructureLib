@@ -39,10 +39,11 @@ endmacro(add_perf_test)
 # Unit tests
 add_unit_test(testBuildForwardTimelineMetaData)
 add_unit_test(testBuildReverseTimelineMetaData)
+add_unit_test(testPriorityMergeNoMetaData)
 
 add_unit_test(testBuildForwardTimelineNoMetaData)
 add_unit_test(testBuildReverseTimelineNoMetaData)
-
+add_unit_test(testPriorityMergeMetaData)
 
 
 #[======================[

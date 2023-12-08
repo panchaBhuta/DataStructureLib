@@ -1,7 +1,7 @@
 /*
  * versionedObject.h
  *
- * Version:  v1.3.0
+ * Version:  v1.4.0
  *
  * Copyright (C) 2023-2023 Gautam Dhar
  * All rights reserved.
@@ -25,7 +25,7 @@
 #include <converter/converter.h>
 
 #define VERSIONEDOBJECT_VERSION_MAJOR 1
-#define VERSIONEDOBJECT_VERSION_MINOR 3
+#define VERSIONEDOBJECT_VERSION_MINOR 4
 #define VERSIONEDOBJECT_VERSION_PATCH 0
 
 
@@ -148,6 +148,9 @@ namespace versionedObject
   template <typename M, typename ... T>
   class DataSet;
 
+  /*
+   * Specialization which uses metadata
+  */
   template <c_MetaData M, typename ... T>
   class DataSet<M, T...>
   {
@@ -165,10 +168,15 @@ namespace versionedObject
         _record(record)
     {}
 
+    DataSet(DataSet<M, T...> const& other)
+      : _metaData(other._metaData),
+        _record(other._record)
+    {}
+
     DataSet() = delete;
-    DataSet(DataSet const&) = default;
-    DataSet& operator=(DataSet const&) = delete;
-    bool operator==(DataSet const& other) // const = default;
+    //DataSet(DataSet<M, T...> const&) = default;
+    DataSet& operator=(DataSet<M, T...> const&) = delete;
+    bool operator==(DataSet<M, T...> const& other) const // = default;
     {
       // we match only the record-data (and not the meta-info)
       return _record == other._record;
@@ -204,6 +212,9 @@ namespace versionedObject
     const t_record    _record;       // value(s) of elements after  change
   };
 
+  /*
+   * Specialization which does NOT uses metadata
+  */
   template <c_noMetaData T1, typename ... TR>  // if meta-data is not needed
   class DataSet<T1, TR...>
   {
@@ -219,10 +230,14 @@ namespace versionedObject
       : _record(record)
     {}
 
+    DataSet(DataSet<T1, TR...> const& other)
+      : _record(other._record)
+    {}
+
     DataSet() = delete;
-    DataSet(DataSet const&) = default;
-    DataSet& operator=(DataSet const&) = delete;
-    bool operator==(DataSet const&) const = default;
+    //DataSet(DataSet<T1, TR...> const&) = default;
+    DataSet& operator=(DataSet<T1, TR...> const&) = delete;
+    bool operator==(DataSet<T1, TR...> const&) const = default;
 
     inline const t_record&    getRecord() const { return _record; }
 
@@ -257,31 +272,31 @@ namespace versionedObject
   class VersionedObject
   {
   public:
-    using t_record         = typename DataSet<MT ...>::t_record;
-    using t_versionLedger  = typename std::map< std::chrono::year_month_day,
-                                                DataSet<MT...> >;
+    using t_versionDate    = std::chrono::year_month_day;
+    using t_dataset        = DataSet<MT ...>;
+    using t_datasetLedger  = std::map< t_versionDate, t_dataset >;
+    using t_record         = typename t_dataset::t_record;
 
   private:
-    t_versionLedger  _versionRepo;
+    t_datasetLedger  _datasetLedger;
 
   public:
 
-    VersionedObject() : _versionRepo() {}
+    VersionedObject() : _datasetLedger() {}
 
     //VersionedObject() = delete;
-    VersionedObject(VersionedObject const&) = default;
-    VersionedObject& operator=(VersionedObject const&) = default;
-    bool operator==(VersionedObject const&) const = default;
+    VersionedObject(VersionedObject<MT...> const&) = default;
+    VersionedObject& operator=(VersionedObject<MT...> const&) = default;
+    bool operator==(VersionedObject<MT...> const&) const = default;
 
     // throws an error if for a particular date existing-record doesn't match the new-record
-    inline bool insertVersion(const std::chrono::year_month_day& forDate,
-                              const DataSet<MT...>& newEntry)
+    inline bool insertVersion(const t_versionDate& forDate, const t_dataset& newEntry)
     {
       VERSIONEDOBJECT_DEBUG_LOG( "date=" << converter::toStr_dbY(forDate) << ", newEntry={ " << newEntry.toLog() << " }");
-      const auto [ iter, success ] = _versionRepo.emplace(forDate, newEntry);
-      if( (!success) && (iter->second != newEntry) )  // different record exits in _versionRepo
+      const auto [ iter, success ] = _datasetLedger.emplace(forDate, newEntry);
+      if( (!success) && (iter->second != newEntry) )  // different record exits in _datasetLedger
       {
-        static std::string errMsg("ERROR : failure in VersionedObject<MT...>::insertVersion() : different record exits in _versionRepo");
+        static std::string errMsg("ERROR : failure in VersionedObject<MT...>::insertVersion() : different record exits in _datasetLedger");
 #if ENABLE_VERSIONEDOBJECT_DEBUG_LOG == 1
         std::ostringstream eoss;
         eoss << errMsg << " : forDate=" << converter::toStr_dbY(forDate) << " : prevEntry={ " << iter->second.toLog();
@@ -293,17 +308,17 @@ namespace versionedObject
       return success;
     }
 
-    inline const std::optional<DataSet<MT...>>
+    inline const std::optional<t_dataset>
     getVersionAt(const std::chrono::year_month_day& forDate) const
     {
-      if(_versionRepo.empty())
+      if(_datasetLedger.empty())
       {
         return {};
       }
     
       // upper_bound -> returns an iterator to the first element greater than the given key
-      auto iterC = _versionRepo.upper_bound(forDate); // iterC points to first element that is after 'forDate'
-      if(iterC == _versionRepo.begin()) // no record before the 'forDate'
+      auto iterC = _datasetLedger.upper_bound(forDate); // iterC points to first element that is after 'forDate'
+      if(iterC == _datasetLedger.begin()) // no record before the 'forDate'
       {
         return {};
       }
@@ -311,19 +326,31 @@ namespace versionedObject
       return iterC->second;
     }
 
-    inline void getAllVersions(std::map < std::chrono::year_month_day,
-                                          DataSet<MT...> >& applicableVersions) const
+    inline const t_datasetLedger& getDatasetLedger() const
     {
-      applicableVersions.insert(_versionRepo.begin(),
-                                _versionRepo.end());
+      return _datasetLedger;
+    }
+
+    inline void toCSV(const std::string& prefix, std::ostream& oss) const
+    {
+      for(auto iter : _datasetLedger)
+      {
+        const t_versionDate& versionDate = iter.first;
+        const t_dataset& dataset = iter.second;
+        oss << prefix << converter::toStr_dbY(versionDate) << ",";
+        dataset.toCSV(oss);
+        oss << std::endl;
+      }
     }
 
     inline void toCSV(std::ostream& oss) const
     {
-      for(auto iter : _versionRepo)
+      for(auto iter : _datasetLedger)
       {
-        oss << _To_dbY(iter->first) << ",";
-        iter->second.toCSV(oss);
+        const t_versionDate& versionDate = iter.first;
+        oss << converter::toStr_dbY(versionDate) << ",";
+        const t_dataset& dataset = iter.second;
+        dataset.toCSV(oss);
         oss << std::endl;
       }
     }
@@ -335,9 +362,9 @@ namespace versionedObject
       return oss.str();
     }
 
-    inline t_versionLedger::const_iterator find( const std::chrono::year_month_day& forDate) const
+    inline typename t_datasetLedger::const_iterator find( const t_versionDate& forDate ) const
     {
-      return _versionRepo.find(forDate);
+      return _datasetLedger.find(forDate);
     }
   };
 

@@ -86,7 +86,7 @@ macro(fetch_dependencies)
     include( FetchContent )
     FetchContent_Declare( ${CONVERTERLIB}
 		          GIT_REPOSITORY https://github.com/panchaBhuta/converter.git
-		          GIT_TAG        v1.2.12)  # adjust tag/branch/commit as needed
+		          GIT_TAG        v1.2.13)  # adjust tag/branch/commit as needed
     FetchContent_MakeAvailable(${CONVERTERLIB})
 
     #[==================[
@@ -189,10 +189,10 @@ macro(versionedObject_build)
     endif()
     #message(STATUS "_DEBUG_LOG=${_DEBUG_LOG}")
     # for _DEBUG_LOG can't use generator-expression as its computed during build-stage, but we need it during config-stage
-    option(VERSIONEDOBJECT_DEBUG_LOG  "Set to ON for debugging logs"  ${_DEBUG_LOG})
-    message(STATUS "VERSIONEDOBJECT_DEBUG_LOG=${VERSIONEDOBJECT_DEBUG_LOG}")
+    option(OPTION_VERSIONEDOBJECT_DEBUG_LOG  "Set to ON for debugging logs"  ${_DEBUG_LOG})
+    message(STATUS "OPTION_VERSIONEDOBJECT_DEBUG_LOG=${OPTION_VERSIONEDOBJECT_DEBUG_LOG}")
     #[===========[  donot use generator-expressions in option() functions
-    # option(VERSIONEDOBJECT_DEBUG_LOG  "Set to ON for debugging logs"   "$<AND:$<CONFIG:Debug>,$<VERSIONEDOBJECT_STANDALONE_PROJECT>>")
+    # option(OPTION_VERSIONEDOBJECT_DEBUG_LOG  "Set to ON for debugging logs"   "$<AND:$<CONFIG:Debug>,$<VERSIONEDOBJECT_STANDALONE_PROJECT>>")
     #]===========]
 
     #[==================================================================================[
@@ -223,7 +223,7 @@ macro(versionedObject_build)
     target_compile_definitions(versionedObject INTERFACE
         $<$<CONFIG:Debug>:DEBUG_BUILD>
         $<$<CONFIG:Release>:RELEASE_BUILD>
-	ENABLE_VERSIONEDOBJECT_DEBUG_LOG=$<BOOL:${VERSIONEDOBJECT_DEBUG_LOG}>)
+        FLAG_VERSIONEDOBJECT_DEBUG_LOG=$<BOOL:${OPTION_VERSIONEDOBJECT_DEBUG_LOG}>)
     #[==================================================================================[
     # refer https://cmake.org/cmake/help/v3.27/manual/cmake-generator-expressions.7.html#genex:COMPILE_LANG_AND_ID
     # This specifies the use of different compile definitions based on both the compiler id and compilation language.
@@ -252,8 +252,26 @@ macro(versionedObject_build)
     target_link_libraries(versionedObject INTERFACE
                 $<$<LINK_LANG_AND_ID:CXX,Clang,AppleClang>:libCXX_Clang>
                 $<$<LINK_LANG_AND_ID:CXX,Intel>:libCXX_Intel>)
+
+        # https://cmake.org/cmake/help/latest/command/target_link_libraries.html#libraries-for-both-a-target-and-its-dependents
+        # Library dependencies are transitive by default with this signature. When this target is linked into another target
+        # then the libraries linked to this target will appear on the link line for the other target too.
+        #
+        # https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html#target-usage-requirements
+        # add_executable(consumer consumer.cpp)
+        # target_link_libraries(consumer archiveExtras)    <<<< NOTE: for executable no scope specified, and the dependency becomes 'transitive'
     #]==================================================================================]
     message(STATUS "'versionedObject' linking to '${CONVERTERLIB}'")
+        #[======================[
+        # https://cmake.org/cmake/help/latest/command/target_link_libraries.html#libraries-for-a-target-and-or-its-dependents
+        # The PUBLIC, PRIVATE and INTERFACE scope keywords can be used to specify both the
+        # link dependencies and the link interface in one command.
+        #
+        # when <target> is a library (i.e NOT an executable), then specify the scope.
+            target_link_libraries(<target>
+                        <PRIVATE|PUBLIC|INTERFACE> <item>...
+                        [<PRIVATE|PUBLIC|INTERFACE> <item>...]...)
+        #]======================]
     target_link_libraries(versionedObject INTERFACE ${CONVERTERLIB})
 endmacro()
 

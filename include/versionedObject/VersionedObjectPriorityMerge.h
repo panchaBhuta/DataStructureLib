@@ -56,7 +56,7 @@ namespace versionedObject
             ++iterLowrPriorityVO;
           } else {
             static std::string errMsg("ERROR : failure in VersionedObjectPriorityMerge<MT...>::getMergeResult() : different 'record' exits between 2 merge-candidates of VersionedObject");
-#if ENABLE_VERSIONEDOBJECT_DEBUG_LOG == 1
+#if FLAG_VERSIONEDOBJECT_DEBUG_LOG == 1
             std::ostringstream eoss;
             eoss << errMsg << " : forDate=" << converter::toStr_dbY(highPriorityDate);
             eoss << " : highPriorityDataset={ " << highPriorityDataset.toCSV();

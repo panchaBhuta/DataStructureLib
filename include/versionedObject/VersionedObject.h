@@ -1,7 +1,7 @@
 /*
  * versionedObject.h
  *
- * Version:  v1.4.0
+ * Version:  v1.4.2
  *
  * Copyright (C) 2023-2023 Gautam Dhar
  * All rights reserved.
@@ -26,7 +26,7 @@
 
 #define VERSIONEDOBJECT_VERSION_MAJOR 1
 #define VERSIONEDOBJECT_VERSION_MINOR 4
-#define VERSIONEDOBJECT_VERSION_PATCH 1
+#define VERSIONEDOBJECT_VERSION_PATCH 2
 
 
 
@@ -46,7 +46,7 @@
 #define VERSIONEDOBJECT_PREFERRED_PATH    std::filesystem::path(VERSIONEDOBJECT_FILE).make_preferred().string()
 
 
-#if ENABLE_VERSIONEDOBJECT_DEBUG_LOG == 1
+#if FLAG_VERSIONEDOBJECT_DEBUG_LOG == 1
   #define VERSIONEDOBJECT_DEBUG_LOG(aMessage) { std::cout << aMessage << " :: file:" << VERSIONEDOBJECT_PREFERRED_PATH << ":" << __LINE__ << std::endl; }
   #define VERSIONEDOBJECT_DEBUG_TRY_START try {
   #define VERSIONEDOBJECT_DEBUG_TRY_END   }
@@ -297,7 +297,7 @@ namespace versionedObject
       if( (!success) && (iter->second != newEntry) )  // different record exits in _datasetLedger
       {
         static std::string errMsg("ERROR : failure in VersionedObject<MT...>::insertVersion() : different record exits in _datasetLedger");
-#if ENABLE_VERSIONEDOBJECT_DEBUG_LOG == 1
+#if FLAG_VERSIONEDOBJECT_DEBUG_LOG == 1
         std::ostringstream eoss;
         eoss << errMsg << " : forDate=" << converter::toStr_dbY(forDate) << " : prevEntry={ " << iter->second.toLog();
         eoss << " } : newEntry={ metaData=" << newEntry.toLog() << " }";

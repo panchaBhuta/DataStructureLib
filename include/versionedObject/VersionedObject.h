@@ -1,12 +1,14 @@
 /*
  * versionedObject.h
  *
- * Version:  v1.4.2
+ * URL:      https://github.com/panchaBhuta/dataStructure
+ * Version:  v2.0.0
  *
  * Copyright (C) 2023-2023 Gautam Dhar
  * All rights reserved.
- * 
- * versionedObject is private and NOT licensed for public use.
+ *
+ * dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details. 
+ *
  */
 
 #pragma once
@@ -24,30 +26,10 @@
 
 #include <converter/converter.h>
 
-#define VERSIONEDOBJECT_VERSION_MAJOR 1
-#define VERSIONEDOBJECT_VERSION_MINOR 4
-#define VERSIONEDOBJECT_VERSION_PATCH 2
+#include <dataStructure.h>
 
-
-
-//  Project path is removed from the __FILE__
-//  Resulting file-path is relative path from project-root-folder.
-#if  VERSIONEDOBJECT_USE_FILEPREFIXMAP == 1
-  // the project-prefix-path is removed via compilation directive file-prefix-map
-  #define VERSIONEDOBJECT_FILE    __FILE__
-#else
-  // https://stackoverflow.com/questions/8487986/file-macro-shows-full-path/40947954#40947954
-  // the project-prefix-path is skipped by offsetting to length of project-prefix-path
-  //#define VERSIONEDOBJECT_FILE   (__FILE__ + VERSIONEDOBJECT_SOURCE_PATH_SIZE)  // gives lot of warnings on windows:clangCL
-  #define VERSIONEDOBJECT_FILE   &(__FILE__[VERSIONEDOBJECT_SOURCE_PATH_SIZE])
-#endif
-
-// to handle windows back-slash path seperator
-#define VERSIONEDOBJECT_PREFERRED_PATH    std::filesystem::path(VERSIONEDOBJECT_FILE).make_preferred().string()
-
-
-#if FLAG_VERSIONEDOBJECT_DEBUG_LOG == 1
-  #define VERSIONEDOBJECT_DEBUG_LOG(aMessage) { std::cout << aMessage << " :: file:" << VERSIONEDOBJECT_PREFERRED_PATH << ":" << __LINE__ << std::endl; }
+#if FLAG_VERSIONEDOBJECT_debug_log == 1
+  #define VERSIONEDOBJECT_DEBUG_LOG(aMessage) { std::cout << aMessage << " :: file:" << DATASTRUCTURE_PREFERRED_PATH << ":" << __LINE__ << std::endl; }
   #define VERSIONEDOBJECT_DEBUG_TRY_START try {
   #define VERSIONEDOBJECT_DEBUG_TRY_END   }
   #define VERSIONEDOBJECT_DEBUG_TRY_CATCH(EXCEPTION_TYPE)                             \
@@ -65,19 +47,6 @@
 
 namespace versionedObject
 {
-  /**
-   * @brief     Class representing Version number of the project.
-  */
-  static constexpr struct {
-    uint16_t major, minor, patch;
-  } version = {
-    VERSIONEDOBJECT_VERSION_MAJOR,
-    VERSIONEDOBJECT_VERSION_MINOR,
-    VERSIONEDOBJECT_VERSION_PATCH
-  };
-
-
-
   // SYMBOL,NAME OF COMPANY, SERIES, DATE OF LISTING, PAID UP VALUE, MARKET LOT, ISIN NUMBER, FACE VALUE
   // 20MICRONS,20 Microns Limited,BE,06-OCT-2008,5,1,INE144J01027,5
 
@@ -297,7 +266,7 @@ namespace versionedObject
       if( (!success) && (iter->second != newEntry) )  // different record exits in _datasetLedger
       {
         static std::string errMsg("ERROR : failure in VersionedObject<MT...>::insertVersion() : different record exits in _datasetLedger");
-#if FLAG_VERSIONEDOBJECT_DEBUG_LOG == 1
+#if FLAG_VERSIONEDOBJECT_debug_log == 1
         std::ostringstream eoss;
         eoss << errMsg << " : forDate=" << converter::toStr_dbY(forDate) << " : prevEntry={ " << iter->second.toLog();
         eoss << " } : newEntry={ metaData=" << newEntry.toLog() << " }";

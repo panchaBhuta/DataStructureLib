@@ -1,10 +1,10 @@
 #
-# URL:      https://github.com/panchaBhuta/versionedObject
+# URL:      https://github.com/panchaBhuta/dataStructure
 #
 # Copyright (c) 2023-2023 Gautam Dhar
 # All rights reserved.
 #
-# versionedObject is private and NOT licensed for public use.
+# dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details. 
 #
 
 if (CMAKE_VERSION VERSION_GREATER 3.10 OR CMAKE_VERSION VERSION_EQUAL 3.10)
@@ -23,23 +23,23 @@ set(windows_os "$<BOOL:${WIN32}>")
 
 
 
-function(versionedObject_getversion version_arg)
-    # Parse the current version from the versionedObject header
-    file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/include/versionedObject/VersionedObject.h" versionedObject_version_defines
-         REGEX "#define VERSIONEDOBJECT_VERSION_(MAJOR|MINOR|PATCH)")
-    foreach(ver ${versionedObject_version_defines})
-        if(ver MATCHES "#define VERSIONEDOBJECT_VERSION_(MAJOR|MINOR|PATCH) +([^ ]+)$")
-            set(VERSIONEDOBJECT_VERSION_${CMAKE_MATCH_1} "${CMAKE_MATCH_2}" CACHE INTERNAL "")
+function(dataStructure_getversion version_arg)
+    # Parse the current version from the dataStructure header
+    file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/include/dataStructure.h" dataStructure_version_defines
+         REGEX "#define DATASTRUCTURE_VERSION_(MAJOR|MINOR|PATCH)")
+    foreach(ver ${dataStructure_version_defines})
+        if(ver MATCHES "#define DATASTRUCTURE_VERSION_(MAJOR|MINOR|PATCH) +([^ ]+)$")
+            set(DATASTRUCTURE_VERSION_${CMAKE_MATCH_1} "${CMAKE_MATCH_2}" CACHE INTERNAL "")
         endif()
     endforeach()
-    set(VERSION ${VERSIONEDOBJECT_VERSION_MAJOR}.${VERSIONEDOBJECT_VERSION_MINOR}.${VERSIONEDOBJECT_VERSION_PATCH})
+    set(VERSION ${DATASTRUCTURE_VERSION_MAJOR}.${DATASTRUCTURE_VERSION_MINOR}.${DATASTRUCTURE_VERSION_PATCH})
 
     # Give feedback to the user. Prefer DEBUG when available since large projects tend to have a lot
     # going on already
     if (CMAKE_VERSION VERSION_GREATER 3.15 OR CMAKE_VERSION VERSION_EQUAL 3.15)
-        message(DEBUG "versionedObject version ${VERSION}")
+        message(DEBUG "dataStructure version ${VERSION}")
     else()
-        message(STATUS "versionedObject version ${VERSION}")
+        message(STATUS "dataStructure version ${VERSION}")
     endif()
 
     # Return the information to the caller
@@ -48,24 +48,24 @@ endfunction()
 
 #[==================================================================================[
 # Optionally, enable unicode support using the ICU library
-function(versionedObject_use_unicode)
+function(dataStructure_use_unicode)
     find_package(PkgConfig)
     pkg_check_modules(ICU REQUIRED icu-uc)
 
-    target_link_libraries(versionedObject INTERFACE ${ICU_LDFLAGS})
-    target_compile_options(versionedObject INTERFACE ${ICU_CFLAGS})
-    target_compile_definitions(versionedObject INTERFACE VERSIONEDOBJECT_USE_UNICODE)
+    target_link_libraries(dataStructure INTERFACE ${ICU_LDFLAGS})
+    target_compile_options(dataStructure INTERFACE ${ICU_CFLAGS})
+    target_compile_definitions(dataStructure INTERFACE DATASTRUCTURE_USE_UNICODE)
 endfunction()
 #]==================================================================================]
 
 # Request C++20 without gnu extension for the whole project and enable more warnings
-macro(versionedObject_set_cxx_standard)
-    # DOUBT : Q  : where does VERSIONEDOBJECT_CXX_STANDARD get set?
+macro(dataStructure_set_cxx_standard)
+    # DOUBT : Q  : where does DATASTRUCTURE_CXX_STANDARD get set?
     #         Ans: as this macro gets called only in standalone-mode,
-    #              VERSIONEDOBJECT_CXX_STANDARD might be set on command line
+    #              DATASTRUCTURE_CXX_STANDARD might be set on command line
     #              while invoking cmake !
-    if (VERSIONEDOBJECT_CXX_STANDARD)
-        set(CMAKE_CXX_STANDARD ${VERSIONEDOBJECT_CXX_STANDARD})
+    if (DATASTRUCTURE_CXX_STANDARD)
+        set(CMAKE_CXX_STANDARD ${DATASTRUCTURE_CXX_STANDARD})
     else()
         #  --std=gnu++2a
         set(CMAKE_CXX_STANDARD 20)
@@ -81,7 +81,7 @@ macro(fetch_dependencies)
     set(CONVERTERLIB "converter")  # local-variable
     # https://stackoverflow.com/questions/29892929/variables-set-with-parent-scope-are-empty-in-the-corresponding-child-scope-why
     #set(CONVERTERLIB ${CONVERTERLIB} PARENT_SCOPE)  # global-variable
-    set_target_properties(versionedObject PROPERTIES CONVERTERLIB ${CONVERTERLIB})  # global-variable
+    set_target_properties(dataStructure PROPERTIES CONVERTERLIB ${CONVERTERLIB})  # global-variable
 
     include( FetchContent )
     FetchContent_Declare( ${CONVERTERLIB}
@@ -114,31 +114,31 @@ endmacro()
   https://gcc.gnu.org/onlinedocs/gcc/Preprocessor-Options.html#index-fmacro-prefix-map
   https://gcc.gnu.org/onlinedocs/gcc/Overall-Options.html#index-ffile-prefix-map
 #]===========]
-macro(versionedObject_check_cxx_compiler_flag_file_prefix_map)
+macro(dataStructure_check_cxx_compiler_flag_file_prefix_map)
     include(CheckCXXCompilerFlag)
     check_cxx_compiler_flag(-ffile-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}=.
                             cxx_compiler_file_prefix_map
                            )
     if(cxx_compiler_file_prefix_map)
-        message(STATUS "versionedObject : compiler option '-ffile-prefix-map=old=new' SUPPORTED")
-        target_compile_definitions(versionedObject INTERFACE
-                                        VERSIONEDOBJECT_USE_FILEPREFIXMAP=1)
+        message(STATUS "dataStructure : compiler option '-ffile-prefix-map=old=new' SUPPORTED")
+        target_compile_definitions(dataStructure INTERFACE
+                                        DATASTRUCTURE_USE_FILEPREFIXMAP=1)
 
-        target_compile_options(versionedObject INTERFACE
+        target_compile_options(dataStructure INTERFACE
             "-ffile-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}${_path_separator}=")
     else()
         # as of writing this code, clang does not support option '-ffile-prefix-map=...'
-        message(STATUS "versionedObject : compiler option '-ffile-prefix-map=old=new' NOT SUPPORTED")
-        string(LENGTH "${CMAKE_CURRENT_SOURCE_DIR}/" VERSIONEDOBJECT_SOURCE_PATH_SIZE)
-        target_compile_definitions(versionedObject INTERFACE
-                                        VERSIONEDOBJECT_USE_FILEPREFIXMAP=0
+        message(STATUS "dataStructure : compiler option '-ffile-prefix-map=old=new' NOT SUPPORTED")
+        string(LENGTH "${CMAKE_CURRENT_SOURCE_DIR}/" DATASTRUCTURE_SOURCE_PATH_SIZE)
+        target_compile_definitions(dataStructure INTERFACE
+                                        DATASTRUCTURE_USE_FILEPREFIXMAP=0
         # https://stackoverflow.com/questions/8487986/file-macro-shows-full-path/40947954#40947954
-                                        VERSIONEDOBJECT_SOURCE_PATH_SIZE=${VERSIONEDOBJECT_SOURCE_PATH_SIZE})
+                                        DATASTRUCTURE_SOURCE_PATH_SIZE=${DATASTRUCTURE_SOURCE_PATH_SIZE})
     endif()
 endmacro()
 
 # Helper function to enable warnings
-macro(versionedObject_enable_warnings)
+macro(dataStructure_enable_warnings)
     set(gcc_warnings "-Wextra;-Wpedantic;-Wshadow;-Wpointer-arith")
     set(gcc_warnings "${gcc_warnings};-Wcast-qual;-Wno-missing-braces;-Wswitch-default;-Wcast-align;-Winit-self")
     set(gcc_warnings "${gcc_warnings};-Wunreachable-code;-Wundef;-Wuninitialized;-Wold-style-cast;-Wwrite-strings")
@@ -154,7 +154,7 @@ macro(versionedObject_enable_warnings)
     # Consumers of our installed project should not inherit our warning flags.
     # To specify this, we wrap our flags in a generator expression using the BUILD_INTERFACE condition.
     #]==================================================================================]
-    target_compile_options(versionedObject INTERFACE
+    target_compile_options(dataStructure INTERFACE
         "$<${gcc_like_cxx}:$<BUILD_INTERFACE:${gcc_warnings}>>"
         "$<$<AND:${gcc_like_cxx},$<NOT:${windows_os_clang_cxx}>>:$<BUILD_INTERFACE:-Wall>>" # -Wall for 'windows_os_clang_cxx' gives lot of warnings
         "$<${gcc_cxx_v5_or_later}:$<BUILD_INTERFACE:-Wsuggest-override>>"
@@ -168,11 +168,11 @@ macro(versionedObject_enable_warnings)
 endmacro()
 
 # Helper function to configure, include, compile, link, build
-macro(versionedObject_build)
+macro(dataStructure_build)
 
     # Build type
     set(DEFAULT_BUILD_TYPE "Release")
-    if (VERSIONEDOBJECT_STANDALONE_PROJECT)
+    if (DATASTRUCTURE_STANDALONE_PROJECT)
         set(DEFAULT_BUILD_TYPE "Debug")
     endif()
     if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -183,20 +183,20 @@ macro(versionedObject_build)
     endif()
 
     set(_DEBUG_LOG OFF)
-    if (VERSIONEDOBJECT_STANDALONE_PROJECT AND
+    if (DATASTRUCTURE_STANDALONE_PROJECT AND
         CMAKE_BUILD_TYPE STREQUAL "Debug")
             set(_DEBUG_LOG ON)
     endif()
     #message(STATUS "_DEBUG_LOG=${_DEBUG_LOG}")
     # for _DEBUG_LOG can't use generator-expression as its computed during build-stage, but we need it during config-stage
-    option(OPTION_VERSIONEDOBJECT_DEBUG_LOG  "Set to ON for debugging logs"  ${_DEBUG_LOG})
-    message(STATUS "OPTION_VERSIONEDOBJECT_DEBUG_LOG=${OPTION_VERSIONEDOBJECT_DEBUG_LOG}")
+    option(OPTION_VERSIONEDOBJECT_debug_log  "Set to ON for debugging logs"  ${_DEBUG_LOG})
+    message(STATUS "OPTION_VERSIONEDOBJECT_debug_log=${OPTION_VERSIONEDOBJECT_debug_log}")
     #[===========[  donot use generator-expressions in option() functions
-    # option(OPTION_VERSIONEDOBJECT_DEBUG_LOG  "Set to ON for debugging logs"   "$<AND:$<CONFIG:Debug>,$<VERSIONEDOBJECT_STANDALONE_PROJECT>>")
+    # option(OPTION_VERSIONEDOBJECT_debug_log  "Set to ON for debugging logs"   "$<AND:$<CONFIG:Debug>,$<DATASTRUCTURE_STANDALONE_PROJECT>>")
     #]===========]
 
     #[==================================================================================[
-    add_subdirectory(include)  ??? is it needed ; if so then with include/versionedObject
+    add_subdirectory(include)  ??? is it needed ; if so then with include/dataStructure
     # NOT needed, as target_include_directories() can be called here, instead of
     # being called from include/CMakeLists.txt (refer cxxopts which which does this)
     #]==================================================================================]
@@ -209,7 +209,7 @@ macro(versionedObject_build)
     # wraps requirements which are only used when consumed from a target which has been
     # installed and exported with the install(EXPORT) command
     #]==================================================================================]
-    target_include_directories(versionedObject INTERFACE
+    target_include_directories(dataStructure INTERFACE
         # BUILD_INTERFACE: Content of ... when the property is exported using export(), or when the
         # target is used by another target in the same buildsystem. Expands to the empty string otherwise.
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -217,24 +217,24 @@ macro(versionedObject_build)
         # INSTALL_INTERFACE: Content of ... when the property is exported using install(EXPORT), and empty otherwise.
         $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
     # refer https://cmake.org/cmake/help/latest/manual/cmake-generator-expressions.7.html#introduction
-    #target_include_directories(versionedObject INTERFACE
+    #target_include_directories(dataStructure INTERFACE
     #    "$<$<BOOL:${CMAKE_HOST_UNIX}>:/opt/include/$<CXX_COMPILER_ID>>")
 
-    target_compile_definitions(versionedObject INTERFACE
+    target_compile_definitions(dataStructure INTERFACE
         $<$<CONFIG:Debug>:DEBUG_BUILD>
         $<$<CONFIG:Release>:RELEASE_BUILD>
-        FLAG_VERSIONEDOBJECT_DEBUG_LOG=$<BOOL:${OPTION_VERSIONEDOBJECT_DEBUG_LOG}>)
+        FLAG_VERSIONEDOBJECT_debug_log=$<BOOL:${OPTION_VERSIONEDOBJECT_debug_log}>)
     #[==================================================================================[
     # refer https://cmake.org/cmake/help/v3.27/manual/cmake-generator-expressions.7.html#genex:COMPILE_LANG_AND_ID
     # This specifies the use of different compile definitions based on both the compiler id and compilation language.
     # This example will have a COMPILING_CXX_WITH_CLANG compile definition when Clang is the CXX compiler, and
     # COMPILING_CXX_WITH_INTEL when Intel is the CXX compiler.
-    target_compile_definitions(versionedObject INTERFACE
+    target_compile_definitions(dataStructure INTERFACE
                 $<$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang>:COMPILING_CXX_WITH_CLANG>
                 $<$<COMPILE_LANG_AND_ID:CXX,Intel>:COMPILING_CXX_WITH_INTEL>)
     #]==================================================================================]
 
-    target_compile_features(versionedObject INTERFACE
+    target_compile_features(dataStructure INTERFACE
         cxx_constexpr
         cxx_variadic_templates
         cxx_long_long_type)
@@ -249,7 +249,7 @@ macro(versionedObject_build)
     # This specifies the use of different link libraries based on both the compiler id and link language.
     # This example will have target libCXX_Clang as link dependency when Clang or AppleClang is the CXX linker,
     # and libCXX_Intel when Intel is the CXX linker.
-    target_link_libraries(versionedObject INTERFACE
+    target_link_libraries(dataStructure INTERFACE
                 $<$<LINK_LANG_AND_ID:CXX,Clang,AppleClang>:libCXX_Clang>
                 $<$<LINK_LANG_AND_ID:CXX,Intel>:libCXX_Intel>)
 
@@ -261,7 +261,7 @@ macro(versionedObject_build)
         # add_executable(consumer consumer.cpp)
         # target_link_libraries(consumer archiveExtras)    <<<< NOTE: for executable no scope specified, and the dependency becomes 'transitive'
     #]==================================================================================]
-    message(STATUS "'versionedObject' linking to '${CONVERTERLIB}'")
+    message(STATUS "'dataStructure' linking to '${CONVERTERLIB}'")
         #[======================[
         # https://cmake.org/cmake/help/latest/command/target_link_libraries.html#libraries-for-a-target-and-or-its-dependents
         # The PUBLIC, PRIVATE and INTERFACE scope keywords can be used to specify both the
@@ -272,22 +272,22 @@ macro(versionedObject_build)
                         <PRIVATE|PUBLIC|INTERFACE> <item>...
                         [<PRIVATE|PUBLIC|INTERFACE> <item>...]...)
         #]======================]
-    target_link_libraries(versionedObject INTERFACE ${CONVERTERLIB})
+    target_link_libraries(dataStructure INTERFACE ${CONVERTERLIB})
 endmacro()
 
 # Helper function to ecapsulate install logic
-function(versionedObject_install_logic)
+function(dataStructure_install_logic)
     if(CMAKE_LIBRARY_ARCHITECTURE)
         string(REPLACE "/${CMAKE_LIBRARY_ARCHITECTURE}" "" CMAKE_INSTALL_LIBDIR_ARCHIND "${CMAKE_INSTALL_LIBDIR}")
     else()
         # On some systems (e.g. NixOS), `CMAKE_LIBRARY_ARCHITECTURE` can be empty
         set(CMAKE_INSTALL_LIBDIR_ARCHIND "${CMAKE_INSTALL_LIBDIR}")
     endif()
-    set(VERSIONEDOBJECT_CMAKE_DIR "${CMAKE_INSTALL_LIBDIR_ARCHIND}/cmake/versionedObject"
+    set(DATASTRUCTURE_CMAKE_DIR "${CMAKE_INSTALL_LIBDIR_ARCHIND}/cmake/dataStructure"
         CACHE STRING "Installation directory for cmake files, relative to ${CMAKE_INSTALL_PREFIX}.")
     # PROJECT_BINARY_DIR : the binary directory of the most recent project() command.
-    set(version_config "${PROJECT_BINARY_DIR}/versionedObject-config-version.cmake")
-    set(project_config "${PROJECT_BINARY_DIR}/versionedObject-config.cmake")
+    set(version_config "${PROJECT_BINARY_DIR}/dataStructure-config-version.cmake")
+    set(project_config "${PROJECT_BINARY_DIR}/dataStructure-config.cmake")
     #[==================================================================================[
     # Note :The installed <export-name>.cmake file may come with additional
     # per-configuration <export-name>-*.cmake files to be loaded by globbing.
@@ -296,7 +296,7 @@ function(versionedObject_install_logic)
     # latter may be incorrectly matched by the glob and loaded.
     # https://cmake.org/cmake/help/v3.27/command/install.html#export
     #]==================================================================================]
-    set(targets_export_name versionedObject-export)
+    set(targets_export_name dataStructure-export)
     set(PackagingTemplatesDir "${PROJECT_SOURCE_DIR}/packaging")
 
 
@@ -319,14 +319,14 @@ function(versionedObject_install_logic)
     # https://cmake.org/cmake/help/v3.27/module/CMakePackageConfigHelpers.html
     #]==================================================================================]
     configure_package_config_file(
-        ${PackagingTemplatesDir}/versionedObject-config.cmake.in
+        ${PackagingTemplatesDir}/dataStructure-config.cmake.in
         ${project_config}
-        INSTALL_DESTINATION ${VERSIONEDOBJECT_CMAKE_DIR})
+        INSTALL_DESTINATION ${DATASTRUCTURE_CMAKE_DIR})
 
     # Install version, config and target files.
     install(
         FILES       ${project_config} ${version_config}
-        DESTINATION ${VERSIONEDOBJECT_CMAKE_DIR})
+        DESTINATION ${DATASTRUCTURE_CMAKE_DIR})
 
 
 
@@ -335,9 +335,9 @@ function(versionedObject_install_logic)
     # File set(s) are defined here.
     # https://cmake.org/cmake/help/v3.27/command/target_sources.html#file-sets
     #]==================================================================================]
-    target_sources(versionedObject
+    target_sources(dataStructure
         INTERFACE
-        FILE_SET   versionedObject_headers
+        FILE_SET   dataStructure_headers
         TYPE       HEADERS
         BASE_DIRS  include)
     #[==================================================================================[
@@ -353,10 +353,10 @@ function(versionedObject_install_logic)
     # must be specified with FILE_SET arguments. All PUBLIC or INTERFACE file sets associated
     # with a target are included in the export.
     #]==================================================================================]
-    install(TARGETS      versionedObject
+    install(TARGETS      dataStructure
                          ${CONVERTERLIB} # not needed
         EXPORT           ${targets_export_name}
-        FILE_SET         versionedObject_headers
+        FILE_SET         dataStructure_headers
         DESTINATION      ${CMAKE_INSTALL_INCLUDEDIR})
     #[==================================================================================[
     # https://cmake.org/cmake/help/v3.27/command/install.html#export
@@ -378,8 +378,8 @@ function(versionedObject_install_logic)
     # This way, CMake can issue a diagnostic if the package providing it has not yet been found.
     #]==================================================================================]
     install(EXPORT    ${targets_export_name}
-        DESTINATION   ${VERSIONEDOBJECT_CMAKE_DIR}
-        NAMESPACE     versionedObject::)
+        DESTINATION   ${DATASTRUCTURE_CMAKE_DIR}
+        NAMESPACE     dataStructure::)
     #[==================================================================================[
     export(EXPORT ${targets_export_name} ....)  not needed to be called, reason as per below.
     # https://cmake.org/cmake/help/v3.27/command/export.html#exporting-targets-matching-install-export
@@ -390,30 +390,30 @@ function(versionedObject_install_logic)
     #]==================================================================================]
 
     # https://cmake.org/cmake/help/v3.27/command/install.html
-    install(TARGETS         versionedObject
+    install(TARGETS         dataStructure
         CONFIGURATIONS      Debug
         #RUNTIME DESTINATION Debug/bin
-    	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/versionedObject)
-    install(TARGETS         versionedObject
+    	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dataStructure)
+    install(TARGETS         dataStructure
         CONFIGURATIONS      Release
         #RUNTIME DESTINATION Release/bin
-    	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/versionedObject)
+    	PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/dataStructure)
 
 
     # https://cmake.org/cmake/help/v3.27/command/export.html#command:export
     # Export targets or packages for outside projects to use them
     # directly from the current project's build tree, without installation.
-    export(TARGETS versionedObject
+    export(TARGETS dataStructure
                    ${CONVERTERLIB} # needed : donot comment
-        NAMESPACE  versionedObject::
+        NAMESPACE  dataStructure::
         FILE       ${PROJECT_BINARY_DIR}/${targets_export_name}.cmake)
 
     set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
-    set(CPACK_PACKAGE_VENDOR "versionedObject developers")
+    set(CPACK_PACKAGE_VENDOR "dataStructure developers")
     set(CPACK_PACKAGE_DESCRIPTION "${PROJECT_DESCRIPTION}")
     set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
-    set(CPACK_PACKAGE_VERSION_MAJOR "${VERSIONEDOBJECT_VERSION_MAJOR}")
-    set(CPACK_PACKAGE_VERSION_MINOR "${VERSIONEDOBJECT_VERSION_MINOR}")
+    set(CPACK_PACKAGE_VERSION_MAJOR "${DATASTRUCTURE_VERSION_MAJOR}")
+    set(CPACK_PACKAGE_VERSION_MINOR "${DATASTRUCTURE_VERSION_MINOR}")
     set(CPACK_SOURCE_GENERATOR "TGZ")
 
     set(CPACK_DEBIAN_PACKAGE_NAME "${CPACK_PACKAGE_NAME}")
@@ -448,5 +448,5 @@ function(versionedObject_install_logic)
 
 
     # Uninstall
-    add_custom_target(uninstall COMMAND "${CMAKE_COMMAND}" -E remove "${CMAKE_INSTALL_PREFIX}/include/versionedObject")
+    add_custom_target(uninstall COMMAND "${CMAKE_COMMAND}" -E remove "${CMAKE_INSTALL_PREFIX}/include/dataStructure")
 endfunction()

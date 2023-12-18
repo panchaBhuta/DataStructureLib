@@ -1,10 +1,10 @@
 #
-# URL:      https://github.com/panchaBhuta/versionedObject
+# URL:      https://github.com/panchaBhuta/dataStructure
 #
 # Copyright (c) 2023-2023 Gautam Dhar
 # All rights reserved.
 #
-# versionedObject is private and NOT licensed for public use.
+# dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details. 
 #
 
 
@@ -18,7 +18,7 @@ macro(add_unit_test testname)
     FILE(GLOB sources ${testname}*.cpp)
     add_executable(${testname} ${sources})
     add_test(NAME ${testname} COMMAND "${PROJECT_BINARY_DIR}/tests/${testname}")
-    target_link_libraries(${testname} versionedObject) # donot specify PUBLIC here,
+    target_link_libraries(${testname} dataStructure) # donot specify PUBLIC here,
     # executable ${testname} has to have transitive association to all its dependencies(aka library chain)
     # refer   https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html#target-usage-requirements
     # refer   https://cmake.org/cmake/help/latest/command/target_link_libraries.html#libraries-for-a-target-and-or-its-dependents
@@ -33,7 +33,7 @@ macro(add_perf_test testname)
     FILE(GLOB sources ${testname}*.cpp)
     add_executable(${testname} ${sources})
     add_test(NAME ${testname} COMMAND "${PROJECT_BINARY_DIR}/tests/${testname}")
-    target_link_libraries(${testname} versionedObject) # donot specify PUBLIC here,
+    target_link_libraries(${testname} dataStructure) # donot specify PUBLIC here,
     # executable ${testname} has to have transitive association to all its dependencies(aka library chain)
     # refer   https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html#target-usage-requirements
     # refer   https://cmake.org/cmake/help/latest/command/target_link_libraries.html#libraries-for-a-target-and-or-its-dependents

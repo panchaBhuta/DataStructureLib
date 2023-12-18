@@ -1,12 +1,14 @@
 /*
  * VersionedObjectPriorityMerge.h
  *
- * Version:  v1.4.0
+ * URL:      https://github.com/panchaBhuta/dataStructure
+ * Version:  v2.0.0
  *
  * Copyright (C) 2023-2023 Gautam Dhar
  * All rights reserved.
  *
- * VersionedObjectBuilder is private and NOT licensed for public use.
+ * dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details. 
+ *
  */
 
 #pragma once
@@ -56,7 +58,7 @@ namespace versionedObject
             ++iterLowrPriorityVO;
           } else {
             static std::string errMsg("ERROR : failure in VersionedObjectPriorityMerge<MT...>::getMergeResult() : different 'record' exits between 2 merge-candidates of VersionedObject");
-#if FLAG_VERSIONEDOBJECT_DEBUG_LOG == 1
+#if FLAG_VERSIONEDOBJECT_debug_log == 1
             std::ostringstream eoss;
             eoss << errMsg << " : forDate=" << converter::toStr_dbY(highPriorityDate);
             eoss << " : highPriorityDataset={ " << highPriorityDataset.toCSV();

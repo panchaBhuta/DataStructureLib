@@ -140,8 +140,8 @@ if [[ "${BUILD}" == "1" ]]; then
   elif [ "${OS}" == "Darwin" ]; then
     MAKEARGS="-j$(sysctl -n hw.ncpu)"
   fi
-  mkdir -p build-debug && cd build-debug && cmake -DVERSIONEDOBJECT_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug .. && cmake --build . ${MAKEARGS} && cd .. && \
-  mkdir -p build-release && cd build-release && cmake -DVERSIONEDOBJECT_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release .. && cmake --build . ${MAKEARGS} && cd .. || \
+  mkdir -p build-debug && cd build-debug && cmake -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug .. && cmake --build . ${MAKEARGS} && cd .. && \
+  mkdir -p build-release && cd build-release && cmake -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release .. && cmake --build . ${MAKEARGS} && cd .. || \
   exiterr "build failed, exiting."
 fi
 

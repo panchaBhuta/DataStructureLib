@@ -7,7 +7,7 @@
 #include <versionedObject/VersionedObject.h>
 #include <versionedObject/VersionedObjectPriorityMerge.h>
 
-#include "unittest.h"
+#include "../unittest.h"
 
 /*
 SYMBOL, NAME OF COMPANY, SERIES, DATE OF LISTING, PAID UP VALUE, MARKET LOT, ISIN NUMBER, FACE VALUE

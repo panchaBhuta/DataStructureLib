@@ -61,10 +61,10 @@ namespace bimap
     //inline std::pair<const_lefttMapIterator, InsertResult> insert_left(const LEFTT& lefttKey, const RIGHT& rightKey)
     inline std::pair<const_lefttMapIterator, bool> insert_left(const LEFTT& lefttKey, const RIGHT& rightKey)
     {
+      // Returns an iterator pointing to the first element that is not less than (i.e. greater or equal to) key.
       const_lefttMapIterator lbSearchLefttMap = _cLefttMap.lower_bound(lefttKey);
 
-      if( ( lbSearchLefttMap == _cLefttMap.cbegin() ) ||
-          // Returns an iterator pointing to the first element that is not less than (i.e. greater or equal to) key.
+      if( ( lbSearchLefttMap == _cLefttMap.cend() ) ||
           ( lefttKey < (lbSearchLefttMap->first) ))
       {
         // lefttKey NOT present in _lefttMap
@@ -182,7 +182,7 @@ namespace bimap
     {
       const_lefttMapIterator lbSearchRight_Map = _cRight_Map.lower_bound(right_Key);
 
-      if( ( lbSearchRight_Map == _cRight_Map.cbegin() ) ||
+      if( ( lbSearchRight_Map == _cRight_Map.cend() ) ||
           // Returns an iterator pointing to the first element that is not less than (i.e. greater or equal to) key.
           ( right_Key < (lbSearchRight_Map->first) ))
       {

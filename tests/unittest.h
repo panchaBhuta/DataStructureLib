@@ -6,6 +6,9 @@
 #include <io.h>
 #endif
 
+#include <cmath>
+#include <cstdlib>
+
 #include <fstream>
 #include <iomanip>
 #include <string>

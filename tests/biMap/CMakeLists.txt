@@ -46,6 +46,7 @@ endmacro(add_perf_test)
 
 # Unit tests
 add_unit_test(testBiMap_LR11_RL11)
+add_unit_test(testBiMap_LR1M_RL11)
 
 
 #[======================[

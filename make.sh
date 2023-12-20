@@ -59,13 +59,13 @@ case "${1%/}" in
 
   *)
     echo "usage: make.sh <deps|include|build|tests|doc|install|all>"
-    echo "  deps      - install project dependencies"
-    echo "  include   - reformat source code"
-    echo "  build     - perform build"
-    echo "  tests     - perform build and run tests"
-    echo "  doc       - perform build and generate documentation"
-    echo "  install   - perform build and install"
-    echo "  all       - perform all actions above"
+    echo "  deps                - install project dependencies"
+    echo "  include             - reformat source code"
+    echo "  build               - perform build"
+    echo "  tests  [testName]   - perform build and run tests. optional [testName] to run a single test."
+    echo "  doc                 - perform build and generate documentation"
+    echo "  install             - perform build and install"
+    echo "  all                 - perform all actions above"
     exit 1
     ;;
 esac
@@ -154,9 +154,10 @@ if [[ "${TESTS}" == "1" ]]; then
   elif [ "${OS}" == "Darwin" ]; then
     CTESTARGS="-j$(sysctl -n hw.ncpu)"
   fi
-  #cd build-debug && ctest --output-on-failure ${CTESTARGS} && cd .. && \
-  cd build-debug && ctest --verbose ${CTESTARGS} && cd .. && \
-  cd build-release && ctest --verbose && cd .. || \
+  #  https://stackoverflow.com/questions/28678505/add-command-arguments-using-inline-if-statement-in-bash/28678587#28678587
+  #cd build-debug && ctest --output-on-failure ${CTESTARGS} $( (( $# == 2 )) && printf "%s %s" "-R" "${2}" ) && cd .. && \
+  cd build-debug && ctest --verbose ${CTESTARGS} $( (( $# == 2 )) && printf "%s %s" "-R" "${2}" ) && cd .. && \
+  cd build-release && ctest --verbose ${CTESTARGS} $( (( $# == 2 )) && printf "%s %s" "-R" "${2}" ) && cd .. || \
   exiterr "tests failed, exiting."
 fi
 

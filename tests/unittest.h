@@ -16,6 +16,9 @@
 #include <type_traits>
 #include <chrono>
 
+#include <map>
+#include <set>
+
 #define COMMA ,
 
 #define ExpectEqual(t, a, b) ExpectEqualFun<t>(a, b, #a, #b, __FILE__, __LINE__)
@@ -178,6 +181,21 @@ namespace unittest
       oss << std::setfill('0') << std::setw(2) << static_cast<unsigned>(val.month()) << "-";
       oss << std::setfill('0') << std::setw(2) << static_cast<unsigned>(val.day());
 
+      return oss.str();
+    }
+  };
+
+  template<>
+  struct SScompatible<std::set<std::string>> {
+    inline static std::string getVal(const std::set<std::string>& val)
+    {
+      std::ostringstream oss;
+      oss << "set{";
+      for(const std::string& sst : val)
+      {
+        oss << sst << ",";
+      }
+      oss << "}";
       return oss.str();
     }
   };

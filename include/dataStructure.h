@@ -17,7 +17,7 @@
 #define DATASTRUCTURE_VERSION_MINOR 4
 #define DATASTRUCTURE_VERSION_PATCH 2
 
-
+#include <filesystem>
 
 //  Project path is removed from the __FILE__
 //  Resulting file-path is relative path from project-root-folder.

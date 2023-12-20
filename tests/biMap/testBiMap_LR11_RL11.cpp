@@ -26,30 +26,41 @@ int main()
     insertIter = insertResult.first;
     unittest::ExpectEqual(int, 2, insertIter->first);
     unittest::ExpectEqual(std::string, "BBBB", insertIter->second);
+    unittest::ExpectTrue(indxName.size_left() == 1);
+    unittest::ExpectTrue(indxName.size_right() == 1);
 
     insertResult = indxName.insert_left(1, "AAAA");
     unittest::ExpectTrue(insertResult.second);
     insertIter = insertResult.first;
     unittest::ExpectEqual(int, 1, insertIter->first);
     unittest::ExpectEqual(std::string, "AAAA", insertIter->second);
+    unittest::ExpectTrue(indxName.size_left() == 2);
+    unittest::ExpectTrue(indxName.size_right() == 2);
 
     insertResult = indxName.insert_left(3, "CCCC");
     unittest::ExpectTrue(insertResult.second);
     insertIter = insertResult.first;
     unittest::ExpectEqual(int, 3, insertIter->first);
     unittest::ExpectEqual(std::string, "CCCC", insertIter->second);
+    unittest::ExpectTrue(indxName.size_left() == 3);
+    unittest::ExpectTrue(indxName.size_right() == 3);
 
     insertResult = indxName.insert_left(5, "EEEE");
     unittest::ExpectTrue(insertResult.second);
     insertIter = insertResult.first;
     unittest::ExpectEqual(int, 5, insertIter->first);
     unittest::ExpectEqual(std::string, "EEEE", insertIter->second);
+    unittest::ExpectTrue(indxName.size_left() == 4);
+    unittest::ExpectTrue(indxName.size_right() == 4);
 
     insertResult = indxName.insert_left(4, "DDDD");
     unittest::ExpectTrue(insertResult.second);
     insertIter = insertResult.first;
     unittest::ExpectEqual(int, 4, insertIter->first);
     unittest::ExpectEqual(std::string, "DDDD", insertIter->second);
+
+    unittest::ExpectTrue(indxName.size_left() == 5);
+    unittest::ExpectTrue(indxName.size_right() == 5);
 
     /////////      left-right  pair exists 
 
@@ -65,6 +76,9 @@ int main()
     unittest::ExpectEqual(int, 4, insertIter->first);
     unittest::ExpectEqual(std::string, "DDDD", insertIter->second);
 
+    unittest::ExpectTrue(indxName.size_left() == 5);
+    unittest::ExpectTrue(indxName.size_right() == 5);
+
     /////////         left-exists : right-doesn't
 
     insertResult = indxName.insert_left(1, "XXXX");
@@ -78,6 +92,9 @@ int main()
     insertIter = insertResult.first;
     unittest::ExpectEqual(int, 5, insertIter->first);
     unittest::ExpectEqual(std::string, "EEEE", insertIter->second);
+
+    unittest::ExpectTrue(indxName.size_left() == 5);
+    unittest::ExpectTrue(indxName.size_right() == 5);
 
     ////////     even though both left & right exits but not paired-together,
     ////////     then left-comparison takes precedence
@@ -101,23 +118,29 @@ int main()
     unittest::ExpectEqual(int, 5, insertIter->first);
     unittest::ExpectEqual(std::string, "EEEE", insertIter->second);
 
+    unittest::ExpectTrue(indxName.size_left() == 5);
+    unittest::ExpectTrue(indxName.size_right() == 5);
 
-//////     tests for    find_left  and  isLeft_end
+
+//////     tests for    find_left
 
     decltype(indxName)::const_lefttMapIterator
     searchResultL = indxName.find_left(1);
     unittest::ExpectEqual(int, 1, searchResultL->first);
     unittest::ExpectEqual(std::string, "AAAA", searchResultL->second);
+    unittest::ExpectTrue(!indxName.isLeft_end(searchResultL));
 
     searchResultL = indxName.find_left(3);
     unittest::ExpectEqual(int, 3, searchResultL->first);
     unittest::ExpectEqual(std::string, "CCCC", searchResultL->second);
+    unittest::ExpectTrue(!indxName.isLeft_end(searchResultL));
 
     searchResultL = indxName.find_left(5);
     unittest::ExpectEqual(int, 5, searchResultL->first);
     unittest::ExpectEqual(std::string, "EEEE", searchResultL->second);
+    unittest::ExpectTrue(!indxName.isLeft_end(searchResultL));
 
-//////     tests for    find_right  and  isRight_end
+//////     tests for    isLeft_end
 
     searchResultL = indxName.find_left(0);
     unittest::ExpectTrue(indxName.isLeft_end(searchResultL));
@@ -126,32 +149,31 @@ int main()
     unittest::ExpectTrue(indxName.isLeft_end(searchResultL));
 
 
-//////     tests for    find_right  and  isRight_end
+//////     tests for    find_right
 
     decltype(indxName)::const_rightMapIterator
     searchResultR = indxName.find_right("AAAA");
     unittest::ExpectEqual(std::string, "AAAA", searchResultR->first);
     unittest::ExpectEqual(int, 1, searchResultR->second);
+    unittest::ExpectTrue(!indxName.isRight_end(searchResultR));
 
     searchResultR = indxName.find_right("CCCC");
     unittest::ExpectEqual(std::string, "CCCC", searchResultR->first);
     unittest::ExpectEqual(int, 3, searchResultR->second);
+    unittest::ExpectTrue(!indxName.isRight_end(searchResultR));
 
     searchResultR = indxName.find_right("EEEE");
     unittest::ExpectEqual(std::string, "EEEE", searchResultR->first);
     unittest::ExpectEqual(int, 5, searchResultR->second);
+    unittest::ExpectTrue(!indxName.isRight_end(searchResultR));
 
-//////     tests for    find_right  and  isRight_end
+//////     tests for    isRight_end
 
     searchResultR = indxName.find_right("aaaa");
     unittest::ExpectTrue(indxName.isRight_end(searchResultR));
 
     searchResultR = indxName.find_right("eeee");
     unittest::ExpectTrue(indxName.isRight_end(searchResultR));
-
-
-
-
 
   } catch (const std::exception& ex) {
     std::cout << ex.what() << std::endl;

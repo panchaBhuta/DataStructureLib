@@ -19,7 +19,7 @@
 #include <versionedObject/VersionedObject.h>
 
 
-namespace versionedObject
+namespace datastructure { namespace versionedObject
 {
   template <typename ... MT>
   class VersionedObjectPriorityMerge
@@ -97,4 +97,4 @@ namespace versionedObject
     const t_versionedObject& _highPriorityVersionedObject;
     const t_versionedObject& _lowrPriorityVersionedObject;
   };
-}
+} }  //  datastructure::versionedObject

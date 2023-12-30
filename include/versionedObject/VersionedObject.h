@@ -2,7 +2,7 @@
  * versionedObject.h
  *
  * URL:      https://github.com/panchaBhuta/dataStructure
- * Version:  v2.0.0
+ * Version:  v2.1.1
  *
  * Copyright (C) 2023-2023 Gautam Dhar
  * All rights reserved.
@@ -45,7 +45,7 @@
 #endif
 
 
-namespace versionedObject
+namespace datastructure { namespace versionedObject
 {
   // SYMBOL,NAME OF COMPANY, SERIES, DATE OF LISTING, PAID UP VALUE, MARKET LOT, ISIN NUMBER, FACE VALUE
   // 20MICRONS,20 Microns Limited,BE,06-OCT-2008,5,1,INE144J01027,5
@@ -337,4 +337,4 @@ namespace versionedObject
     }
   };
 
-}
+} }   //  namespace datastructure::versionedObject

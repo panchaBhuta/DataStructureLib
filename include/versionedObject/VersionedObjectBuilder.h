@@ -18,7 +18,7 @@
 #include <versionedObject/VersionedObject.h>
 
 
-namespace versionedObject
+namespace datastructure { namespace versionedObject
 {
 
   template <typename ... T>
@@ -531,4 +531,4 @@ namespace versionedObject
     }
   };
 
-}
+} }  //  datastructure::versionedObject

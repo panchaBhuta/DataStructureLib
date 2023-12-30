@@ -8,12 +8,14 @@
 
 #include "../unittest.h"
 
+namespace dsbm = datastructure::bimap;
+
 
 int main()
 {
   int rv = 0;
   try {
-    bimap::BiMap_LR1M_RL11<int,std::string> indxNames;
+    dsbm::BiMap_LR1M_RL11<int,std::string> indxNames;
 
 //////     tests for    insert_left
 

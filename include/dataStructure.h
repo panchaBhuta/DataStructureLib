@@ -2,7 +2,7 @@
  * dataStructure.h
  *
  * URL:      https://github.com/panchaBhuta/dataStructure
- * Version:  v2.0.0
+ * Version:  v2.1.1
  *
  * Copyright (C) 2023-2023 Gautam Dhar
  * All rights reserved.
@@ -13,9 +13,9 @@
 
 #pragma once
 
-#define DATASTRUCTURE_VERSION_MAJOR 1
-#define DATASTRUCTURE_VERSION_MINOR 4
-#define DATASTRUCTURE_VERSION_PATCH 2
+#define DATASTRUCTURE_VERSION_MAJOR 2
+#define DATASTRUCTURE_VERSION_MINOR 1
+#define DATASTRUCTURE_VERSION_PATCH 1
 
 #include <filesystem>
 
@@ -34,15 +34,15 @@
 // to handle windows back-slash path seperator
 #define DATASTRUCTURE_PREFERRED_PATH    std::filesystem::path(DATASTRUCTURE_FILE).make_preferred().string()
 
-
-/**
- * @brief     Class representing Version number of the project.
-*/
-static constexpr struct {
-  uint16_t major, minor, patch;
-} version = {
-  DATASTRUCTURE_VERSION_MAJOR,
-  DATASTRUCTURE_VERSION_MINOR,
-  DATASTRUCTURE_VERSION_PATCH
-};
-
+namespace datastructure {
+  /**
+   * @brief     Class representing Version number of the project.
+  */
+  static constexpr struct {
+    uint16_t major, minor, patch;
+  } version = {
+    DATASTRUCTURE_VERSION_MAJOR,
+    DATASTRUCTURE_VERSION_MINOR,
+    DATASTRUCTURE_VERSION_PATCH
+  };
+}

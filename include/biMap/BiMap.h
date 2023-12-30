@@ -2,7 +2,7 @@
  * dataStructure.h
  *
  * URL:      https://github.com/panchaBhuta/dataStructure
- * Version:  v2.0.0
+ * Version:  v2.1.1
  *
  * Copyright (C) 2023-2023 Gautam Dhar
  * All rights reserved.
@@ -24,9 +24,9 @@
   #define BIMAP_DEBUG_TRY_START try {
   #define BIMAP_DEBUG_TRY_END   }
   #define BIMAP_DEBUG_TRY_CATCH(EXCEPTION_TYPE)                             \
-      catch(const EXCEPTION_TYPE& ex) {                                               \
+      catch(const EXCEPTION_TYPE& ex) {                                     \
         BIMAP_DEBUG_LOG( "got-ERROR: " << ex.what() );                      \
-        throw ex;                                                                     \
+        throw ex;                                                           \
       }
 #else
   #define BIMAP_DEBUG_LOG(aMessage)
@@ -36,7 +36,7 @@
 #endif
 
 
-namespace bimap
+namespace datastructure { namespace bimap
 {
   template < typename LEFTT, typename RIGHT>
   class BiMap_LR11_RL11
@@ -296,5 +296,5 @@ namespace bimap
     inline size_t size_right() const { return _rightMap1To1.size(); }
   };
 
-}
+} }   //  namespace datastructure::bimap
 

@@ -47,6 +47,9 @@
 
 namespace datastructure { namespace versionedObject
 {
+  //using t_versionDate    = std::chrono::year_month_day;
+
+
   // SYMBOL,NAME OF COMPANY, SERIES, DATE OF LISTING, PAID UP VALUE, MARKET LOT, ISIN NUMBER, FACE VALUE
   // 20MICRONS,20 Microns Limited,BE,06-OCT-2008,5,1,INE144J01027,5
 
@@ -67,10 +70,10 @@ namespace datastructure { namespace versionedObject
   concept c_noMetaData = !is_MetaData<M>::value;
 
   // this is optional. A user can define their own MetaData class and pass it to "DataSet<>"
-  // A user defined MetaData class needs to define tthreewo components as below:
+  // A user defined MetaData class needs to define three components as below:
   //      1. using isMetaData = std::true_type;
   //      2. void appendMetaInfo(const MetaDataSource& other) { ... }
-  //      3. as assignment operator
+  //      3. assignment operator
   class MetaDataSource
   {
   private:
@@ -237,11 +240,11 @@ namespace datastructure { namespace versionedObject
 
 
 
-  template <typename ... MT>
+  template <typename VDT, typename ... MT>
   class VersionedObject
   {
   public:
-    using t_versionDate    = std::chrono::year_month_day;
+    using t_versionDate    = VDT;
     using t_dataset        = DataSet<MT ...>;
     using t_datasetLedger  = std::map< t_versionDate, t_dataset >;
     using t_record         = typename t_dataset::t_record;
@@ -254,21 +257,21 @@ namespace datastructure { namespace versionedObject
     VersionedObject() : _datasetLedger() {}
 
     //VersionedObject() = delete;
-    VersionedObject(VersionedObject<MT...> const&) = default;
-    VersionedObject& operator=(VersionedObject<MT...> const&) = default;
-    bool operator==(VersionedObject<MT...> const&) const = default;
+    VersionedObject(VersionedObject<VDT, MT...> const&) = default;
+    VersionedObject& operator=(VersionedObject<VDT, MT...> const&) = default;
+    bool operator==(VersionedObject<VDT, MT...> const&) const = default;
 
     // throws an error if for a particular date existing-record doesn't match the new-record
     inline bool insertVersion(const t_versionDate& forDate, const t_dataset& newEntry)
     {
-      VERSIONEDOBJECT_DEBUG_LOG( "date=" << converter::toStr_dbY(forDate) << ", newEntry={ " << newEntry.toLog() << " }");
+      VERSIONEDOBJECT_DEBUG_LOG( "date=" << forDate << ", newEntry={ " << newEntry.toLog() << " }");
       const auto [ iter, success ] = _datasetLedger.emplace(forDate, newEntry);
       if( (!success) && (iter->second != newEntry) )  // different record exits in _datasetLedger
       {
         static std::string errMsg("ERROR : failure in VersionedObject<MT...>::insertVersion() : different record exits in _datasetLedger");
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
         std::ostringstream eoss;
-        eoss << errMsg << " : forDate=" << converter::toStr_dbY(forDate) << " : prevEntry={ " << iter->second.toLog();
+        eoss << errMsg << " : forDate=" << forDate << " : prevEntry={ " << iter->second.toLog();
         eoss << " } : newEntry={ metaData=" << newEntry.toLog() << " }";
         VERSIONEDOBJECT_DEBUG_LOG(eoss.str());
 #endif
@@ -278,7 +281,7 @@ namespace datastructure { namespace versionedObject
     }
 
     inline const std::optional<t_dataset>
-    getVersionAt(const std::chrono::year_month_day& forDate) const
+    getVersionAt(const t_versionDate& forDate) const
     {
       if(_datasetLedger.empty())
       {
@@ -306,7 +309,7 @@ namespace datastructure { namespace versionedObject
       {
         const t_versionDate& versionDate = iter.first;
         const t_dataset& dataset = iter.second;
-        oss << prefix << converter::toStr_dbY(versionDate) << ",";
+        oss << prefix << versionDate << ",";
         dataset.toCSV(oss);
         oss << std::endl;
       }
@@ -317,7 +320,7 @@ namespace datastructure { namespace versionedObject
       for(auto iter : _datasetLedger)
       {
         const t_versionDate& versionDate = iter.first;
-        oss << converter::toStr_dbY(versionDate) << ",";
+        oss << versionDate << ",";
         const t_dataset& dataset = iter.second;
         dataset.toCSV(oss);
         oss << std::endl;

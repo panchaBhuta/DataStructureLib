@@ -21,11 +21,12 @@
 
 namespace datastructure { namespace versionedObject
 {
-  template <typename ... MT>
+  template <typename VDT, typename ... MT>
   class VersionedObjectPriorityMerge
   {
   public:
-    using t_versionedObject  = VersionedObject<MT...>;
+    using t_versionDate      = VDT;
+    using t_versionedObject  = VersionedObject<VDT, MT...>;
     using t_dataset          = DataSet<MT...>;
     using t_record           = typename t_dataset::t_record;
     using t_metaData         = typename t_dataset::t_metaData;
@@ -46,8 +47,8 @@ namespace datastructure { namespace versionedObject
       while(iterHighPriorityVO != _highPriorityVersionedObject.getDatasetLedger().cend() &&
             iterLowrPriorityVO != _lowrPriorityVersionedObject.getDatasetLedger().cend())
       {
-        const std::chrono::year_month_day& highPriorityDate = iterHighPriorityVO->first;
-        const std::chrono::year_month_day& lowrPriorityDate = iterLowrPriorityVO->first;
+        const t_versionDate& highPriorityDate = iterHighPriorityVO->first;
+        const t_versionDate& lowrPriorityDate = iterLowrPriorityVO->first;
         const t_dataset& highPriorityDataset = iterHighPriorityVO->second;
         const t_dataset& lowrPriorityDataset = iterLowrPriorityVO->second;
         if(highPriorityDate == lowrPriorityDate) {
@@ -60,7 +61,7 @@ namespace datastructure { namespace versionedObject
             static std::string errMsg("ERROR : failure in VersionedObjectPriorityMerge<MT...>::getMergeResult() : different 'record' exits between 2 merge-candidates of VersionedObject");
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
             std::ostringstream eoss;
-            eoss << errMsg << " : forDate=" << converter::toStr_dbY(highPriorityDate);
+            eoss << errMsg << " : forDate=" << highPriorityDate;
             eoss << " : highPriorityDataset={ " << highPriorityDataset.toCSV();
             eoss << " } : lowrPriorityDataset={ " << lowrPriorityDataset.toCSV() << " }";
             VERSIONEDOBJECT_DEBUG_LOG(eoss.str());
@@ -78,7 +79,7 @@ namespace datastructure { namespace versionedObject
 
       while(iterHighPriorityVO != _highPriorityVersionedObject.getDatasetLedger().cend())
       {
-        const std::chrono::year_month_day& highPriorityDate = iterHighPriorityVO->first;
+        const t_versionDate& highPriorityDate = iterHighPriorityVO->first;
         const t_dataset& highPriorityDataset = iterHighPriorityVO->second;
         mergeVersionedObject.insertVersion(highPriorityDate, highPriorityDataset);
         ++iterHighPriorityVO;
@@ -86,7 +87,7 @@ namespace datastructure { namespace versionedObject
 
       while(iterLowrPriorityVO != _lowrPriorityVersionedObject.getDatasetLedger().cend())
       {
-        const std::chrono::year_month_day& lowrPriorityDate = iterLowrPriorityVO->first;
+        const t_versionDate& lowrPriorityDate = iterLowrPriorityVO->first;
         const t_dataset& lowrPriorityDataset = iterLowrPriorityVO->second;
         mergeVersionedObject.insertVersion(lowrPriorityDate, lowrPriorityDataset);
         ++iterLowrPriorityVO;

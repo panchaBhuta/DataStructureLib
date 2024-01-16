@@ -4,10 +4,15 @@
 
 #include <iostream>
 
+#include <converter/specializedTypes/date.h>
+#include <converter/specializedTypes/case_insensitive_string.h>
+
 #include <versionedObject/VersionedObject.h>
 #include <versionedObject/VersionedObjectPriorityMerge.h>
 
 #include "../unittest.h"
+
+using t_fmtdbY = converter::format_year_month_day<converter::dbY_fmt, converter::FailureS2Tprocess::THROW_ERROR>;
 
 /*
 SYMBOL, NAME OF COMPANY, SERIES, DATE OF LISTING, PAID UP VALUE, MARKET LOT, ISIN NUMBER, FACE VALUE
@@ -26,7 +31,7 @@ NOTE: columns { SYMBOL, NAME OF COMPANY, ... }
 using t_symbol      = std::string;
 using t_companyName = std::string;
 using t_series      = std::string;
-using t_listingDate = std::chrono::year_month_day;
+using t_listingDate = t_fmtdbY; //std::chrono::year_month_day;
 using t_paidUpValue = uint16_t;
 using t_marketLot   = uint16_t;
 using t_isinNumber  = std::string;
@@ -51,8 +56,8 @@ namespace unittest
   };
 
   template<>
-  struct SScompatible<dsvo::VersionedObject<COMPANYINFO_TYPE_LIST>> {
-    inline static std::string getVal(const dsvo::VersionedObject<COMPANYINFO_TYPE_LIST>& val)
+  struct SScompatible<dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST>> {
+    inline static std::string getVal(const dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST>& val)
     {
       return val.toCSV();
     }
@@ -78,26 +83,26 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
     dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordStart {companyInfoStart};
 
-    dsvo::VersionedObject<COMPANYINFO_TYPE_LIST> voHighPriority;
+    dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST> voHighPriority;
     insertResult = voHighPriority.insertVersion(t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))),
                                                 companyRecordStart);
     unittest::ExpectEqual(bool, true, insertResult);
 
-    dsvo::VersionedObject<COMPANYINFO_TYPE_LIST> voLowrPriority;
+    dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST> voLowrPriority;
     insertResult = voLowrPriority.insertVersion(t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))),
                                                 companyRecordStart);
     unittest::ExpectEqual(bool, true, insertResult);
 
 
-    dsvo::VersionedObject<COMPANYINFO_TYPE_LIST> voExpected;
+    dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST> voExpected;
     insertResult = voExpected.insertVersion(t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))),
                                             companyRecordStart);
     unittest::ExpectEqual(bool, true, insertResult);
     {
-      dsvo::VersionedObjectPriorityMerge<COMPANYINFO_TYPE_LIST> vopm{voHighPriority,voLowrPriority};
-      dsvo::VersionedObject<COMPANYINFO_TYPE_LIST> voMerged;
+      dsvo::VersionedObjectPriorityMerge<t_fmtdbY, COMPANYINFO_TYPE_LIST> vopm{voHighPriority,voLowrPriority};
+      dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST> voMerged;
       vopm.getMergeResult(voMerged);
-      unittest::ExpectEqual(dsvo::VersionedObject<COMPANYINFO_TYPE_LIST>, voExpected, voMerged);
+      unittest::ExpectEqual(dsvo::VersionedObject<t_fmtdbY COMMA COMPANYINFO_TYPE_LIST>, voExpected, voMerged);
     }
 
 //  ANDHRA PAPER LIMITED,APPAPER,IPAPPM,21-JAN-2014
@@ -113,10 +118,10 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
                                             companyRecordSecondExpected);
     unittest::ExpectEqual(bool, true, insertResult);
     {
-      dsvo::VersionedObjectPriorityMerge<COMPANYINFO_TYPE_LIST> vopm{voHighPriority,voLowrPriority};
-      dsvo::VersionedObject<COMPANYINFO_TYPE_LIST> voMerged;
+      dsvo::VersionedObjectPriorityMerge<t_fmtdbY, COMPANYINFO_TYPE_LIST> vopm{voHighPriority,voLowrPriority};
+      dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST> voMerged;
       vopm.getMergeResult(voMerged);
-      unittest::ExpectEqual(dsvo::VersionedObject<COMPANYINFO_TYPE_LIST>, voExpected, voMerged);
+      unittest::ExpectEqual(dsvo::VersionedObject<t_fmtdbY COMMA COMPANYINFO_TYPE_LIST>, voExpected, voMerged);
     }
 
 //  ANDHRA PAPER LIMITED,IPAPPM,ANDPAPER,22-JAN-2020
@@ -133,10 +138,10 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
                                             companyRecordThirdExpected);
     unittest::ExpectEqual(bool, true, insertResult);
     {
-      dsvo::VersionedObjectPriorityMerge<COMPANYINFO_TYPE_LIST> vopm{voHighPriority,voLowrPriority};
-      dsvo::VersionedObject<COMPANYINFO_TYPE_LIST> voMerged;
+      dsvo::VersionedObjectPriorityMerge<t_fmtdbY, COMPANYINFO_TYPE_LIST> vopm{voHighPriority,voLowrPriority};
+      dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST> voMerged;
       vopm.getMergeResult(voMerged);
-      unittest::ExpectEqual(dsvo::VersionedObject<COMPANYINFO_TYPE_LIST>, voExpected, voMerged);
+      unittest::ExpectEqual(dsvo::VersionedObject<t_fmtdbY COMMA COMPANYINFO_TYPE_LIST>, voExpected, voMerged);
     }
 
 
@@ -161,8 +166,8 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
                                                 companyRecordLatestExpected2);
     unittest::ExpectEqual(bool, true, insertResult);
     {
-      dsvo::VersionedObjectPriorityMerge<COMPANYINFO_TYPE_LIST> vopm{voHighPriority,voLowrPriority};
-      dsvo::VersionedObject<COMPANYINFO_TYPE_LIST> voMerged;
+      dsvo::VersionedObjectPriorityMerge<t_fmtdbY, COMPANYINFO_TYPE_LIST> vopm{voHighPriority,voLowrPriority};
+      dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST> voMerged;
       ExpectExceptionMsg( vopm.getMergeResult(voMerged), std::invalid_argument, "ERROR : failure in VersionedObjectPriorityMerge<MT...>::getMergeResult() : different 'record' exits between 2 merge-candidates of VersionedObject");
     }
 

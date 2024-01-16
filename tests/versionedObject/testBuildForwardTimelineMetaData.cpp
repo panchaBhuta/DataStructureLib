@@ -4,10 +4,16 @@
 
 #include <iostream>
 
+#include <converter/specializedTypes/date.h>
+#include <converter/specializedTypes/case_insensitive_string.h>
+
 #include <versionedObject/VersionedObject.h>
 #include <versionedObject/VersionedObjectBuilder.h>
 
 #include "../unittest.h"
+
+using t_fmtdbY = converter::format_year_month_day<converter::dbY_fmt, converter::FailureS2Tprocess::THROW_ERROR>;
+
 
 /*
 SYMBOL, NAME OF COMPANY, SERIES, DATE OF LISTING, PAID UP VALUE, MARKET LOT, ISIN NUMBER, FACE VALUE
@@ -26,7 +32,7 @@ NOTE: columns { SYMBOL, NAME OF COMPANY, ... }
 using t_symbol      = std::string;
 using t_companyName = std::string;
 using t_series      = std::string;
-using t_listingDate = std::chrono::year_month_day;
+using t_listingDate = t_fmtdbY; // std::chrono::year_month_day;
 using t_paidUpValue = uint16_t;
 using t_marketLot   = uint16_t;
 using t_isinNumber  = std::string;
@@ -56,7 +62,7 @@ int main()
 {
   int rv = 0;
   try {
-    dsvo::VersionedObjectBuilder<COMPANYMETAINFO_TYPE_LIST> vob;
+    dsvo::VersionedObjectBuilder<t_fmtdbY, COMPANYMETAINFO_TYPE_LIST> vob;
 
     bool insertResult;
 
@@ -109,7 +115,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST> companyRecordStart {manualMeta, companyInfoStart};
 
     dsvo::MetaDataSource resetMeta("",'+');
-    dsvo::VersionedObject<COMPANYMETAINFO_TYPE_LIST> vo
+    dsvo::VersionedObject<t_fmtdbY, COMPANYMETAINFO_TYPE_LIST> vo
                   = vob.buildForwardTimeline(t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))),
                                              companyRecordStart, resetMeta);
 
@@ -124,7 +130,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     unittest::ExpectEqual(bool, true, companyRecordFirstActual.has_value()); // has dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
 
     unittest::ExpectEqual(dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>, companyRecordStart,
-                                                                               companyRecordFirstActual.value());
+                                                                    companyRecordFirstActual.value());
 
 
 //  ANDHRA PAPER LIMITED,APPAPER,IPAPPM,21-JAN-2014
@@ -140,7 +146,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     unittest::ExpectEqual(bool, true, companyRecordSecondActual.has_value()); // has dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
 
     unittest::ExpectEqual(dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>, companyRecordSecondExpected,
-                                                                               companyRecordSecondActual.value());
+                                                                    companyRecordSecondActual.value());
 
 
 //  ANDHRA PAPER LIMITED,IPAPPM,ANDPAPER,22-JAN-2020
@@ -157,7 +163,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     unittest::ExpectEqual(bool, true, companyRecordThirdActual.has_value()); // has dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
 
     unittest::ExpectEqual(dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>, companyRecordThirdExpected,
-                                                                               companyRecordThirdActual.value());
+                                                                    companyRecordThirdActual.value());
 
 
 //  ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
@@ -174,7 +180,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     unittest::ExpectEqual(bool, true, companyRecordLatestActual.has_value()); // has dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
 
     unittest::ExpectEqual(dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>, companyRecordLatestExpected,
-                                                                               companyRecordLatestActual.value());
+                                                                    companyRecordLatestActual.value());
   } catch (const std::exception& ex) {
     std::cout << ex.what() << std::endl;
     rv = 1;

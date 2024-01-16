@@ -4,10 +4,16 @@
 
 #include <iostream>
 
+#include <converter/specializedTypes/date.h>
+#include <converter/specializedTypes/case_insensitive_string.h>
+
 #include <versionedObject/VersionedObject.h>
 #include <versionedObject/VersionedObjectBuilder.h>
 
 #include "../unittest.h"
+
+using t_fmtdbY = converter::format_year_month_day<converter::dbY_fmt, converter::FailureS2Tprocess::THROW_ERROR>;
+
 
 /*
 SYMBOL, NAME OF COMPANY, SERIES, DATE OF LISTING, PAID UP VALUE, MARKET LOT, ISIN NUMBER, FACE VALUE
@@ -26,7 +32,7 @@ NOTE: columns { SYMBOL, NAME OF COMPANY, ... }
 using t_symbol      = std::string;
 using t_companyName = std::string;
 using t_series      = std::string;
-using t_listingDate = std::chrono::year_month_day;
+using t_listingDate = t_fmtdbY; // std::chrono::year_month_day;
 using t_paidUpValue = uint16_t;
 using t_marketLot   = uint16_t;
 using t_isinNumber  = std::string;
@@ -55,7 +61,7 @@ int main()
 {
   int rv = 0;
   try {
-    dsvo::VersionedObjectBuilder<COMPANYINFO_TYPE_LIST> vob;
+    dsvo::VersionedObjectBuilder<t_fmtdbY, COMPANYINFO_TYPE_LIST> vob;
 
     bool insertResult;
 
@@ -105,7 +111,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
     dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordLatestExpected {companyInfoLatest};
 
-    dsvo::VersionedObject<COMPANYINFO_TYPE_LIST> vo
+    dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST> vo
                   = vob.buildReverseTimeline(t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))),
                                              companyRecordLatestExpected);
 

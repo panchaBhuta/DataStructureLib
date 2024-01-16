@@ -54,6 +54,8 @@ add_unit_test(testBuildReverseTimelineNoMetaData)
 add_unit_test(testPriorityMergeMetaData)
 
 
+add_unit_test(test_caseInsensitive_companyName_BuildReverseTimelineNoMetaData)
+
 
 #[======================[
 # perf tests

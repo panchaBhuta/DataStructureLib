@@ -2,7 +2,7 @@
  * versionedObject.h
  *
  * URL:      https://github.com/panchaBhuta/dataStructure
- * Version:  v2.1.1
+ * Version:  v2.1.3
  *
  * Copyright (C) 2023-2023 Gautam Dhar
  * All rights reserved.
@@ -240,6 +240,14 @@ namespace datastructure { namespace versionedObject
 
 
 
+
+  class VO_Record_Mismatch_exception : public std::invalid_argument
+  {
+  public :
+    VO_Record_Mismatch_exception(const std::string& msg) : std::invalid_argument(msg) {}
+    VO_Record_Mismatch_exception(const char*        msg) : std::invalid_argument(msg) {}
+  };
+
   template <typename VDT, typename ... MT>
   class VersionedObject
   {
@@ -268,14 +276,14 @@ namespace datastructure { namespace versionedObject
       const auto [ iter, success ] = _datasetLedger.emplace(forDate, newEntry);
       if( (!success) && (iter->second != newEntry) )  // different record exits in _datasetLedger
       {
-        static std::string errMsg("ERROR : failure in VersionedObject<MT...>::insertVersion() : different record exits in _datasetLedger");
+        static std::string errMsg("ERROR : failure in VersionedObject<VDT, MT...>::insertVersion() : different record exits in _datasetLedger");
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
         std::ostringstream eoss;
         eoss << errMsg << " : forDate=" << forDate << " : prevEntry={ " << iter->second.toLog();
         eoss << " } : newEntry={ metaData=" << newEntry.toLog() << " }";
         VERSIONEDOBJECT_DEBUG_LOG(eoss.str());
 #endif
-        throw std::invalid_argument(errMsg);
+        throw VO_Record_Mismatch_exception(errMsg);
       }
       return success;
     }

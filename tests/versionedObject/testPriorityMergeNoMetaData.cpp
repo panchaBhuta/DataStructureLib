@@ -168,7 +168,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     {
       dsvo::VersionedObjectPriorityMerge<t_fmtdbY, COMPANYINFO_TYPE_LIST> vopm{voHighPriority,voLowrPriority};
       dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST> voMerged;
-      ExpectExceptionMsg( vopm.getMergeResult(voMerged), std::invalid_argument, "ERROR : failure in VersionedObjectPriorityMerge<MT...>::getMergeResult() : different 'record' exits between 2 merge-candidates of VersionedObject");
+      ExpectExceptionMsg( vopm.getMergeResult(voMerged), dsvo::VOPM_Record_Mismatch_exception, "ERROR : failure in VersionedObjectPriorityMerge<VDT, MT...>::getMergeResult() : different 'record' exits between 2 merge-candidates of VersionedObject");
     }
 
   } catch (const std::exception& ex) {

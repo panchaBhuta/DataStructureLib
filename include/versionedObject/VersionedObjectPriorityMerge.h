@@ -2,7 +2,7 @@
  * VersionedObjectPriorityMerge.h
  *
  * URL:      https://github.com/panchaBhuta/dataStructure
- * Version:  v2.0.0
+ * Version:  v2.1.3
  *
  * Copyright (C) 2023-2023 Gautam Dhar
  * All rights reserved.
@@ -21,6 +21,15 @@
 
 namespace datastructure { namespace versionedObject
 {
+
+
+  class VOPM_Record_Mismatch_exception : public std::invalid_argument
+  {
+  public :
+    VOPM_Record_Mismatch_exception(const std::string& msg) : std::invalid_argument(msg) {}
+    VOPM_Record_Mismatch_exception(const char*        msg) : std::invalid_argument(msg) {}
+  };
+
   template <typename VDT, typename ... MT>
   class VersionedObjectPriorityMerge
   {
@@ -58,15 +67,15 @@ namespace datastructure { namespace versionedObject
             ++iterHighPriorityVO;
             ++iterLowrPriorityVO;
           } else {
-            static std::string errMsg("ERROR : failure in VersionedObjectPriorityMerge<MT...>::getMergeResult() : different 'record' exits between 2 merge-candidates of VersionedObject");
+            static std::string errMsg("ERROR : failure in VersionedObjectPriorityMerge<VDT, MT...>::getMergeResult() : different 'record' exits between 2 merge-candidates of VersionedObject");
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
             std::ostringstream eoss;
             eoss << errMsg << " : forDate=" << highPriorityDate;
-            eoss << " : highPriorityDataset={ " << highPriorityDataset.toCSV();
+            eoss <<   " : highPriorityDataset={ " << highPriorityDataset.toCSV();
             eoss << " } : lowrPriorityDataset={ " << lowrPriorityDataset.toCSV() << " }";
             VERSIONEDOBJECT_DEBUG_LOG(eoss.str());
 #endif
-            throw std::invalid_argument(errMsg);
+            throw VOPM_Record_Mismatch_exception(errMsg);
           }
         } else if(highPriorityDate < lowrPriorityDate) {
           mergeVersionedObject.insertVersion(highPriorityDate, highPriorityDataset);

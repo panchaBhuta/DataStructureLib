@@ -2,7 +2,7 @@
  * VersionedObjectBuilder.h
  *
  * URL:      https://github.com/panchaBhuta/dataStructure
- * Version:  v2.0.0
+ * Version:  v2.1.3
  *
  * Copyright (C) 2023-2023 Gautam Dhar
  * All rights reserved.
@@ -248,6 +248,14 @@ namespace datastructure { namespace versionedObject
     bool operator==(ChangesInDataSet const&) const = default;
   };
 
+
+  class Change_Before_Start_Timeline_exception : public std::invalid_argument
+  {
+  public :
+    Change_Before_Start_Timeline_exception(const std::string& msg) : std::invalid_argument(msg) {}
+    Change_Before_Start_Timeline_exception(const char* msg) : std::invalid_argument(msg) {}
+  };
+
   template <typename VDT, typename ... MT>
   class _VersionedObjectBuilderBase
   {
@@ -278,11 +286,11 @@ namespace datastructure { namespace versionedObject
       if( startDate >= (_deltaEntries.begin()->first) )
       {
         std::ostringstream eoss;
-        eoss << "ERROR(1) : failure in _VersionedObjectBuilderBase<MT...>::_buildForwardTimeline() : startDate[";
+        eoss << "ERROR(1) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline() : startDate[";
         eoss << startDate << "] should be less than first-changeDate[" << _deltaEntries.begin()->first << "]" << std::endl;
         firstVersion.toCSV(eoss);
         toCSV(eoss);
-        throw std::invalid_argument(eoss.str());
+        throw Change_Before_Start_Timeline_exception(eoss.str());
       }
 
       [[maybe_unused]] t_metaData metaData = (t_dataset::hasMetaData()) ?
@@ -328,7 +336,7 @@ namespace datastructure { namespace versionedObject
           //VERSIONEDOBJECT_DEBUG_LOG("after delta-change record=" << converter::ConvertFromTuple<MT...>::ToStr(record));
         } catch (const std::exception& err) {
           std::ostringstream eoss;
-          eoss << "ERROR(2) : failure in _VersionedObjectBuilderBase<MT...>::_buildForwardTimeline() : "
+          eoss << "ERROR(2) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline() : "
                << err.what() << std::endl;
           firstVersion.toCSV(eoss);
           toCSV(eoss);
@@ -364,11 +372,11 @@ namespace datastructure { namespace versionedObject
       if( startDate >= (_deltaEntries.begin()->first) )
       {
         std::ostringstream eoss;
-        eoss << "ERROR(1) : failure in _VersionedObjectBuilderBase<MT...>::_buildReverseTimeline() : startDate[";
+        eoss << "ERROR(1) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline() : startDate[";
         eoss << startDate << "] should be less than first-changeDate[" << _deltaEntries.begin()->first << "]" << std::endl;
         toCSV(eoss);
         lastVersion.toCSV(eoss);
-        throw std::invalid_argument(eoss.str());
+        throw Change_Before_Start_Timeline_exception(eoss.str());
       }
 
       vo.insertVersion(_deltaEntries.rbegin()->first, lastVersion);
@@ -415,7 +423,7 @@ namespace datastructure { namespace versionedObject
           rIterDelta->second.getPreviousRecord(record, hitheroProcessedElements);
         } catch (const std::exception& err) {
           std::ostringstream eoss;
-          eoss << "ERROR(2) : failure in _VersionedObjectBuilderBase<MT...>::_buildReverseTimeline() : "
+          eoss << "ERROR(2) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline() : "
                << err.what() << std::endl;
           toCSV(eoss);
           lastVersion.toCSV(eoss);

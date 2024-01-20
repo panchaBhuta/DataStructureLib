@@ -24,7 +24,7 @@ NOTE: company name is changes from upper to lower case in both files : masg_name
 */
 
 using t_symbol      = std::string;
-using t_companyName = ci_string;
+using t_companyName = converter::ci_string;
 using t_series      = std::string;
 using t_listingDate = t_fmtdbY; // std::chrono::year_month_day;
 using t_paidUpValue = uint16_t;

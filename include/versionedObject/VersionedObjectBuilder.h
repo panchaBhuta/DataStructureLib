@@ -249,12 +249,7 @@ namespace datastructure { namespace versionedObject
   };
 
 
-  class Change_Before_Start_Timeline_exception : public std::invalid_argument
-  {
-  public :
-    Change_Before_Start_Timeline_exception(const std::string& msg) : std::invalid_argument(msg) {}
-    Change_Before_Start_Timeline_exception(const char* msg) : std::invalid_argument(msg) {}
-  };
+  using Change_Before_Start_Timeline_exception  =  VO_exception<1>;
 
   template <typename VDT, typename ... MT>
   class _VersionedObjectBuilderBase

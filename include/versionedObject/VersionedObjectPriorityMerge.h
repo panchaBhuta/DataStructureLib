@@ -23,12 +23,7 @@ namespace datastructure { namespace versionedObject
 {
 
 
-  class VOPM_Record_Mismatch_exception : public std::invalid_argument
-  {
-  public :
-    VOPM_Record_Mismatch_exception(const std::string& msg) : std::invalid_argument(msg) {}
-    VOPM_Record_Mismatch_exception(const char*        msg) : std::invalid_argument(msg) {}
-  };
+  using VOPM_Record_Mismatch_exception = VO_exception<2>;
 
   template <typename VDT, typename ... MT>
   class VersionedObjectPriorityMerge

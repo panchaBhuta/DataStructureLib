@@ -240,13 +240,17 @@ namespace datastructure { namespace versionedObject
 
 
 
-
-  class VO_Record_Mismatch_exception : public std::invalid_argument
+  template<size_t expIdx>
+  class VO_exception : public std::invalid_argument
   {
   public :
-    VO_Record_Mismatch_exception(const std::string& msg) : std::invalid_argument(msg) {}
-    VO_Record_Mismatch_exception(const char*        msg) : std::invalid_argument(msg) {}
+    VO_exception(const std::string& msg) : std::invalid_argument(msg) {}
+    VO_exception(const char*        msg) : std::invalid_argument(msg) {}
+    virtual ~VO_exception() {}
   };
+
+  using VO_Record_Mismatch_exception = VO_exception<0>;
+
 
   template <typename VDT, typename ... MT>
   class VersionedObject

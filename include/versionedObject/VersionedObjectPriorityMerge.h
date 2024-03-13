@@ -58,7 +58,14 @@ namespace datastructure { namespace versionedObject
         if(highPriorityDate == lowrPriorityDate) {
           if(highPriorityDataset.getRecord() == lowrPriorityDataset.getRecord()) {
             // metaData need NOT be equal (when data from different sources)
-            mergeVersionedObject.insertVersion(highPriorityDate, highPriorityDataset);
+            if constexpr(t_dataset::hasMetaData()) {
+              t_metaData hpMetaData {highPriorityDataset.getMetaData()};
+              hpMetaData.merge(lowrPriorityDataset.getMetaData());
+              t_dataset highPriorityDataset_metaMerge{hpMetaData, highPriorityDataset.getRecord()};
+              mergeVersionedObject.insertVersion(highPriorityDate, highPriorityDataset_metaMerge);
+            } else {
+              mergeVersionedObject.insertVersion(highPriorityDate, highPriorityDataset);
+            }
             ++iterHighPriorityVO;
             ++iterLowrPriorityVO;
           } else {

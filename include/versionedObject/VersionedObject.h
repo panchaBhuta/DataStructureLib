@@ -114,6 +114,11 @@ namespace datastructure { namespace versionedObject
       toCSV(oss);
       return oss.str();
     }
+
+    void merge(MetaDataSource const& other)
+    {
+      _source += (other._prefix + other._source);
+    }
   };
 
 

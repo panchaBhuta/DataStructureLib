@@ -92,9 +92,10 @@ A2Z Infra Engineering Limited,A2ZMES,A2ZINFRA,31-DEC-2014
 
     dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordLatestExpected {companyInfoLatest};
 
-    dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST> vo
-                  = vob.buildReverseTimeline(t_listingDate(std::chrono::year(int(2010)), std::chrono::December, std::chrono::day(unsigned(23))),
-                                             companyRecordLatestExpected);
+    dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST> vo;
+    vob.buildReverseTimeline( t_listingDate(std::chrono::year(int(2010)), std::chrono::December, std::chrono::day(unsigned(23))),
+                              companyRecordLatestExpected,
+                              vo);
 
 
 //#################### check all versioned objects

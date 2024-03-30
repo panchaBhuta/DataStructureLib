@@ -110,9 +110,10 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
     dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordStart {companyInfoStart};
 
-    dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST> vo
-                  = vob.buildForwardTimeline(t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))),
-                                             companyRecordStart);
+    dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST> vo;
+    vob.buildForwardTimeline( t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))),
+                              companyRecordStart,
+                              vo);
 
 
 //#################### check all versioned objects

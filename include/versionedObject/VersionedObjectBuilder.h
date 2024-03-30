@@ -2,9 +2,9 @@
  * VersionedObjectBuilder.h
  *
  * URL:      https://github.com/panchaBhuta/dataStructure
- * Version:  v2.1.3
+ * Version:  v2.2.6
  *
- * Copyright (C) 2023-2023 Gautam Dhar
+ * Copyright (C) 2023-2024 Gautam Dhar
  * All rights reserved.
  * 
  * dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details. 
@@ -16,238 +16,11 @@
 #include <array>
 
 #include <versionedObject/VersionedObject.h>
+#include <versionedObject/ChangesInDataSet.h>
 
 
 namespace datastructure { namespace versionedObject
 {
-
-  template <typename ... T>
-  class _ChangesInDataSetBase
-  {
-  public:
-    using t_record  = typename std::tuple<T ...>;
-
-    _ChangesInDataSetBase() = delete;
-    _ChangesInDataSetBase(_ChangesInDataSetBase const&) = default;
-    _ChangesInDataSetBase& operator=(_ChangesInDataSetBase const&) = delete;
-    bool operator==(_ChangesInDataSetBase const&) const = default;
-
-    inline void getLatestRecord(t_record& updateRecord,
-                                std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
-    {
-      _getLatestValue<sizeof...(T) -1, true>(updateRecord, hitheroProcessedElements);
-    }
-
-    inline void getLatestRecord(t_record& updateRecord) const
-    {
-      std::array <bool, sizeof...(T)> hitheroProcessedElements;
-      for(size_t i = 0; i < sizeof...(T); ++i)
-      {
-        hitheroProcessedElements[i] = false;
-      }
-      _getLatestValue<sizeof...(T) -1, false>(updateRecord, hitheroProcessedElements);
-    }
-
-    inline void getPreviousRecord(t_record& updateRecord,
-                                  std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
-    {
-      _getPreviousValue<sizeof...(T) -1, true>(updateRecord, hitheroProcessedElements);
-    }
-
-    inline void getPreviousRecord(t_record& updateRecord) const
-    {
-      std::array <bool, sizeof...(T)> hitheroProcessedElements;
-      for(size_t i = 0; i < sizeof...(T); ++i)
-      {
-        hitheroProcessedElements[i] = false;
-      }
-      _getPreviousValue<sizeof...(T) -1, false>(updateRecord, hitheroProcessedElements);
-    }
-
-    inline void toCSV(std::ostream& oss) const
-    {
-      //oss << _source;
-      _toCSV<0>(oss);
-    }
-
-    inline std::string toCSV() const
-    {
-      std::ostringstream oss;
-      _ChangesInDataSetBase<T... >::toCSV(oss);
-      return oss.str();
-    }
-
-  protected:
-    _ChangesInDataSetBase( const std::array <bool, sizeof...(T)> modifiedElements,
-                           const t_record& oldValues,
-                           const t_record& newValues)
-      : _modifiedElements(modifiedElements),
-        _oldValues(oldValues),
-        _newValues(newValues)
-    {}
-
-    template<size_t IDX>
-    inline void _toCSV(std::ostream& oss) const
-    {
-      oss << ",";
-      if( _modifiedElements.at(IDX) ) // check if element is marked for change
-      {
-        // NOTE :: will fail for types such as t_versionDate
-        oss << std::get<IDX>(_oldValues) << "->" << std::get<IDX>(_newValues);
-      }
-
-      if constexpr( IDX < (sizeof...(T)-1) )
-      {
-        _toCSV< ( (IDX < (sizeof...(T)-1)) ? (IDX+1) : (sizeof...(T)-1) ) >(oss);
-      }
-    }
-
-    template<size_t IDX, bool VALIDATE>
-    inline void _getLatestValue(t_record& updateRecord,
-                                std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
-    {
-      if( _modifiedElements.at(IDX) ) // check if element is marked for change
-      {
-        if constexpr(VALIDATE)
-        {
-          if( hitheroProcessedElements[IDX] ) // check if element was previously modified
-          {
-            std::ostringstream eoss;
-            eoss << "ERROR(1) : in function _ChangesInDataSetBase<T ...>::_getLatestValue() : ";
-            eoss << " at tuple-index[" << IDX << "] : updateRecord-value{" << std::get<IDX>(updateRecord);
-            eoss << "} was previously modified." << std::endl;
-            throw std::invalid_argument(eoss.str());
-          }
-          hitheroProcessedElements[IDX] = true;
-
-          if( std::get<IDX>(updateRecord) != std::get<IDX>(_oldValues) )
-          {
-            std::ostringstream eoss;
-            eoss << "ERROR(2) : in function _ChangesInDataSetBase<T ...>::_getLatestValue() : ";
-            eoss << " at tuple-index[" << IDX << "] : updateRecord-value{" << std::get<IDX>(updateRecord);
-            eoss << "} doesn't match with expected old-Value{" << std::get<IDX>(_oldValues) << "}" << std::endl;
-            throw std::invalid_argument(eoss.str());
-          }
-        }
-
-        std::get<IDX>(updateRecord) = std::get<IDX>(_newValues);
-      }
-
-      if constexpr( IDX > 0 )
-      {
-        // "((IDX>0)?(IDX-1):0)" eliminates infinite compile time looping,
-        // and we don't have to define function specialization for _getLatestValue<0, VALIDATE>()
-        _getLatestValue< ((IDX>0)?(IDX-1):0), VALIDATE >(updateRecord, hitheroProcessedElements);
-      }
-    }
-
-    template<size_t IDX, bool VALIDATE>
-    inline void _getPreviousValue(t_record& updateRecord,
-                                  std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
-    {
-      if( _modifiedElements.at(IDX) ) // check if element is marked for change
-      {
-        if constexpr(VALIDATE)
-        {
-          if( hitheroProcessedElements[IDX] ) // check if element was previously modified
-          {
-            std::ostringstream eoss;
-            eoss << "ERROR(1) : in function _ChangesInDataSetBase<T ...>::_getPreviousValue() : ";
-            eoss << " at tuple-index[" << IDX << "] : updateRecord-value{" << std::get<IDX>(updateRecord);
-            eoss << "} was previously modified." << std::endl;
-            throw std::invalid_argument(eoss.str());
-          }
-          hitheroProcessedElements[IDX] = true;
-
-          if( std::get<IDX>(updateRecord) != std::get<IDX>(_newValues) )
-          {
-            std::ostringstream eoss;
-            eoss << "ERROR(2) : in function _ChangesInDataSetBase<T ...>::_getPreviousValue() : ";
-            eoss << " at tuple-index[" << IDX << "] : updateRecord-value{" << std::get<IDX>(updateRecord);
-            eoss << "} doesn't match with expected old-Value{" << std::get<IDX>(_newValues) << "}" << std::endl;
-            throw std::invalid_argument(eoss.str());
-          }
-        }
-
-        std::get<IDX>(updateRecord) = std::get<IDX>(_oldValues);
-      }
-
-      if constexpr( IDX > 0 )
-      {
-        // "((IDX>0)?(IDX-1):0)" eliminates infinite compile time looping,
-        // and we don't have to define function specialization for _getPreviousValue<0, VALIDATE>()
-        _getPreviousValue< ((IDX>0)?(IDX-1):0), VALIDATE >(updateRecord, hitheroProcessedElements);
-      }
-    }
-
-    const std::array <bool, sizeof...(T)> _modifiedElements;        // elements that has changed is indicated by 'true'
-    const t_record _oldValues;                                      // value(s) of elements before change
-    const t_record _newValues;                                      // value(s) of elements after  change
-  };
-
-  template <typename M, typename ... T>
-  class ChangesInDataSet;
-
-  template <c_MetaData M, typename ... T>
-  class ChangesInDataSet<M, T...> : public _ChangesInDataSetBase<T...>
-  {
-  public:
-    using t_record  = typename std::tuple<T ...>;
-
-    ChangesInDataSet( const M& metaData,
-                      const std::array <bool, sizeof...(T)> modifiedElements,
-                      const t_record& oldValues,
-                      const t_record& newValues)
-      : _ChangesInDataSetBase<T...>(modifiedElements, oldValues, newValues),
-        _metaData(metaData)
-    {}
-
-    ChangesInDataSet() = delete;
-    ChangesInDataSet(ChangesInDataSet const&) = default;
-    ChangesInDataSet& operator=(ChangesInDataSet const&) = delete;
-    bool operator==(ChangesInDataSet const&) const = default;
-
-    inline const M&           getMetaData() const { return _metaData; }
-
-    inline void toCSV(std::ostream& oss) const
-    {
-      oss << _metaData.toCSV() << ",";
-
-      // _toCSV<0>(oss);   #########  DOESNOT COMPILE : refer urls below
-      //  https://stackoverflow.com/questions/9289859/calling-template-function-of-template-base-class
-      //  https://stackoverflow.com/questions/610245/where-and-why-do-i-have-to-put-the-template-and-typename-keywords
-      this->template _toCSV<0>(oss);
-    }
-
-    inline std::string toCSV() const
-    {
-      std::ostringstream oss;
-      ChangesInDataSet<M, T...>::toCSV(oss);
-      return oss.str();
-    }
-
-  private:
-    const M           _metaData;     // metaData-id of a change instance
-  };
-
-  template <c_noMetaData T1, typename ... TR>
-  class ChangesInDataSet<T1, TR...> : public _ChangesInDataSetBase<T1, TR...>
-  {
-  public:
-    using t_record  = typename std::tuple<T1, TR...>;
-
-    ChangesInDataSet( const std::array <bool, std::tuple_size_v<t_record>> modifiedElements,
-                      const t_record& oldValues,
-                      const t_record& newValues)
-      : _ChangesInDataSetBase<T1, TR...>(modifiedElements, oldValues, newValues)
-    {}
-
-    ChangesInDataSet() = delete;
-    ChangesInDataSet(ChangesInDataSet const&) = default;
-    ChangesInDataSet& operator=(ChangesInDataSet const&) = delete;
-    bool operator==(ChangesInDataSet const&) const = default;
-  };
-
 
   using Change_Before_Start_Timeline_exception  =  VO_exception<1>;
 
@@ -265,17 +38,17 @@ namespace datastructure { namespace versionedObject
 
     _VersionedObjectBuilderBase() : _deltaEntries() {}
 
-    t_versionedObject _buildForwardTimeline(
+    void _buildForwardTimeline(
                   const t_versionDate& startDate,
                   const t_dataset& firstVersion,
+                  t_versionedObject& vo,
                   const t_metaData* const metaDataResetCloner = nullptr) // nullptr when MetaData is NOT used
     {
-      t_versionedObject vo;
       vo.insertVersion(startDate,firstVersion);
 
       if(_deltaEntries.empty())
       {
-        return vo;
+        return;
       }
 
       if( startDate >= (_deltaEntries.begin()->first) )
@@ -321,7 +94,8 @@ namespace datastructure { namespace versionedObject
           }
         }
 
-        if constexpr ( t_dataset::hasMetaData() ) {
+        if constexpr ( t_dataset::hasMetaData() )
+        {
           metaData.appendMetaInfo(iterDelta.second.getMetaData());
         }
 
@@ -340,6 +114,7 @@ namespace datastructure { namespace versionedObject
 
         nextRecordDate = iterDelta.first;
       }
+
       if constexpr ( t_dataset::hasMetaData() )
       {
         vo.insertVersion(nextRecordDate, t_dataset(metaData, record) );
@@ -348,20 +123,19 @@ namespace datastructure { namespace versionedObject
       }
       //VERSIONEDOBJECT_DEBUG_LOG("LAST change record=" << converter::ConvertFromTuple<MT...>::ToStr(record));
       _deltaEntries.clear();
-      return vo;
     }
 
-    t_versionedObject _buildReverseTimeline(
+    void _buildReverseTimeline(
                   const t_versionDate& startDate,
                   const t_dataset& lastVersion,
+                  t_versionedObject& vo,
                   const t_metaData* const metaDataResetCloner = nullptr) // nullptr when MetaData is NOT used
     {
-      t_versionedObject vo;
 
       if(_deltaEntries.empty())
       {
         vo.insertVersion(startDate, lastVersion);
-        return vo;
+        return;
       }
 
       if( startDate >= (_deltaEntries.begin()->first) )
@@ -409,7 +183,8 @@ namespace datastructure { namespace versionedObject
           }
         }
 
-        if constexpr ( t_dataset::hasMetaData() ) {
+        if constexpr ( t_dataset::hasMetaData() )
+        {
           metaData.appendMetaInfo(rIterDelta->second.getMetaData());
         }
 
@@ -428,6 +203,7 @@ namespace datastructure { namespace versionedObject
         previousRecordDate = rIterDelta->first;
         ++rIterDelta;
       }
+
       if constexpr ( t_dataset::hasMetaData() )
       {
         vo.insertVersion(startDate, t_dataset(metaData, record) );
@@ -435,7 +211,6 @@ namespace datastructure { namespace versionedObject
         vo.insertVersion(startDate, t_dataset(record) );
       }
       _deltaEntries.clear();
-      return vo;
     }
 
   public:
@@ -491,20 +266,22 @@ namespace datastructure { namespace versionedObject
 
     VersionedObjectBuilder() : _VersionedObjectBuilderBase<VDT, M, T...>() {}
 
-    inline VersionedObject<VDT, M, T...> buildForwardTimeline(
+    inline void buildForwardTimeline(
             const t_versionDate& startDate,
             const t_dataset& firstVersion,
+            VersionedObject<VDT, M, T...>&  vo,
             const t_metaData& metaDataResetCloner) // when MetaData is used
     {
-      return this->_buildForwardTimeline(startDate, firstVersion, &metaDataResetCloner);
+      return this->_buildForwardTimeline(startDate, firstVersion, vo, &metaDataResetCloner);
     }
 
-    inline VersionedObject<VDT, M, T...> buildReverseTimeline(
+    inline void buildReverseTimeline(
             const t_versionDate& startDate,
             const t_dataset& lastVersion,
+            VersionedObject<VDT, M, T...>& vo,
             const t_metaData& metaDataResetCloner) // when MetaData is used
     {
-      return this->_buildReverseTimeline(startDate, lastVersion, &metaDataResetCloner);
+      return this->_buildReverseTimeline(startDate, lastVersion, vo, &metaDataResetCloner);
     }
   };
 
@@ -520,18 +297,20 @@ namespace datastructure { namespace versionedObject
 
     VersionedObjectBuilder() : _VersionedObjectBuilderBase<VDT, T1, TR...>() {}
 
-    inline VersionedObject<VDT, T1, TR...> buildForwardTimeline(
+    inline void buildForwardTimeline(
             const t_versionDate& startDate,
-            const t_dataset& firstVersion) // when MetaData is NOT used
+            const t_dataset& firstVersion,
+            VersionedObject<VDT, T1, TR...>& vo) // when MetaData is NOT used
     {
-      return this->_buildForwardTimeline(startDate, firstVersion);
+      return this->_buildForwardTimeline(startDate, firstVersion, vo);
     }
 
-    inline VersionedObject<VDT, T1, TR...> buildReverseTimeline(
+    inline void buildReverseTimeline(
             const t_versionDate& startDate,
-            const t_dataset& lastVersion) // when MetaData is NOT used
+            const t_dataset& lastVersion,
+            VersionedObject<VDT, T1, TR...>& vo) // when MetaData is NOT used
     {
-      return this->_buildReverseTimeline(startDate, lastVersion);
+      return this->_buildReverseTimeline(startDate, lastVersion, vo);
     }
   };
 

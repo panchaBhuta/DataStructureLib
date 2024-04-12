@@ -46,6 +46,8 @@ namespace dsvo = datastructure::versionedObject;
 
 #define COMPANYMETAINFO_TYPE_LIST  dsvo::MetaDataSource, COMPANYINFO_TYPE_LIST
 
+using t_versionObject = dsvo::VersionedObject<t_fmtdbY, COMPANYMETAINFO_TYPE_LIST>;
+
 
 
 namespace unittest
@@ -122,13 +124,13 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
       vopm.getMergeResult(voMerged);
       unittest::ExpectEqual(dsvo::VersionedObject<t_fmtdbY COMMA COMPANYMETAINFO_TYPE_LIST>, voExpected, voMerged);
 
-      std::optional<dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>> companyRecordMerged = voMerged.getVersionAt(crownDate);
-      unittest::ExpectEqual(bool, true, companyRecordMerged.has_value()); // has dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
+      t_versionObject::t_datasetLedger::const_iterator companyRecordMerged = voMerged.getVersionAt(crownDate);
+      unittest::ExpectEqual(bool, true, companyRecordMerged != voMerged.getDatasetLedger().cend()); // has dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
 
       unittest::ExpectEqual(dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>, companyStartRecordExpected,
-                                                                      companyRecordMerged.value());
+                                                                      companyRecordMerged->second);
 
-      unittest::ExpectEqual(dsvo::MetaDataSource, expectedStartMergeMeta, companyRecordMerged.value().getMetaData());
+      unittest::ExpectEqual(dsvo::MetaDataSource, expectedStartMergeMeta, companyRecordMerged->second.getMetaData());
     }
 
 //  ANDHRA PAPER LIMITED,APPAPER,IPAPPM,21-JAN-2014
@@ -153,13 +155,13 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
       vopm.getMergeResult(voMerged);
       unittest::ExpectEqual(dsvo::VersionedObject<t_fmtdbY COMMA COMPANYMETAINFO_TYPE_LIST>, voExpected, voMerged);
 
-      std::optional<dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>> companyRecordMerged = voMerged.getVersionAt(symChgDate);
-      unittest::ExpectEqual(bool, true, companyRecordMerged.has_value()); // has dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
+      t_versionObject::t_datasetLedger::const_iterator companyRecordMerged = voMerged.getVersionAt(symChgDate);
+      unittest::ExpectEqual(bool, true, companyRecordMerged != voMerged.getDatasetLedger().cend()); // has dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
 
       unittest::ExpectEqual(dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>, companyRecordSecondExpected,
-                                                                      companyRecordMerged.value());
+                                                                      companyRecordMerged->second);
 
-      unittest::ExpectEqual(dsvo::MetaDataSource, symChgMetaExp, companyRecordMerged.value().getMetaData());
+      unittest::ExpectEqual(dsvo::MetaDataSource, symChgMetaExp, companyRecordMerged->second.getMetaData());
     }
 
 //  ANDHRA PAPER LIMITED,IPAPPM,ANDPAPER,22-JAN-2020
@@ -184,13 +186,13 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
       vopm.getMergeResult(voMerged);
       unittest::ExpectEqual(dsvo::VersionedObject<t_fmtdbY COMMA COMPANYMETAINFO_TYPE_LIST>, voExpected, voMerged);
 
-      std::optional<dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>> companyRecordMerged = voMerged.getVersionAt(symChgNameChgDate);
-      unittest::ExpectEqual(bool, true, companyRecordMerged.has_value()); // has dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
+      t_versionObject::t_datasetLedger::const_iterator companyRecordMerged = voMerged.getVersionAt(symChgNameChgDate);
+      unittest::ExpectEqual(bool, true, companyRecordMerged != voMerged.getDatasetLedger().cend()); // has dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
 
       unittest::ExpectEqual(dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>, companyRecordThirdExpected,
-                                                                      companyRecordMerged.value());
+                                                                      companyRecordMerged->second);
 
-      unittest::ExpectEqual(dsvo::MetaDataSource, symChgNamChgMetaExp, companyRecordMerged.value().getMetaData());
+      unittest::ExpectEqual(dsvo::MetaDataSource, symChgNamChgMetaExp, companyRecordMerged->second.getMetaData());
     }
 
 

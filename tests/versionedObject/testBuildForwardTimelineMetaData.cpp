@@ -46,6 +46,8 @@ namespace dsvo = datastructure::versionedObject;
 
 #define COMPANYMETAINFO_TYPE_LIST  dsvo::MetaDataSource, COMPANYINFO_TYPE_LIST
 
+using t_versionObject = dsvo::VersionedObject<t_fmtdbY, COMPANYMETAINFO_TYPE_LIST>;
+
 namespace unittest
 {
   template<>
@@ -116,21 +118,46 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
     dsvo::MetaDataSource resetMeta("",'+');
     dsvo::VersionedObject<t_fmtdbY, COMPANYMETAINFO_TYPE_LIST> vo;
-    vob.buildForwardTimeline(t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))),
+    vob.buildForwardTimeline( t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))),
                               companyRecordStart, vo, resetMeta);
 
 
 //#################### check all versioned objects
 
+    //std::cout << "#### vo start ######\n" << vo.toCSV() << "#### vo end ######\n";
+    std::string voStr =
+      "13-May-2004,manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10\n"
+      "21-Jan-2014,+symbolchange,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10\n"
+      "22-Jan-2020,+symbolchange+namechange,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10\n"
+      "05-Mar-2020,+symbolchange,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10\n";
+
+    unittest::ExpectEqual(std::string, voStr, vo.toCSV());
+
 //  NOTE : the row below is manually deduced
 //  APPAPER,International Paper APPM Limited,EQ,13-MAY-2004,10,1,INE435A01028,10
-    std::optional<dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>> companyRecordFirstActual =
-      vo.getVersionAt(t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))));
+    t_listingDate  listingDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))};
+    t_versionObject::t_datasetLedger::const_iterator companyRecordFirstActual =
+      vo.getVersionAt(listingDate);
 
-    unittest::ExpectEqual(bool, true, companyRecordFirstActual.has_value()); // has dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
-
+    unittest::ExpectEqual(bool, true, companyRecordFirstActual != vo.getDatasetLedger().cend()); // has dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
     unittest::ExpectEqual(dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>, companyRecordStart,
-                                                                    companyRecordFirstActual.value());
+                                                                    companyRecordFirstActual->second);
+    unittest::ExpectEqual(t_listingDate, listingDate,
+                                         companyRecordFirstActual->first);
+    ////////
+    t_listingDate  prelistingDate{t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(12)))};
+    t_versionObject::t_datasetLedger::const_iterator companyRecordPreFirstActual =
+      vo.getVersionAt(prelistingDate);
+    unittest::ExpectEqual(bool, true, companyRecordPreFirstActual == vo.getDatasetLedger().cend()); // no record dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
+    ////////
+    t_listingDate  postlistingDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(14))};
+    t_versionObject::t_datasetLedger::const_iterator companyRecordPostFirstActual =
+      vo.getVersionAt(postlistingDate);
+    unittest::ExpectEqual(bool, true, companyRecordPostFirstActual != vo.getDatasetLedger().cend()); // has record dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
+    unittest::ExpectEqual(dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>, companyRecordStart,
+                                                                    companyRecordPostFirstActual->second);
+    unittest::ExpectEqual(t_listingDate, listingDate,
+                                         companyRecordPostFirstActual->first);
 
 
 //  ANDHRA PAPER LIMITED,APPAPER,IPAPPM,21-JAN-2014
@@ -140,13 +167,33 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     dsvo::MetaDataSource symChgMetaExp("+symbolchange",'+');
     dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST> companyRecordSecondExpected {symChgMetaExp, companyInfoSecond};
 
-    std::optional<dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>> companyRecordSecondActual =
-      vo.getVersionAt(t_listingDate(std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))));
+    t_listingDate secondDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))};
+    t_versionObject::t_datasetLedger::const_iterator companyRecordSecondActual =
+      vo.getVersionAt(secondDate);
 
-    unittest::ExpectEqual(bool, true, companyRecordSecondActual.has_value()); // has dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
-
+    unittest::ExpectEqual(bool, true, companyRecordSecondActual != vo.getDatasetLedger().cend()); // has dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
     unittest::ExpectEqual(dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>, companyRecordSecondExpected,
-                                                                    companyRecordSecondActual.value());
+                                                                    companyRecordSecondActual->second);
+    unittest::ExpectEqual(t_listingDate, secondDate,
+                                         companyRecordSecondActual->first);
+    ////////
+    t_listingDate  preSecondDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(20))};
+    t_versionObject::t_datasetLedger::const_iterator companyRecordPreSecondActual =
+      vo.getVersionAt(preSecondDate);
+    unittest::ExpectEqual(bool, true, companyRecordPreSecondActual != vo.getDatasetLedger().cend()); // has record dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
+    unittest::ExpectEqual(dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>, companyRecordStart,
+                                                                    companyRecordPreSecondActual->second);
+    unittest::ExpectEqual(t_listingDate, listingDate,
+                                         companyRecordPreSecondActual->first);
+    ////////
+    t_listingDate  postSecondDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(22))};
+    t_versionObject::t_datasetLedger::const_iterator companyRecordPostSecondActual =
+      vo.getVersionAt(postSecondDate);
+    unittest::ExpectEqual(bool, true, companyRecordPostFirstActual != vo.getDatasetLedger().cend()); // has record dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
+    unittest::ExpectEqual(dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>, companyRecordSecondExpected,
+                                                                    companyRecordPostSecondActual->second);
+    unittest::ExpectEqual(t_listingDate, listingDate,
+                                         companyRecordPostFirstActual->first);
 
 
 //  ANDHRA PAPER LIMITED,IPAPPM,ANDPAPER,22-JAN-2020
@@ -157,13 +204,13 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     dsvo::MetaDataSource symChgNamChgMetaExp("+symbolchange+namechange",'+');
     dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST> companyRecordThirdExpected {symChgNamChgMetaExp, companyInfoThird};
 
-    std::optional<dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>> companyRecordThirdActual =
+    t_versionObject::t_datasetLedger::const_iterator companyRecordThirdActual =
       vo.getVersionAt(t_listingDate(std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))));
 
-    unittest::ExpectEqual(bool, true, companyRecordThirdActual.has_value()); // has dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
+    unittest::ExpectEqual(bool, true, companyRecordThirdActual != vo.getDatasetLedger().cend()); // has dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
 
     unittest::ExpectEqual(dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>, companyRecordThirdExpected,
-                                                                    companyRecordThirdActual.value());
+                                                                    companyRecordThirdActual->second);
 
 
 //  ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
@@ -174,13 +221,13 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
     dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST> companyRecordLatestExpected {symChgMetaExp, companyInfoLatest};
 
-    std::optional<dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>> companyRecordLatestActual =
+    t_versionObject::t_datasetLedger::const_iterator companyRecordLatestActual =
       vo.getVersionAt(t_listingDate(std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5))));
 
-    unittest::ExpectEqual(bool, true, companyRecordLatestActual.has_value()); // has dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
+    unittest::ExpectEqual(bool, true, companyRecordLatestActual != vo.getDatasetLedger().cend()); // has dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>
 
     unittest::ExpectEqual(dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>, companyRecordLatestExpected,
-                                                                    companyRecordLatestActual.value());
+                                                                    companyRecordLatestActual->second);
   } catch (const std::exception& ex) {
     std::cout << ex.what() << std::endl;
     rv = 1;

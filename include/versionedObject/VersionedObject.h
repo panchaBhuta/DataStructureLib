@@ -272,6 +272,10 @@ namespace datastructure { namespace versionedObject
   public:
 
     VersionedObject() : _datasetLedger() {}
+    virtual ~VersionedObject()
+    {
+      _datasetLedger.clear();
+    }
 
     //VersionedObject() = delete;
     VersionedObject(VersionedObject<VDT, MT...> const&) = default;
@@ -297,22 +301,22 @@ namespace datastructure { namespace versionedObject
       return success;
     }
 
-    inline const std::optional<t_dataset>
+    inline typename t_datasetLedger::const_iterator
     getVersionAt(const t_versionDate& forDate) const
     {
       if(_datasetLedger.empty())
       {
-        return {};
+        return _datasetLedger.cend();
       }
     
       // upper_bound -> returns an iterator to the first element greater than the given key
       auto iterC = _datasetLedger.upper_bound(forDate); // iterC points to first element that is after 'forDate'
-      if(iterC == _datasetLedger.begin()) // no record before the 'forDate'
+      if(iterC == _datasetLedger.cbegin()) // no record before the 'forDate'
       {
-        return {};
+        return _datasetLedger.cend();
       }
       --iterC;
-      return iterC->second;
+      return iterC;
     }
 
     inline const t_datasetLedger& getDatasetLedger() const
@@ -350,11 +354,12 @@ namespace datastructure { namespace versionedObject
       toCSV(oss);
       return oss.str();
     }
-
+/*
     inline typename t_datasetLedger::const_iterator find( const t_versionDate& forDate ) const
     {
       return _datasetLedger.find(forDate);
     }
+*/
   };
 
 } }   //  namespace datastructure::versionedObject

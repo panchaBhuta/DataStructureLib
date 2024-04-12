@@ -43,6 +43,8 @@ namespace datastructure { namespace versionedObject
         _lowrPriorityVersionedObject(lowrPriorityVersionedObject)
     {}
 
+    virtual ~VersionedObjectPriorityMerge() {}
+
     void getMergeResult(t_versionedObject& mergeVersionedObject) const
     {
       typename t_datasetLedger::const_iterator iterHighPriorityVO = _highPriorityVersionedObject.getDatasetLedger().cbegin();

@@ -114,9 +114,11 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordLatestExpected {companyInfoLatest};
 
     dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST> vo;
+    insertResult = vo.insertVersion(t_listingDate(std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5))),
+                                    companyRecordLatestExpected);
+    unittest::ExpectEqual(bool, true, insertResult);
     vob.buildReverseTimeline( t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))),
-                              companyRecordLatestExpected, vo);
-
+                              vo);
 
 //#################### check all versioned objects
 

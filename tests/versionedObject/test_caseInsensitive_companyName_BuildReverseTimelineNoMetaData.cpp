@@ -38,6 +38,8 @@ using t_companyInfo = std::tuple<COMPANYINFO_TYPE_LIST>;
 
 namespace dsvo = datastructure::versionedObject;
 
+using t_versionObject = dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST>;
+
 
 
 namespace unittest
@@ -110,25 +112,25 @@ A2Z Infra Engineering Limited,A2ZMES,A2ZINFRA,31-DEC-2014
 
     dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordStart {companyInfoStart};
 
-    std::optional<dsvo::DataSet<COMPANYINFO_TYPE_LIST>> companyRecordFirstActual =
+    t_versionObject::t_datasetLedger::const_iterator companyRecordFirstActual =
       vo.getVersionAt(t_listingDate(std::chrono::year(int(2010)), std::chrono::December, std::chrono::day(unsigned(23))));
 
-    unittest::ExpectEqual(bool, true, companyRecordFirstActual.has_value()); // has dsvo::DataSet<COMPANYINFO_TYPE_LIST>
+    unittest::ExpectEqual(bool, true, companyRecordFirstActual != vo.getDatasetLedger().cend()); // has dsvo::DataSet<COMPANYINFO_TYPE_LIST>
 
     unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecordStart,
-                                                                companyRecordFirstActual.value());
+                                                                companyRecordFirstActual->second);
 
 
 
 //  NOTE: the row below is not a versioned information, but info from EQUITY_L.csv
 //  A2ZINFRA,A2Z Infra Engineering Limited,BE,31-DEC-2014,10,1,INE619I01012,10,LISTED
-    std::optional<dsvo::DataSet<COMPANYINFO_TYPE_LIST>> companyRecordLatestActual =
+    t_versionObject::t_datasetLedger::const_iterator companyRecordLatestActual =
       vo.getVersionAt(t_listingDate(std::chrono::year(int(2014)), std::chrono::December, std::chrono::day(unsigned(31))));
 
-    unittest::ExpectEqual(bool, true, companyRecordLatestActual.has_value()); // has dsvo::DataSet<COMPANYINFO_TYPE_LIST>
+    unittest::ExpectEqual(bool, true, companyRecordLatestActual != vo.getDatasetLedger().cend()); // has dsvo::DataSet<COMPANYINFO_TYPE_LIST>
 
     unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecordLatestExpected,
-                                                                companyRecordLatestActual.value());
+                                                                companyRecordLatestActual->second);
 
   } catch (const std::exception& ex) {
     std::cout << ex.what() << std::endl;

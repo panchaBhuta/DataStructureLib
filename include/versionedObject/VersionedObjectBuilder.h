@@ -28,6 +28,9 @@ namespace datastructure { namespace versionedObject
   template <typename VDT, typename ... MT>
   class _VersionedObjectBuilderBase
   {
+  public:
+    using t_deltaEntriesMap  = typename std::multimap < VDT, ChangesInDataSet<MT...> >;
+
   protected:
     using t_versionDate      = VDT;
     using t_versionedObject  = VersionedObject<VDT, MT...>;
@@ -35,7 +38,7 @@ namespace datastructure { namespace versionedObject
     using t_record           = typename t_dataset::t_record;
     using t_metaData         = typename t_dataset::t_metaData;
 
-    std::multimap < t_versionDate, ChangesInDataSet<MT...> >  _deltaEntries;
+    t_deltaEntriesMap  _deltaEntries;
 
     _VersionedObjectBuilderBase() : _deltaEntries() {}
     virtual ~_VersionedObjectBuilderBase()
@@ -61,8 +64,9 @@ namespace datastructure { namespace versionedObject
         std::ostringstream eoss;
         eoss << "ERROR(1) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline(4) : startDate[";
         eoss << startDate << "] should be less than first-changeDate[" << _deltaEntries.begin()->first << "]" << std::endl;
+        eoss << "DataSet :: ";
         firstVersion.toCSV(eoss);
-        toCSV(eoss);
+        toStr("VersionObjectBuilder :: ", eoss);
         throw Change_Before_Start_Timeline_exception(eoss.str());
       }
 
@@ -114,8 +118,9 @@ namespace datastructure { namespace versionedObject
           std::ostringstream eoss;
           eoss << "ERROR(2) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline(4) : "
                << err.what() << std::endl;
+          eoss << "DataSet :: ";
           firstVersion.toCSV(eoss);
-          toCSV(eoss);
+          toStr("VersionObjectBuilder :: ", eoss);
           throw std::invalid_argument(eoss.str());
         }
 
@@ -151,7 +156,7 @@ namespace datastructure { namespace versionedObject
         std::ostringstream eoss;
         eoss << "ERROR(1) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline(3) : "
                 "VersionObject cannot be empty." << std::endl;
-        toCSV(eoss);
+        toStr("VersionObjectBuilder :: ", eoss);
         throw Empty_VersionObject_exception(eoss.str());
       }
 
@@ -161,7 +166,7 @@ namespace datastructure { namespace versionedObject
         std::ostringstream eoss;
         eoss << "ERROR(2) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline(3) : startDate[";
         eoss << startDate << "] should be less than first-changeDate[" << _deltaEntries.begin()->first << "]" << std::endl;
-        toCSV(eoss);
+        toStr("VersionObjectBuilder :: ", eoss);
         throw Change_Before_Start_Timeline_exception(eoss.str());
       }
 
@@ -236,8 +241,9 @@ namespace datastructure { namespace versionedObject
           std::ostringstream eoss;
           eoss << "ERROR(3) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline(3) : "
                << err.what() << std::endl;
+          eoss << "DataSet :: ";
           ledgerIter->second.toCSV(eoss);
-          toCSV(eoss);
+          toStr("VersionObjectBuilder :: ", eoss);
           throw std::invalid_argument(eoss.str());
         }
 
@@ -275,7 +281,8 @@ namespace datastructure { namespace versionedObject
         std::ostringstream eoss;
         eoss << "ERROR(1) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline(4) : startDate[";
         eoss << startDate << "] should be less than first-changeDate[" << _deltaEntries.begin()->first << "]" << std::endl;
-        toCSV(eoss);
+        toStr("VersionObjectBuilder :: ", eoss);
+        eoss << "DataSet :: ";
         lastVersion.toCSV(eoss);
         throw Change_Before_Start_Timeline_exception(eoss.str());
       }
@@ -330,7 +337,8 @@ namespace datastructure { namespace versionedObject
           std::ostringstream eoss;
           eoss << "ERROR(2) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline(4) : "
                << err.what() << std::endl;
-          toCSV(eoss);
+          toStr("VersionObjectBuilder :: ", eoss);
+          eoss << "DataSet :: ";
           lastVersion.toCSV(eoss);
           throw std::invalid_argument(eoss.str());
         }
@@ -366,7 +374,7 @@ namespace datastructure { namespace versionedObject
         std::ostringstream eoss;
         eoss << "ERROR(1) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline(3) : "
                 "VersionObject cannot be empty." << std::endl;
-        toCSV(eoss);
+        toStr("VersionObjectBuilder :: ", eoss);
         throw Empty_VersionObject_exception(eoss.str());
       }
 
@@ -375,7 +383,8 @@ namespace datastructure { namespace versionedObject
         std::ostringstream eoss;
         eoss << "ERROR(2) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline(3) : startDate[";
         eoss << startDate << "] should be less than first-changeDate[" << _deltaEntries.begin()->first << "]" << std::endl;
-        toCSV(eoss);
+        toStr("VersionObjectBuilder :: ", eoss);
+        eoss << "DataSet :: ";
         _deltaEntries.begin()->second.toCSV(eoss);
         throw Change_Before_Start_Timeline_exception(eoss.str());
       }
@@ -450,7 +459,8 @@ namespace datastructure { namespace versionedObject
           std::ostringstream eoss;
           eoss << "ERROR(3) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline(3) : "
                << err.what() << std::endl;
-          toCSV(eoss);
+          toStr("VersionObjectBuilder :: ", eoss);
+          eoss << "DataSet :: ";
           ledgerIter->second.toCSV(eoss);
           throw std::invalid_argument(eoss.str());
         }
@@ -506,13 +516,27 @@ namespace datastructure { namespace versionedObject
       }
     }
 
-    /*
-    inline const std::multimap < t_versionDate, ChangesInDataSet<MT...> >&
-    getContainer() const
+    inline void toStr(const std::string& prefix, std::ostream& oss) const
     {
-      return _deltaEntries;
+      for(auto iter : _deltaEntries)
+      {
+        oss << prefix << "versionDate=" << iter.first << ", deltaEntry = {";
+        iter.second.toCSV(oss);
+        oss << "}" << std::endl;
+      }
     }
-    */
+
+    inline void toStr(std::ostream& oss) const
+    {
+      for(auto iter : _deltaEntries)
+      {
+        oss << "versionDate=" << iter.first << ", deltaEntry = {";
+        iter.second.toCSV(oss);
+        oss << "}" << std::endl;
+      }
+    }
+
+    inline const t_deltaEntriesMap& getContainer() const { return _deltaEntries; }
   };
 
   template <typename VDT, typename M, typename ... T>

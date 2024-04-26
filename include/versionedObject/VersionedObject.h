@@ -177,8 +177,8 @@ namespace datastructure { namespace versionedObject
     inline std::string toLog() const
     {
       std::ostringstream oss;
-      oss << " metaData=" << _metaData.toCSV()
-          << " , record=" << converter::ConvertFromTuple<T...>::ToStr(_record) ;
+      oss << " metaData=[" << _metaData.toCSV()
+          << "] ; record=[" << converter::ConvertFromTuple<T...>::ToStr(_record) << "]";
       return oss.str();
     }
 
@@ -233,7 +233,7 @@ namespace datastructure { namespace versionedObject
     inline std::string toLog() const
     {
       std::ostringstream oss;
-      oss << " record=" << converter::ConvertFromTuple<T1, TR...>::ToStr(_record) ;
+      oss << " record=[" << converter::ConvertFromTuple<T1, TR...>::ToStr(_record) << "]";
       return oss.str();
     }
 
@@ -283,9 +283,10 @@ namespace datastructure { namespace versionedObject
     bool operator==(VersionedObject<VDT, MT...> const&) const = default;
 
     // throws an error if for a particular date existing-record doesn't match the new-record
+    // returns false if same record exists
     inline bool insertVersion(const t_versionDate& forDate, const t_dataset& newEntry)
     {
-      VERSIONEDOBJECT_DEBUG_LOG( "date=" << forDate << ", newEntry={ " << newEntry.toLog() << " }");
+      VERSIONEDOBJECT_DEBUG_LOG( "versionDate=" << forDate << ", newEntry={ " << newEntry.toLog() << " }");
       const auto [ iter, success ] = _datasetLedger.emplace(forDate, newEntry);
       if( (!success) && (iter->second != newEntry) )  // different record exits in _datasetLedger
       {
@@ -345,6 +346,37 @@ namespace datastructure { namespace versionedObject
         const t_dataset& dataset = iter.second;
         dataset.toCSV(oss);
         oss << std::endl;
+      }
+    }
+
+    inline std::string toStr() const
+    {
+      std::ostringstream oss;
+      toCSV(oss);
+      return oss.str();
+    }
+
+    inline void toStr(const std::string& prefix, std::ostream& oss) const
+    {
+      for(auto iter : _datasetLedger)
+      {
+        const t_versionDate& versionDate = iter.first;
+        const t_dataset& dataset = iter.second;
+        oss << prefix << "versionDate=" << versionDate << ", dataSet={";
+        dataset.toCSV(oss);
+        oss << "}" << std::endl;
+      }
+    }
+
+    inline void toStr(std::ostream& oss) const
+    {
+      for(auto iter : _datasetLedger)
+      {
+        const t_versionDate& versionDate = iter.first;
+        oss << "versionDate=" << versionDate << ", dataSet={";
+        const t_dataset& dataset = iter.second;
+        dataset.toCSV(oss);
+        oss << "}" << std::endl;
       }
     }
 

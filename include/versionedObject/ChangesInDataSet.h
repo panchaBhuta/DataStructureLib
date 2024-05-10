@@ -23,6 +23,12 @@ namespace datastructure { namespace versionedObject
 
   using SnapshotChange_ReverseTimelineBuild_exception  =  VO_exception<3>;
 
+  enum ApplicableChangeDirection {
+    FORWARD,
+    REVERSE,
+    BIDIRECTION
+  };
+
   template <typename ... T>
   class _ChangesInDataSetBase
   {
@@ -86,6 +92,8 @@ namespace datastructure { namespace versionedObject
       _getPreviousValue<sizeof...(T) -1, false>(updateRecord, hitheroProcessedElements);
     }
 
+    inline ApplicableChangeDirection getApplicableChangeDirection() const { return _applicableChangeDirection; }
+
     inline void toCSV(std::ostream& oss) const
     {
       //oss << _source;
@@ -102,19 +110,23 @@ namespace datastructure { namespace versionedObject
   protected:
     _ChangesInDataSetBase( const std::array <bool, sizeof...(T)> modifiedElements,
                            const t_record& oldValues,
-                           const t_record& newValues)
+                           const t_record& newValues,
+                                 ApplicableChangeDirection applicableChangeDirection = ApplicableChangeDirection::BIDIRECTION)
       : _modifiedElements(modifiedElements),
         _oldValues(oldValues),
         _newValues(newValues),
-        _isSnapshot(false)
+        _isSnapshot(false),
+        _applicableChangeDirection(applicableChangeDirection)
     {}
 
     _ChangesInDataSetBase( const std::array <bool, sizeof...(T)> modifiedElements,
-                           const t_record& snapshotValues)
+                           const t_record& snapshotValues,
+                                 ApplicableChangeDirection applicableChangeDirection = ApplicableChangeDirection::FORWARD)
       : _modifiedElements(modifiedElements),
         _oldValues(),
         _newValues(snapshotValues),
-        _isSnapshot(true)
+        _isSnapshot(true),
+        _applicableChangeDirection(applicableChangeDirection)
     {}
 
     template<size_t IDX>
@@ -227,7 +239,9 @@ namespace datastructure { namespace versionedObject
     const t_record _oldValues;                                      // value(s) of elements before change
     const t_record _newValues;                                      // value(s) of elements after  change
     const bool     _isSnapshot;
+    const ApplicableChangeDirection _applicableChangeDirection;
   };
+
 
 
   template <typename M, typename ... T>
@@ -242,15 +256,17 @@ namespace datastructure { namespace versionedObject
     ChangesInDataSet( const M& metaData,
                       const std::array <bool, sizeof...(T)> modifiedElements,
                       const t_record& oldValues,
-                      const t_record& newValues)
-      : _ChangesInDataSetBase<T...>(modifiedElements, oldValues, newValues),
+                      const t_record& newValues,
+                      ApplicableChangeDirection applicableChangeDirection = ApplicableChangeDirection::BIDIRECTION)
+      : _ChangesInDataSetBase<T...>(modifiedElements, oldValues, newValues, applicableChangeDirection),
         _metaData(metaData)
     {}
 
     ChangesInDataSet( const M& metaData,
                       const std::array <bool, sizeof...(T)> modifiedElements,
-                      const t_record& snapshotValues)
-      : _ChangesInDataSetBase<T...>(modifiedElements, snapshotValues),
+                      const t_record& snapshotValues,
+                      ApplicableChangeDirection applicableChangeDirection = ApplicableChangeDirection::FORWARD)
+      : _ChangesInDataSetBase<T...>(modifiedElements, snapshotValues, applicableChangeDirection),
         _metaData(metaData)
     {}
 
@@ -290,13 +306,15 @@ namespace datastructure { namespace versionedObject
 
     ChangesInDataSet( const std::array <bool, std::tuple_size_v<t_record>> modifiedElements,
                       const t_record& oldValues,
-                      const t_record& newValues)
-      : _ChangesInDataSetBase<T1, TR...>(modifiedElements, oldValues, newValues)
+                      const t_record& newValues,
+                      ApplicableChangeDirection applicableChangeDirection = ApplicableChangeDirection::BIDIRECTION)
+      : _ChangesInDataSetBase<T1, TR...>(modifiedElements, oldValues, newValues, applicableChangeDirection)
     {}
 
     ChangesInDataSet( const std::array <bool, std::tuple_size_v<t_record>> modifiedElements,
-                      const t_record& snapshotValues)
-      : _ChangesInDataSetBase<T1, TR...>(modifiedElements, snapshotValues)
+                      const t_record& snapshotValues,
+                      ApplicableChangeDirection applicableChangeDirection = ApplicableChangeDirection::FORWARD)
+      : _ChangesInDataSetBase<T1, TR...>(modifiedElements, snapshotValues, applicableChangeDirection)
     {}
 
     ChangesInDataSet() = delete;

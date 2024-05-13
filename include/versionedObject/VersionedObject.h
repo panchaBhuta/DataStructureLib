@@ -100,7 +100,7 @@ namespace datastructure { namespace versionedObject
 
     inline void appendMetaInfo(const MetaDataSource& other)
     {
-      _source = _source + _prefix + other._source;
+      _source = _source + other._prefix + other._source;
     }
 
     inline void toCSV(std::ostream& oss) const
@@ -286,7 +286,7 @@ namespace datastructure { namespace versionedObject
     // returns false if same record exists
     inline bool insertVersion(const t_versionDate& forDate, const t_dataset& newEntry)
     {
-      VERSIONEDOBJECT_DEBUG_LOG( "versionDate=" << forDate << ", newEntry={ " << newEntry.toLog() << " }");
+      //VERSIONEDOBJECT_DEBUG_LOG( "versionDate=" << forDate << ", newEntry={ " << newEntry.toLog() << " }");  // this is too verbose
       const auto [ iter, success ] = _datasetLedger.emplace(forDate, newEntry);
       if( (!success) && (iter->second != newEntry) )  // different record exits in _datasetLedger
       {

@@ -37,9 +37,10 @@ using t_paidUpValue = uint16_t;
 using t_marketLot   = uint16_t;
 using t_isinNumber  = std::string;
 using t_faceValue   = uint16_t;
+using t_status      = std::string;
 
 #define COMPANYINFO_TYPE_LIST t_symbol, t_companyName, t_series,     \
-                              t_paidUpValue, t_marketLot, t_isinNumber, t_faceValue
+                              t_paidUpValue, t_marketLot, t_isinNumber, t_faceValue,  t_status
 using t_companyInfo = std::tuple<COMPANYINFO_TYPE_LIST>;
 
 namespace dsvo = datastructure::versionedObject;
@@ -75,99 +76,84 @@ ANDHRA PAPER LIMITED,APPAPER,IPAPPM,21-JAN-2014
 ANDHRA PAPER LIMITED,IPAPPM,ANDPAPER,22-JAN-2020
 ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 */
-    dsvo::MetaDataSource symChgMeta("symbolchange",'-');
+    dsvo::MetaDataSource symChgMeta("symbolchange",'+');
     const std::array <bool, std::tuple_size_v<t_companyInfo> > symbolChangeFlg = {true, false, false, false, false, false, false};
 
-    t_companyInfo symChgOldInfo1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("APPAPER,,,0,0,,0");
-    t_companyInfo symChgNewInfo1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("IPAPPM,,,0,0,,0");
+    t_companyInfo symChgOldInfo1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("APPAPER,,,0,0,,0,");
+    t_companyInfo symChgNewInfo1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("IPAPPM,,,0,0,,0,");
     dsvo::ChangesInDataSet<COMPANYMETAINFO_TYPE_LIST> symbolChange1 {symChgMeta, symbolChangeFlg, symChgOldInfo1, symChgNewInfo1};  // DELTA Change
     insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))), symbolChange1);
     unittest::ExpectEqual(bool, true, insertResult);
 
-    t_companyInfo symChgOldInfo2 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("IPAPPM,,,0,0,,0");
-    t_companyInfo symChgNewInfo2 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("ANDPAPER,,,0,0,,0");
+    t_companyInfo symChgOldInfo2 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("IPAPPM,,,0,0,,0,");
+    t_companyInfo symChgNewInfo2 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("ANDPAPER,,,0,0,,0,");
     dsvo::ChangesInDataSet<COMPANYMETAINFO_TYPE_LIST> symbolChange2 {symChgMeta, symbolChangeFlg, symChgOldInfo2, symChgNewInfo2};  // DELTA Change
     insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))), symbolChange2);
     unittest::ExpectEqual(bool, true, insertResult);
 
-    t_companyInfo symChgOldInfo3 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("ANDPAPER,,,0,0,,0");
-    t_companyInfo symChgNewInfo3 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("ANDHRAPAP,,,0,0,,0");
+    t_companyInfo symChgOldInfo3 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("ANDPAPER,,,0,0,,0,");
+    t_companyInfo symChgNewInfo3 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("ANDHRAPAP,,,0,0,,0,");
     dsvo::ChangesInDataSet<COMPANYMETAINFO_TYPE_LIST> symbolChange3 {symChgMeta, symbolChangeFlg, symChgOldInfo3, symChgNewInfo3};  // DELTA Change
     insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5))), symbolChange3);
     unittest::ExpectEqual(bool, true, insertResult);
 
 
-    dsvo::MetaDataSource namChgMeta("namechange",'-');
-    const std::array <bool, std::tuple_size_v<t_companyInfo> > nameChangeFlg = {false, true, false, false, false, false, false};
+    dsvo::MetaDataSource namChgMeta("namechange",'+');
+    const std::array <bool, std::tuple_size_v<t_companyInfo> > nameChangeFlg = {false, true, false, false, false, false, false, false};
 
 //  NOTE : the row below is from namechange.csv
 //  SYMBOL, OLD-CompanyName, NEW-CompanyName, CHANGE-DATE
 //  ANDHRAPAP,International Paper APPM Limited,ANDHRA PAPER LIMITED,22-JAN-2020
-    t_companyInfo namChgOldInfo1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",International Paper APPM Limited,,0,0,,0");
-    t_companyInfo namChgNewInfo1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",ANDHRA PAPER LIMITED,,0,0,,0");
+    t_companyInfo namChgOldInfo1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",International Paper APPM Limited,,0,0,,0,");
+    t_companyInfo namChgNewInfo1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",ANDHRA PAPER LIMITED,,0,0,,0,");
     dsvo::ChangesInDataSet<COMPANYMETAINFO_TYPE_LIST> nameChange1 {namChgMeta, nameChangeFlg, namChgOldInfo1, namChgNewInfo1};  // DELTA Change
     insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))), nameChange1);
     unittest::ExpectEqual(bool, true, insertResult);
 
-
-
-//  NOTE : the row below is not a versioned information, but info from EQUITY_L.csv
-//       ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,13-MAY-2004,10,1,INE435A01028,10
-    t_companyInfo companyInfoLatest = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
-      "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10"    );
-
-    dsvo::MetaDataSource latestMeta("EQUITY_L",'-');
-    dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST> companyRecordLatestExpected {latestMeta, companyInfoLatest};
-
-    // resetMetaBack for cloning in _VersionedObjectBuilderBase<MT...>::_buildReverseTimeline()
-    dsvo::MetaDataSource resetMetaReverse("",'-');
-    dsvo::VersionedObject<t_fmtdbY, COMPANYMETAINFO_TYPE_LIST> vo;
-    insertResult = vo.insertVersion(t_listingDate(std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5))),
-                                    companyRecordLatestExpected);
-    unittest::ExpectEqual(bool, true, insertResult);
-    vob.buildReverseTimeline( t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))),
-                              vo, resetMetaReverse);
-
-    //std::cout << "#### vo start ######\n" << vo.toCSV() << "#### vo end ######\n";
-    std::string voStrBack =
-      "13-May-2004,-symbolchange,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10\n"
-      "21-Jan-2014,-namechange-symbolchange,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10\n"
-      "22-Jan-2020,-symbolchange,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10\n"
-      "05-Mar-2020,EQUITY_L,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10\n";
-
-    unittest::ExpectEqual(std::string, voStrBack, vo.toCSV());
-
     ////////////////////////              SNAPSHOT change test
     dsvo::MetaDataSource lotChgMeta("marketLotchange",'+');
-    const std::array <bool, std::tuple_size_v<t_companyInfo> > lotChangeFlg = {false, false, false, false, true, false, false};
+    const std::array <bool, std::tuple_size_v<t_companyInfo> > lotChangeFlg = {false, false, false, false, true, false, false, false};
 
-    t_companyInfo lotChgInfo = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",,,0,2,,0");
+    t_companyInfo lotChgInfo = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",,,0,2,,0,");
     dsvo::ChangesInDataSet<COMPANYMETAINFO_TYPE_LIST> lotChange {lotChgMeta, lotChangeFlg, lotChgInfo};   // SNAPSHOT Change
     insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))), lotChange);
     unittest::ExpectEqual(bool, true, insertResult);
 
-    // resetMetaForward for cloning in _VersionedObjectBuilderBase<MT...>::_buildForwardTimeline()
+
+
+//  NOTE : the row below is manually deduced
+//  APPAPER,International Paper APPM Limited,EQ,13-MAY-2004,10,1,INE435A01028,10
+    t_companyInfo companyInfoStart = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
+      "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED"    );
+
+    dsvo::MetaDataSource manualMeta("manualDeduction",'+');
+    dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST> companyRecordStart {manualMeta, companyInfoStart};
+
+    dsvo::MetaDataSource resetMetaReverse("",'-');
     dsvo::MetaDataSource resetMetaForward("",'+');
-    vob.buildForwardTimeline(vo, resetMetaForward);
+    dsvo::VersionedObject<t_fmtdbY, COMPANYMETAINFO_TYPE_LIST> vo;
+    insertResult = vo.insertVersion(t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))),
+                                    companyRecordStart);
+    unittest::ExpectEqual(bool, true, insertResult);
+    std::vector<decltype(vob)::t_versionDate> startDates{};
+    vob.buildBiDirectionalTimeline( startDates, vo, resetMetaReverse, resetMetaForward);
 
 
 //#################### check all versioned objects
 
     //std::cout << "#### vo start ######\n" << vo.toCSV() << "#### vo end ######\n";
-    std::string voStrForward = voStrBack +
-      "07-Apr-2021,+marketLotchange,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10\n";
+    std::string voStr =
+      "13-May-2004,manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"
+      "21-Jan-2014,+symbolchange,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"
+      "22-Jan-2020,+symbolchange+namechange,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n"
+      "05-Mar-2020,+symbolchange,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n"
+      "07-Apr-2021,+marketLotchange,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED\n";
 
-    unittest::ExpectEqual(std::string, voStrForward, vo.toCSV());
+    unittest::ExpectEqual(std::string, voStr, vo.toCSV());
 
 //  NOTE : the row below is manually deduced
 //  APPAPER,International Paper APPM Limited,EQ,13-MAY-2004,10,1,INE435A01028,10
     t_listingDate  listingDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))};
-    t_companyInfo companyInfoStart = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
-      "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10"    );
-
-    dsvo::MetaDataSource symChgMetaExp("-symbolchange",'-');
-    dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST> companyRecordStart {symChgMetaExp, companyInfoStart};
-
     t_versionObject::t_datasetLedger::const_iterator companyRecordFirstActual =
       vo.getVersionAt(listingDate);
 
@@ -194,10 +180,10 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
 //  ANDHRA PAPER LIMITED,APPAPER,IPAPPM,21-JAN-2014
     t_companyInfo companyInfoSecond = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
-      "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10"    );
+      "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED"    );
 
-    dsvo::MetaDataSource symChgNamChgMetaExp("-namechange-symbolchange",'-');
-    dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST> companyRecordSecondExpected {symChgNamChgMetaExp, companyInfoSecond};
+    dsvo::MetaDataSource symChgMetaExp("+symbolchange",'+');
+    dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST> companyRecordSecondExpected {symChgMetaExp, companyInfoSecond};
 
     t_listingDate secondDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))};
     t_versionObject::t_datasetLedger::const_iterator companyRecordSecondActual =
@@ -231,9 +217,10 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 //  ANDHRA PAPER LIMITED,IPAPPM,ANDPAPER,22-JAN-2020
 //  ANDHRAPAP,International Paper APPM Limited,ANDHRA PAPER LIMITED,22-JAN-2020
     t_companyInfo companyInfoThird = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
-      "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10"    );
+      "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED"    );
 
-    dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST> companyRecordThirdExpected {symChgMetaExp, companyInfoThird};
+    dsvo::MetaDataSource symChgNamChgMetaExp("+symbolchange+namechange",'+');
+    dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST> companyRecordThirdExpected {symChgNamChgMetaExp, companyInfoThird};
 
     t_versionObject::t_datasetLedger::const_iterator companyRecordThirdActual =
       vo.getVersionAt(t_listingDate(std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))));
@@ -247,6 +234,11 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 //  ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 //  NOTE: the row below is not a versioned information, but info from EQUITY_L.csv
 //       ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,13-MAY-2004,10,1,INE435A01028,10
+    t_companyInfo companyInfoLatest = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
+      "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED"    );
+
+    dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST> companyRecordLatestExpected {symChgMetaExp, companyInfoLatest};
+
     t_versionObject::t_datasetLedger::const_iterator companyRecordLatestActual =
       vo.getVersionAt(t_listingDate(std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5))));
 
@@ -256,10 +248,10 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
                                                                     companyRecordLatestActual->second);
 
 
-//  ",,,0,2,,0"
+//  ",,,0,2,,0,"
 //  ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10
     t_companyInfo companyInfoFifth = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
-      "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10"    );
+      "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED"    );
 
     dsvo::MetaDataSource lotChgMetaExp("+marketLotchange",'+');
     dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST> companyRecordFifthExpected {lotChgMetaExp, companyInfoFifth};

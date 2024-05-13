@@ -14,6 +14,8 @@
 #pragma once
 
 #include <array>
+#include <vector>
+#include <stdexcept>
 
 #include <versionedObject/VersionedObject.h>
 #include <versionedObject/ChangesInDataSet.h>
@@ -41,6 +43,7 @@ namespace datastructure { namespace versionedObject
     using t_dataset          = DataSet<MT...>;
     using t_record           = typename t_dataset::t_record;
     using t_metaData         = typename t_dataset::t_metaData;
+    using t_datasetLedger    = typename t_versionedObject::t_datasetLedger;
 
     t_deltaEntriesMap  _deltaEntries;
 
@@ -430,6 +433,7 @@ namespace datastructure { namespace versionedObject
         toStr("VersionObjectBuilder :: ", eoss);
         throw FirstVersion_Before_LastDeltaChange_ReverseTimeline_exception(eoss.str());
       }
+      //std::cout << eoss.str();
 
       for( auto iterDelta = _deltaEntries.begin(); iterDelta != _deltaEntries.end(); ++iterDelta )
       {
@@ -533,53 +537,131 @@ namespace datastructure { namespace versionedObject
       _deltaEntries.clear();
     }
 
-/*
     void _buildBiDirectionalTimeline( // with filled VersionObject
-                  const t_versionDate& startDate,
+                  const std::vector<t_versionDate>& startDates,
                   //const t_dataset& lastVersion,
                   t_versionedObject& vo,
-                  const t_metaData* const metaDataResetCloner = nullptr) // nullptr when MetaData is NOT used
+                  const t_metaData* const metaDataResetClonerReverse = nullptr, // nullptr when MetaData is NOT used
+                  const t_metaData* const metaDataResetClonerForward = nullptr) // nullptr when MetaData is NOT used
     {
-      t_versionedObject resultVO{};
+      t_versionedObject initialStateVO{vo};
 
-      typename t_datasetLedger::const_iterator   iterVO           = vo.getDatasetLedger().cbegin();
+      typename t_datasetLedger::const_iterator   iterVO           = initialStateVO.getDatasetLedger().cbegin();
       typename t_deltaEntriesMap::const_iterator iterDeltaEntries = _deltaEntries.cbegin();
 
-      if( iterVO != vo.getDatasetLedger().cend() &&
-          iterDeltaEntries != _deltaEntries.cend())
-      {
-        while(iterDeltaEntries != _deltaEntries.cend()  &&
-              iterDeltaEntries->first < iterVO->first)
-        {
-          tempVOB.insertDeltaVersion(iterDeltaEntries->first, iterDeltaEntries->second);
-          ++iterDeltaEntries;
-        }
-        resultVO.insertVersion(iterVO->first, iterVO->second);
-        // TODO startDate applicable only on first call, on subsequent calls have to fgure out
-        tempVOB._buildReverseTimeline(startDate, resultVO, metaDataResetCloner);
-      }
 
-      while(iterVO != vo.getDatasetLedger().cend() &&
-            iterDeltaEntries != _deltaEntries.cend())
+      bool isIterIncremented = true; // first condition
+      size_t buildReverseIter = 0;
+      while(iterVO != initialStateVO.getDatasetLedger().cend() &&
+            iterDeltaEntries != _deltaEntries.cend() &&
+            isIterIncremented)
       {
-        if(iterDeltaEntries->first > iterVO->first)
+        isIterIncremented = false; // set to true if either of iterDeltaEntries OR iterVO has got incremented
+
+        if( iterDeltaEntries != _deltaEntries.cend()  &&
+            iterDeltaEntries->first <= iterVO->first)
         {
-          while(iterDeltaEntries != _deltaEntries.cend()  &&
-                iterDeltaEntries->first > iterVO->first)
+          _VersionedObjectBuilderBase<VDT, MT...> tempVOB{};
+
+          while(iterDeltaEntries != _deltaEntries.cend()   &&
+                iterDeltaEntries->first <= iterVO->first   &&
+                iterDeltaEntries->second.getApplicableChangeDirection() != ApplicableChangeDirection::FORWARD)
           {
             tempVOB.insertDeltaVersion(iterDeltaEntries->first, iterDeltaEntries->second);
             ++iterDeltaEntries;
+            isIterIncremented = true;
           }
-          tempVOB._buildForwardTimeline(startDate, resultVO, metaDataResetCloner);
-        } else {
-          c
+
+          if(isIterIncremented)
+          {
+            if(buildReverseIter > startDates.size())
+            {
+              std::ostringstream eoss;
+              eoss << "ERROR(1) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildBiDirectionalTimeline() : list of startDates[";
+              for(auto sd : startDates) eoss << sd << ",";
+              eoss << "] has insufficient dates." << std::endl;
+              vo.toStr("VersionObject :: ", eoss);
+              toStr("VersionObjectBuilder :: ", eoss);
+              throw std::out_of_range(eoss.str());
+            }
+
+            t_versionedObject reverseBuildVO{};
+            reverseBuildVO.insertVersion(iterVO->first, iterVO->second);
+
+            tempVOB._buildReverseTimeline(startDates[buildReverseIter++],
+                                          reverseBuildVO, metaDataResetClonerReverse);
+            size_t count = 1; // count is 1 NOT zero, as the last valid element in 'reverseBuildVO' is seed,
+                              // and already present in 'vo'
+            for(auto  partialResultIter  = reverseBuildVO.getDatasetLedger().cbegin();
+                      count < reverseBuildVO.getDatasetLedger().size();
+                    ++partialResultIter, ++count)
+            {
+              vo.insertVersion(partialResultIter->first, partialResultIter->second);
+            }
+          }
+        } // else ::: DONOT club with if(iterDeltaEntries->first > iterVO->first) ::: keep these 2 blocks disjoint
+
+        if( iterDeltaEntries != _deltaEntries.cend()  &&
+            iterDeltaEntries->first > iterVO->first)
+        {
+          _VersionedObjectBuilderBase<VDT, MT...> tempVOB{};
+
+          auto iterNextVO = iterVO;
+          ++iterNextVO;
+          bool isIterIncremented2 = false;
+          while(iterDeltaEntries != _deltaEntries.cend()  &&
+                iterDeltaEntries->first > iterVO->first   &&
+                iterDeltaEntries->second.getApplicableChangeDirection() != ApplicableChangeDirection::REVERSE
+                &&
+                  (iterNextVO == initialStateVO.getDatasetLedger().cend() ||
+                   iterDeltaEntries->first < iterNextVO->first)
+               )
+          {
+            tempVOB.insertDeltaVersion(iterDeltaEntries->first, iterDeltaEntries->second);
+            ++iterDeltaEntries;
+            isIterIncremented2 = true;
+          }
+          if(isIterIncremented2)
+          {
+            t_versionedObject forwardBuildVO{};
+            forwardBuildVO.insertVersion(iterVO->first, iterVO->second);
+            tempVOB._buildForwardTimeline(forwardBuildVO, metaDataResetClonerForward);
+            auto  partialResultIter  = forwardBuildVO.getDatasetLedger().cbegin();
+            ++partialResultIter; // skip the seed
+            for(  ;
+                  partialResultIter != forwardBuildVO.getDatasetLedger().cend();
+                ++partialResultIter)
+            {
+              vo.insertVersion(partialResultIter->first, partialResultIter->second);
+            }
+            isIterIncremented = true;
+          }
         }
-        ++iterVO;
-        resultVO.insertVersion(iterVO->first, iterVO->second);
+
+        if(isIterIncremented)
+        {
+          ++iterVO;
+        }
       }
 
+      if(iterDeltaEntries != _deltaEntries.cend())
+      {
+        std::ostringstream eoss;
+        eoss << "ERROR(2) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildBiDirectionalTimeline() : startDates[";
+        for(auto sd : startDates) eoss << sd << ",";
+        eoss << "]" << std::endl << "Unprocessed deltaEntries, starting from deltaEntry-date[" << iterDeltaEntries->first << "]" << std::endl;
+        vo.toStr("VersionObject :: ", eoss);
+        toStr("VersionObjectBuilder :: ", eoss);
+        throw std::range_error(eoss.str());
+      }
+      /*  NOT NEEDED
+      while(iterVO != initialStateVO.getDatasetLedger().cend())
+      {
+        vo.insertVersion(partialResultIter->first, partialResultIter->second);
+        ++iterVO;
+      }
+      */
     }
-*/
 
   public:
     inline bool insertDeltaVersion(const t_versionDate& forDate,
@@ -691,10 +773,12 @@ namespace datastructure { namespace versionedObject
 
 
     inline void buildBiDirectionalTimeline( // with filled VersionObject
+            const std::vector<t_versionDate>& startDates,
             VersionedObject<VDT, M, T...>& vo,
-            const t_metaData& metaDataResetCloner) // when MetaData is used
+            const t_metaData& metaDataResetClonerReverse, // when MetaData is used
+            const t_metaData& metaDataResetClonerForward) // when MetaData is used
     {
-      this->_buildBiDirectionalTimeline(vo, &metaDataResetCloner);
+      this->_buildBiDirectionalTimeline(startDates, vo, &metaDataResetClonerReverse, &metaDataResetClonerForward);
     }
 
   };
@@ -743,9 +827,10 @@ namespace datastructure { namespace versionedObject
 
 
     inline void buildBiDirectionalTimeline( // with filled VersionObject
+            const std::vector<t_versionDate>& startDates,
             VersionedObject<VDT, T1, TR...>& vo) // when MetaData is NOT used
     {
-      this->_buildBiDirectionalTimeline(vo);
+      this->_buildBiDirectionalTimeline(startDates, vo);
     }
 
   };

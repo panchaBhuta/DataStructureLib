@@ -559,7 +559,7 @@ namespace datastructure { namespace versionedObject
         isIterIncremented = false; // set to true if either of iterDeltaEntries OR iterVO has got incremented
 
         if( iterDeltaEntries != _deltaEntries.cend()  &&
-            iterDeltaEntries->first <= iterVO->first)
+            iterDeltaEntries->first <= iterVO->first)   // Reverse Timeline
         {
           _VersionedObjectBuilderBase<VDT, MT...> tempVOB{};
 
@@ -574,7 +574,7 @@ namespace datastructure { namespace versionedObject
 
           if(isIterIncremented)
           {
-            if(buildReverseIter > startDates.size())
+            if(buildReverseIter >= startDates.size())
             {
               std::ostringstream eoss;
               eoss << "ERROR(1) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildBiDirectionalTimeline() : list of startDates[";
@@ -602,7 +602,7 @@ namespace datastructure { namespace versionedObject
         } // else ::: DONOT club with if(iterDeltaEntries->first > iterVO->first) ::: keep these 2 blocks disjoint
 
         if( iterDeltaEntries != _deltaEntries.cend()  &&
-            iterDeltaEntries->first > iterVO->first)
+            iterDeltaEntries->first > iterVO->first)   // Forward Timeline
         {
           _VersionedObjectBuilderBase<VDT, MT...> tempVOB{};
 

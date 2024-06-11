@@ -13,6 +13,7 @@
 
 #pragma once
 
+#include <type_traits>
 #include <array>
 
 #include <versionedObject/VersionedObject.h>
@@ -25,8 +26,7 @@ namespace datastructure { namespace versionedObject
 
   enum ApplicableChangeDirection {
     FORWARD,
-    REVERSE,
-    BIDIRECTION
+    REVERSE
   };
 
   template <typename ... T>
@@ -40,13 +40,63 @@ namespace datastructure { namespace versionedObject
     _ChangesInDataSetBase& operator=(_ChangesInDataSetBase const&) = delete;
     bool operator==(_ChangesInDataSetBase const&) const = default;
 
-    inline void getLatestRecord(t_record& updateRecord,
-                                std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
+    // elements that has changed is indicated by 'true'
+    inline const std::array <bool, sizeof...(T)> getModifiedIndexes() const { return _modifiedElements; }
+    inline bool isSnapShot() const { return _isSnapshot; }
+    inline ApplicableChangeDirection getApplicableChangeDirection() const { return _applicableChangeDirection; }
+
+
+    bool isNextChgValueEqual_deltaChange(const t_record& matchRecord) const
+    {
+      if (_isSnapshot)
+      {
+        std::ostringstream eoss;
+        eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::isNextChgValueEqual_deltaChange() : ";
+        eoss << "is applicable only for delta-change and NOT for snapshotChange. {";
+        toCSV(eoss);
+        eoss << "}" << std::endl;
+        throw SnapshotChange_ReverseTimelineBuild_exception(eoss.str());
+      }
+
+      return _isNextChgValueEqual<sizeof...(T) -1>(matchRecord);
+    }
+
+    bool isPreviousChgValueEqual_deltaChange(const t_record& matchRecord) const
+    {
+      if (_isSnapshot)
+      {
+        std::ostringstream eoss;
+        eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::isPreviousChgValueEqual_deltaChange() : ";
+        eoss << "is applicable only for snapshotChange and NOT for delta-change. {";
+        toCSV(eoss);
+        eoss << "}" << std::endl;
+        throw SnapshotChange_ReverseTimelineBuild_exception(eoss.str());
+      }
+
+      return _isPreviousChgValueEqual<sizeof...(T) -1>(matchRecord);
+    }
+
+    bool isSnapshotChgValueEqual(const t_record& matchRecord) const
+    {
+      if (!_isSnapshot)
+      {
+        std::ostringstream eoss;
+        eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::isSnapshotChgValueEqual() : ";
+        eoss << "is applicable only for snapshotChange and NOT for delta-change. {";
+        toCSV(eoss);
+        eoss << "}" << std::endl;
+        throw SnapshotChange_ReverseTimelineBuild_exception(eoss.str());
+      }
+
+      return _isNextChgValueEqual<sizeof...(T) -1>(matchRecord);
+    }
+
+    void getLatestRecord( t_record& updateRecord,
+                          std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
     {
       _getLatestValue<sizeof...(T) -1, true>(updateRecord, hitheroProcessedElements);
     }
-
-    inline void getLatestRecord(t_record& updateRecord) const
+    void getLatestRecord(t_record& updateRecord) const
     {
       std::array <bool, sizeof...(T)> hitheroProcessedElements;
       for(size_t i = 0; i < sizeof...(T); ++i)
@@ -56,13 +106,43 @@ namespace datastructure { namespace versionedObject
       _getLatestValue<sizeof...(T) -1, false>(updateRecord, hitheroProcessedElements);
     }
 
-    inline void getPreviousRecord(t_record& updateRecord,
-                                  std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
+    void getLatestRecord_deltaChange(t_record& updateRecord,
+                    std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
     {
       if (_isSnapshot)
       {
         std::ostringstream eoss;
-        eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::getPreviousRecord(t_record&, std::array <bool, sizeof...(T)>&) : ";
+        eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::getLatestRecord_deltaChange(2) : ";
+        eoss << "is applicable only for delta-change and NOT for snapshotChange. {";
+        toCSV(eoss);
+        eoss << "}" << std::endl;
+        throw SnapshotChange_ReverseTimelineBuild_exception(eoss.str());
+      }
+
+      _getLatestValue<sizeof...(T) -1, true>(updateRecord, hitheroProcessedElements);
+    }
+
+    void getLatestRecord_deltaChange(t_record& updateRecord) const
+    {
+      if (_isSnapshot)
+      {
+        std::ostringstream eoss;
+        eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::getLatestRecord_deltaChange(1) : ";
+        eoss << "is applicable only for delta-change and NOT for snapshotChange. {";
+        toCSV(eoss);
+        eoss << "}" << std::endl;
+        throw SnapshotChange_ReverseTimelineBuild_exception(eoss.str());
+      }
+      getLatestValue(updateRecord);
+    }
+
+    void getPreviousRecord_deltaChange( t_record& updateRecord,
+            std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
+    {
+      if (_isSnapshot)
+      {
+        std::ostringstream eoss;
+        eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::getPreviousRecord_deltaChange(2) : ";
         eoss << "is applicable only for delta-change and NOT for snapshotChange. {";
         toCSV(eoss);
         eoss << "}" << std::endl;
@@ -72,13 +152,13 @@ namespace datastructure { namespace versionedObject
       _getPreviousValue<sizeof...(T) -1, true>(updateRecord, hitheroProcessedElements);
     }
 
-    inline void getPreviousRecord(t_record& updateRecord) const
+    void getPreviousRecord_deltaChange( t_record& updateRecord) const
     {
       if (_isSnapshot)
       {
         std::ostringstream eoss;
-        eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::getPreviousRecord(t_record&) : ";
-        eoss << "is applicable only for delta-change and NOT for snapshotChange. { ";
+        eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::getPreviousRecord_deltaChange(1) : ";
+        eoss << "is applicable only for delta-change and NOT for snapshotChange. {";
         toCSV(eoss);
         eoss << "}" << std::endl;
         throw SnapshotChange_ReverseTimelineBuild_exception(eoss.str());
@@ -92,7 +172,43 @@ namespace datastructure { namespace versionedObject
       _getPreviousValue<sizeof...(T) -1, false>(updateRecord, hitheroProcessedElements);
     }
 
-    inline ApplicableChangeDirection getApplicableChangeDirection() const { return _applicableChangeDirection; }
+    void getSnapshotRecord( t_record& updateRecord,
+            std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
+    {
+      if (!_isSnapshot)
+      {
+        std::ostringstream eoss;
+        eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::getSnapshotRecord(2) : ";
+        eoss << "is applicable only for snapshotChange and NOT for delta-change. {";
+        toCSV(eoss);
+        eoss << "}" << std::endl;
+        throw SnapshotChange_ReverseTimelineBuild_exception(eoss.str());
+      }
+
+      _getLatestValue<sizeof...(T) -1, true>(updateRecord, hitheroProcessedElements);
+    }
+
+    void getSnapshotRecord( t_record& updateRecord) const
+    {
+      if (!_isSnapshot)
+      {
+        std::ostringstream eoss;
+        eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::getSnapshotRecord(1) : ";
+        eoss << "is applicable only for snapshotChange and NOT for delta-change. {";
+        toCSV(eoss);
+        eoss << "}" << std::endl;
+        throw SnapshotChange_ReverseTimelineBuild_exception(eoss.str());
+      }
+
+      std::array <bool, sizeof...(T)> hitheroProcessedElements;
+      for(size_t i = 0; i < sizeof...(T); ++i)
+      {
+        hitheroProcessedElements[i] = false;
+      }
+      _getLatestValue<sizeof...(T) -1, false>(updateRecord, hitheroProcessedElements);
+    }
+
+
 
     inline void toCSV(std::ostream& oss) const
     {
@@ -111,7 +227,7 @@ namespace datastructure { namespace versionedObject
     _ChangesInDataSetBase( const std::array <bool, sizeof...(T)> modifiedElements,
                            const t_record& oldValues,
                            const t_record& newValues,
-                                 ApplicableChangeDirection applicableChangeDirection = ApplicableChangeDirection::BIDIRECTION)
+                                 ApplicableChangeDirection applicableChangeDirection)
       : _modifiedElements(modifiedElements),
         _oldValues(oldValues),
         _newValues(newValues),
@@ -151,7 +267,44 @@ namespace datastructure { namespace versionedObject
       }
     }
 
-  private:
+    template<size_t IDX>
+    inline bool _isNextChgValueEqual(const t_record& matchRecord) const
+    {
+      if( _modifiedElements.at(IDX) && 
+          ( std::get<IDX>(matchRecord) != std::get<IDX>(_newValues) ) )
+      {
+        return false;
+      }
+
+      if constexpr( IDX > 0 )
+      {
+        // "((IDX>0)?(IDX-1):0)" eliminates infinite compile time looping,
+        // and we don't have to define function specialization for _isNextChgValueEqual<0>()
+        return _isNextChgValueEqual<((IDX>0)?(IDX-1):0)>(matchRecord);
+      } else {
+        return true;
+      }
+    }
+
+    template<size_t IDX>
+    inline bool _isPreviousChgValueEqual(const t_record& matchRecord) const
+    {
+      if( _modifiedElements.at(IDX) && 
+          ( std::get<IDX>(matchRecord) != std::get<IDX>(_oldValues) ) )
+      {
+        return false;
+      }
+
+      if constexpr( IDX > 0 )
+      {
+        // "((IDX>0)?(IDX-1):0)" eliminates infinite compile time looping,
+        // and we don't have to define function specialization for _isPreviousChgValueEqual<0>()
+        return _isPreviousChgValueEqual<((IDX>0)?(IDX-1):0)>(matchRecord);
+      } else {
+        return true;
+      }
+    }
+
     template<size_t IDX, bool VALIDATE>
     inline void _getLatestValue(t_record& updateRecord,
                                 std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
@@ -257,7 +410,7 @@ namespace datastructure { namespace versionedObject
                       const std::array <bool, sizeof...(T)> modifiedElements,
                       const t_record& oldValues,
                       const t_record& newValues,
-                      ApplicableChangeDirection applicableChangeDirection = ApplicableChangeDirection::BIDIRECTION)
+                      ApplicableChangeDirection applicableChangeDirection)
       : _ChangesInDataSetBase<T...>(modifiedElements, oldValues, newValues, applicableChangeDirection),
         _metaData(metaData)
     {}
@@ -307,7 +460,7 @@ namespace datastructure { namespace versionedObject
     ChangesInDataSet( const std::array <bool, std::tuple_size_v<t_record>> modifiedElements,
                       const t_record& oldValues,
                       const t_record& newValues,
-                      ApplicableChangeDirection applicableChangeDirection = ApplicableChangeDirection::BIDIRECTION)
+                      ApplicableChangeDirection applicableChangeDirection)
       : _ChangesInDataSetBase<T1, TR...>(modifiedElements, oldValues, newValues, applicableChangeDirection)
     {}
 

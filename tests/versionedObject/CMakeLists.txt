@@ -52,8 +52,6 @@ add_unit_test(testBuildBidirectionTimelineMetaData_reverse)  # on test failure c
 add_unit_test(testBuildBidirectionTimelineMetaData_bidirection_DELISTED)  # on test failure cross check with test_VO_BuildReverseTimelineMetaData
 add_unit_test(testBuildBidirectionTimelineMetaData_bidirection_RELISTED_1)
 add_unit_test(testBuildBidirectionTimelineMetaData_bidirection_RELISTED_2)
-add_unit_test(test_VO_BuildForwardTimelineMetaData)
-add_unit_test(test_VO_BuildReverseTimelineMetaData)
 add_unit_test(testPriorityMergeMetaData)
 
 add_unit_test(testBuildForwardTimelineNoMetaData)
@@ -63,10 +61,9 @@ add_unit_test(testBuildBidirectionTimelineNoMetaData_reverse)  # on test failure
 add_unit_test(testBuildBidirectionTimelineNoMetaData_bidirection_DELISTED)  # on test failure cross check with test_VO_BuildReverseTimelineMetaData
 add_unit_test(testBuildBidirectionTimelineNoMetaData_bidirection_RELISTED_1)
 add_unit_test(testBuildBidirectionTimelineNoMetaData_bidirection_RELISTED_2)
-add_unit_test(test_VO_BuildForwardTimelineNoMetaData)
-add_unit_test(test_VO_BuildReverseTimelineNoMetaData)
 add_unit_test(testPriorityMergeNoMetaData)
 
+add_unit_test(test_removeHistoricalDeltaVersionArtifacts)
 
 add_unit_test(test_caseInsensitive_companyName_BuildReverseTimelineNoMetaData)
 

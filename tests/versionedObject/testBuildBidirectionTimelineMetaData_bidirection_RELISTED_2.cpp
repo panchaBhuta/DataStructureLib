@@ -67,7 +67,7 @@ int main()
 {
   int rv = 0;
   try {
-    dsvo::VersionedObjectBuilder<t_fmtdbY, COMPANYMETAINFO_TYPE_LIST> vob;
+    dsvo::VersionedObjectBuilder<t_versionDate, COMPANYMETAINFO_TYPE_LIST> vob;
 
     bool insertResult;
 
@@ -124,7 +124,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
     // resetMetaBack for cloning in _VersionedObjectBuilderBase<MT...>::_buildReverseTimeline()
     dsvo::MetaDataSource resetMetaReverse("",'-');
-    dsvo::VersionedObject<t_fmtdbY, COMPANYMETAINFO_TYPE_LIST> vo;
+    dsvo::VersionedObject<t_versionDate, COMPANYMETAINFO_TYPE_LIST> vo;
     insertResult = vo.insertVersion(reverseLastVersionDate, companyRecordFirstExpected);
     unittest::ExpectEqual(bool, true, insertResult);
     std::vector<decltype(vob)::t_versionDate> startDates{};

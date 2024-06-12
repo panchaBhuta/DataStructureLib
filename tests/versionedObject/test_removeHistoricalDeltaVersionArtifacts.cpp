@@ -151,7 +151,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
     std::set<t_versionDate> datesDeltaChangesExistOrg_0;
     std::set<t_versionDate> datesDeltaChangesMismatch_0;
-    std::cout << "##########  removeHistoricalDeltaVersionArtifacts  : 0" << std::endl;
+    std::cout << "##########  removeHistoricalDeltaVersionArtifacts  : --" << std::endl;
     vob.removeHistoricalDeltaVersionArtifacts( vo, datesDeltaChangesExistOrg_0, datesDeltaChangesMismatch_0);
     unittest::ExpectEqual(size_t, 0, datesDeltaChangesExistOrg_0.size());
     unittest::ExpectEqual(size_t, 0, datesDeltaChangesMismatch_0.size());
@@ -318,10 +318,10 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     vobCopy.removeHistoricalDeltaVersionArtifacts( vo, datesDeltaChangesExistOrg, datesDeltaChangesMismatch);
 
     /*
-          "13-May-2004,-symbolchange,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTING\n"
+      "13-May-2004,-symbolchange,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTING\n"
       "21-Jan-2014,-namechange-symbolchange,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTING\n"
       "22-Jan-2020,-symbolchange,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTING\n"
-      "05-Mar-2020,EQUITY_L,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTING\n"
+          "05-Mar-2020,EQUITY_L,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTING\n"
       "07-Apr-2021,+marketLotchange,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTING\n"
       "17-Dec-2021,$suspended,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,DELISTED\n";
     */
@@ -329,15 +329,15 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     unittest::ExpectEqual(size_t, 0, datesDeltaChangesMismatch.size());
 
     auto iterChangeExistDates = datesDeltaChangesExistOrg.begin();
-    t_versionDate chkDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))};
+    t_versionDate chkDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))};
+    unittest::ExpectEqual(t_versionDate, chkDate, *iterChangeExistDates);
+
+    ++iterChangeExistDates;
+    chkDate = t_versionDate {std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))};
     unittest::ExpectEqual(t_versionDate, chkDate, *iterChangeExistDates);
 
     ++iterChangeExistDates;
     chkDate = t_versionDate {std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))};
-    unittest::ExpectEqual(t_versionDate, chkDate, *iterChangeExistDates);
-
-    ++iterChangeExistDates;
-    chkDate = t_versionDate {std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5))};
     unittest::ExpectEqual(t_versionDate, chkDate, *iterChangeExistDates);
 
     ++iterChangeExistDates;
@@ -376,7 +376,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
     unittest::ExpectEqual(size_t, 1, datesDeltaChangesMismatch_2.size());
 
-    chkDate = t_versionDate {std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))};
+    chkDate = t_versionDate {std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))};
     unittest::ExpectEqual(t_versionDate, chkDate, *(datesDeltaChangesMismatch_2.begin()));
 
 /////////////// check existing versions on recreation  3
@@ -400,10 +400,10 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     vobCopy3.removeHistoricalDeltaVersionArtifacts( vo3, datesDeltaChangesExistOrg_3, datesDeltaChangesMismatch_3);
 
     /*
-          "13-May-2004,-symbolchange,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTING\n"
-        "21-Jan-2014,-namechange-symbolchange,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTING\n"
+        "13-May-2004,-symbolchange,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTING\n"
+      "21-Jan-2014,-namechange-symbolchange,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTING\n"
       "22-Jan-2020,-symbolchange,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTING\n"
-      "05-Mar-2020,EQUITY_L,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTING\n"
+          "05-Mar-2020,EQUITY_L,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTING\n"
       "07-Apr-2021,+marketLotchange,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTING\n"
         "17-Dec-2021,$suspended,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,DELISTED\n";
     */
@@ -411,15 +411,15 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     unittest::ExpectEqual(size_t, 0, datesDeltaChangesMismatch_3.size());
 
     //auto iterChangeExistDates = datesDeltaChangesExistOrg.begin();
-    //t_versionDate chkDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))};
+    //t_versionDate chkDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))};
     //unittest::ExpectEqual(t_versionDate, chkDate, *iterChangeExistDates);
 
     iterChangeExistDates = datesDeltaChangesExistOrg_3.begin();
-    chkDate = t_versionDate {std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))};
+    chkDate = t_versionDate {std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))};
     unittest::ExpectEqual(t_versionDate, chkDate, *iterChangeExistDates);
 
     ++iterChangeExistDates;
-    chkDate = t_versionDate {std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5))};
+    chkDate = t_versionDate {std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))};
     unittest::ExpectEqual(t_versionDate, chkDate, *iterChangeExistDates);
 
     ++iterChangeExistDates;

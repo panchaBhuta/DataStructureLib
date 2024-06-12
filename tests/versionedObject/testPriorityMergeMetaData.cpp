@@ -46,7 +46,8 @@ namespace dsvo = datastructure::versionedObject;
 
 #define COMPANYMETAINFO_TYPE_LIST  dsvo::MetaDataSource, COMPANYINFO_TYPE_LIST
 
-using t_versionObject = dsvo::VersionedObject<t_fmtdbY, COMPANYMETAINFO_TYPE_LIST>;
+using t_versionDate = t_fmtdbY;  // std::chrono::year_month_day;
+using t_versionObject = dsvo::VersionedObject<t_versionDate, COMPANYMETAINFO_TYPE_LIST>;
 
 
 
@@ -62,7 +63,7 @@ namespace unittest
 
   template<>
   struct SScompatible<dsvo::VersionedObject<t_fmtdbY, COMPANYMETAINFO_TYPE_LIST>> {
-    inline static std::string getVal(const dsvo::VersionedObject<t_fmtdbY, COMPANYMETAINFO_TYPE_LIST>& val)
+    inline static std::string getVal(const dsvo::VersionedObject<t_versionDate, COMPANYMETAINFO_TYPE_LIST>& val)
     {
       return val.toCSV();
     }
@@ -97,7 +98,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     dsvo::MetaDataSource crownMeta("crown",'^');
     dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST> companyRecordStartCrown {crownMeta, companyInfoStart};
 
-    const t_listingDate crownDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))};
+    const t_versionDate crownDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))};
     dsvo::VersionedObject<t_fmtdbY, COMPANYMETAINFO_TYPE_LIST> voHighPriority;
     insertResult = voHighPriority.insertVersion(crownDate,
                                                 companyRecordStartCrown);
@@ -106,7 +107,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     dsvo::MetaDataSource manualMeta("manualDeduction",'%');
     dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST> companyRecordStartManual {manualMeta, companyInfoStart};
 
-    dsvo::VersionedObject<t_fmtdbY, COMPANYMETAINFO_TYPE_LIST> voLowrPriority;
+    dsvo::VersionedObject<t_versionDate, COMPANYMETAINFO_TYPE_LIST> voLowrPriority;
     insertResult = voLowrPriority.insertVersion(crownDate,
                                                 companyRecordStartManual);
     unittest::ExpectEqual(bool, true, insertResult);
@@ -140,7 +141,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     dsvo::MetaDataSource symChgMetaExp("symbolchange",'+');
     dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST> companyRecordSecondExpected {symChgMetaExp, companyInfoSecond};
 
-    const t_listingDate symChgDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))};
+    const t_versionDate symChgDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))};
     insertResult = voHighPriority.insertVersion(symChgDate,
                                                 companyRecordSecondExpected);
 
@@ -172,7 +173,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     dsvo::MetaDataSource symChgNamChgMetaExp("symbolchange+namechange",'+');
     dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST> companyRecordThirdExpected {symChgNamChgMetaExp, companyInfoThird};
 
-    const t_listingDate symChgNameChgDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))};
+    const t_versionDate symChgNameChgDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))};
     insertResult = voLowrPriority.insertVersion(symChgNameChgDate,
                                                 companyRecordThirdExpected);
     unittest::ExpectEqual(bool, true, insertResult);
@@ -202,7 +203,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     t_companyInfo companyInfoLatest1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
       "ANDHRAPAP,ANDHRA PAPER LIMITED:1,EQ,10,1,INE435A01028,10"    );
 
-    const t_listingDate crownDate2{std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5))};
+    const t_versionDate crownDate2{std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5))};
     dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST> companyRecordLatestExpected1 {symChgMetaExp, companyInfoLatest1};
 
     insertResult = voLowrPriority.insertVersion(crownDate2,

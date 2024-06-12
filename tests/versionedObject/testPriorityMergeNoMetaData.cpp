@@ -14,6 +14,7 @@
 
 using t_fmtdbY = converter::format_year_month_day<converter::dbY_fmt, converter::FailureS2Tprocess::THROW_ERROR>;
 
+
 /*
 SYMBOL, NAME OF COMPANY, SERIES, DATE OF LISTING, PAID UP VALUE, MARKET LOT, ISIN NUMBER, FACE VALUE
 20MICRONS,20 Microns Limited,BE,06-OCT-2008,5,1,INE144J01027,5
@@ -31,7 +32,7 @@ NOTE: columns { SYMBOL, NAME OF COMPANY, ... }
 using t_symbol      = std::string;
 using t_companyName = std::string;
 using t_series      = std::string;
-using t_listingDate = t_fmtdbY; //std::chrono::year_month_day;
+using t_listingDate = t_fmtdbY;  // std::chrono::year_month_day;
 using t_paidUpValue = uint16_t;
 using t_marketLot   = uint16_t;
 using t_isinNumber  = std::string;
@@ -43,6 +44,7 @@ using t_companyInfo = std::tuple<COMPANYINFO_TYPE_LIST>;
 
 namespace dsvo = datastructure::versionedObject;
 
+using t_versionDate = t_fmtdbY;  // std::chrono::year_month_day;
 
 
 namespace unittest
@@ -57,7 +59,7 @@ namespace unittest
 
   template<>
   struct SScompatible<dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST>> {
-    inline static std::string getVal(const dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST>& val)
+    inline static std::string getVal(const dsvo::VersionedObject<t_versionDate, COMPANYINFO_TYPE_LIST>& val)
     {
       return val.toCSV();
     }
@@ -83,19 +85,20 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
     dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordStart {companyInfoStart};
 
+    const t_versionDate crownDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))};
     dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST> voHighPriority;
-    insertResult = voHighPriority.insertVersion(t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))),
+    insertResult = voHighPriority.insertVersion(crownDate,
                                                 companyRecordStart);
     unittest::ExpectEqual(bool, true, insertResult);
 
-    dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST> voLowrPriority;
-    insertResult = voLowrPriority.insertVersion(t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))),
+    dsvo::VersionedObject<t_versionDate, COMPANYINFO_TYPE_LIST> voLowrPriority;
+    insertResult = voLowrPriority.insertVersion(crownDate,
                                                 companyRecordStart);
     unittest::ExpectEqual(bool, true, insertResult);
 
 
     dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST> voExpected;
-    insertResult = voExpected.insertVersion(t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))),
+    insertResult = voExpected.insertVersion(crownDate,
                                             companyRecordStart);
     unittest::ExpectEqual(bool, true, insertResult);
     {
@@ -111,10 +114,11 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
     dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordSecondExpected {companyInfoSecond};
 
-    insertResult = voHighPriority.insertVersion(t_listingDate(std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))),
+    const t_versionDate symChgDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))};
+    insertResult = voHighPriority.insertVersion(symChgDate,
                                                 companyRecordSecondExpected);
     unittest::ExpectEqual(bool, true, insertResult);
-    insertResult = voExpected.insertVersion(t_listingDate(std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))),
+    insertResult = voExpected.insertVersion(symChgDate,
                                             companyRecordSecondExpected);
     unittest::ExpectEqual(bool, true, insertResult);
     {
@@ -131,10 +135,12 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
     dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordThirdExpected {companyInfoThird};
 
-    insertResult = voLowrPriority.insertVersion(t_listingDate(t_listingDate(std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22)))),
+    const t_versionDate symChgNameChgDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))};
+    insertResult = voLowrPriority.insertVersion(symChgNameChgDate,
                                                 companyRecordThirdExpected);
     unittest::ExpectEqual(bool, true, insertResult);
-    insertResult = voExpected.insertVersion(t_listingDate(std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))),
+
+    insertResult = voExpected.insertVersion(symChgNameChgDate,
                                             companyRecordThirdExpected);
     unittest::ExpectEqual(bool, true, insertResult);
     {
@@ -146,14 +152,15 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
 
 //  ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
-//  NOTE: the row below is not a versioned information, but info from EQUITY_L.csv
+//  NOTE: the row below is not a versioned information, but CROWN info from EQUITY_L.csv
 //       ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,13-MAY-2004,10,1,INE435A01028,10
     t_companyInfo companyInfoLatest1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
       "ANDHRAPAP,ANDHRA PAPER LIMITED:1,EQ,10,1,INE435A01028,10"    );
 
+    const t_versionDate crownDate2{std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5))};
     dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordLatestExpected1 {companyInfoLatest1};
 
-    insertResult = voLowrPriority.insertVersion(t_listingDate(t_listingDate(std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5)))),
+    insertResult = voLowrPriority.insertVersion(crownDate2,
                                                 companyRecordLatestExpected1);
     unittest::ExpectEqual(bool, true, insertResult);
 
@@ -162,7 +169,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
     dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordLatestExpected2 {companyInfoLatest2};
 
-    insertResult = voHighPriority.insertVersion(t_listingDate(std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5))),
+    insertResult = voHighPriority.insertVersion(crownDate2,
                                                 companyRecordLatestExpected2);
     unittest::ExpectEqual(bool, true, insertResult);
     {

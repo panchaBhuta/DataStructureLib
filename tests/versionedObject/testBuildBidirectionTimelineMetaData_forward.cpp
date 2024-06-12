@@ -67,7 +67,7 @@ int main()
 {
   int rv = 0;
   try {
-    dsvo::VersionedObjectBuilder<t_fmtdbY, COMPANYMETAINFO_TYPE_LIST> vob;
+    dsvo::VersionedObjectBuilder<t_versionDate, COMPANYMETAINFO_TYPE_LIST> vob;
 
     bool insertResult;
 
@@ -132,7 +132,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
     dsvo::MetaDataSource resetMetaReverse("",'-');
     dsvo::MetaDataSource resetMetaForward("",'+');
-    dsvo::VersionedObject<t_fmtdbY, COMPANYMETAINFO_TYPE_LIST> vo;
+    dsvo::VersionedObject<t_versionDate, COMPANYMETAINFO_TYPE_LIST> vo;
     insertResult = vo.insertVersion(t_versionDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))},
                                     companyRecordStart);
     unittest::ExpectEqual(bool, true, insertResult);

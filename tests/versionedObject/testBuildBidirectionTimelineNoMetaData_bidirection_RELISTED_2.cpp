@@ -45,7 +45,8 @@ using t_companyInfo = std::tuple<COMPANYINFO_TYPE_LIST>;
 
 namespace dsvo = datastructure::versionedObject;
 
-using t_versionObject = dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST>;
+using t_versionDate = t_fmtdbY; // std::chrono::year_month_day;
+using t_versionObject = dsvo::VersionedObject<t_versionDate, COMPANYINFO_TYPE_LIST>;
 
 
 namespace unittest
@@ -64,7 +65,7 @@ int main()
 {
   int rv = 0;
   try {
-    dsvo::VersionedObjectBuilder<t_fmtdbY, COMPANYINFO_TYPE_LIST> vob;
+    dsvo::VersionedObjectBuilder<t_versionDate, COMPANYINFO_TYPE_LIST> vob;
 
     bool insertResult;
 
@@ -79,19 +80,19 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     t_companyInfo symChgOldInfo1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("APPAPER,,,0,0,,0,");
     t_companyInfo symChgNewInfo1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("IPAPPM,,,0,0,,0,");
     dsvo::ChangesInDataSet<COMPANYINFO_TYPE_LIST> symbolChange1 {symbolChangeFlg, symChgOldInfo1, symChgNewInfo1, dsvo::ApplicableChangeDirection::REVERSE};  // DELTA Change
-    insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))), symbolChange1);
+    insertResult = vob.insertDeltaVersion(t_versionDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))}, symbolChange1);
     unittest::ExpectEqual(bool, true, insertResult);
 
     t_companyInfo symChgOldInfo2 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("IPAPPM,,,0,0,,0,");
     t_companyInfo symChgNewInfo2 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("ANDPAPER,,,0,0,,0,");
     dsvo::ChangesInDataSet<COMPANYINFO_TYPE_LIST> symbolChange2 {symbolChangeFlg, symChgOldInfo2, symChgNewInfo2, dsvo::ApplicableChangeDirection::REVERSE};  // DELTA Change
-    insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))), symbolChange2);
+    insertResult = vob.insertDeltaVersion(t_versionDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))}, symbolChange2);
     unittest::ExpectEqual(bool, true, insertResult);
 
     t_companyInfo symChgOldInfo3 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("ANDPAPER,,,0,0,,0,");
     t_companyInfo symChgNewInfo3 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("ANDHRAPAP,,,0,0,,0,");
     dsvo::ChangesInDataSet<COMPANYINFO_TYPE_LIST> symbolChange3 {symbolChangeFlg, symChgOldInfo3, symChgNewInfo3, dsvo::ApplicableChangeDirection::REVERSE};  // DELTA Change
-    t_listingDate reverseLastVersionDate(std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5)));
+    t_versionDate reverseLastVersionDate{std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5))};
     insertResult = vob.insertDeltaVersion(reverseLastVersionDate, symbolChange3);
     unittest::ExpectEqual(bool, true, insertResult);
 
@@ -104,7 +105,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     t_companyInfo namChgOldInfo1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",International Paper APPM Limited,,0,0,,0,");
     t_companyInfo namChgNewInfo1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",ANDHRA PAPER LIMITED,,0,0,,0,");
     dsvo::ChangesInDataSet<COMPANYINFO_TYPE_LIST> nameChange1 {nameChangeFlg, namChgOldInfo1, namChgNewInfo1, dsvo::ApplicableChangeDirection::REVERSE};  // DELTA Change
-    insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))), nameChange1);
+    insertResult = vob.insertDeltaVersion(t_versionDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))}, nameChange1);
     unittest::ExpectEqual(bool, true, insertResult);
 
 
@@ -117,18 +118,18 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordFirstExpected {companyInfoFirst};
 
     // resetMetaBack for cloning in _VersionedObjectBuilderBase<MT...>::_buildReverseTimeline()
-    dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST> vo;
+    dsvo::VersionedObject<t_versionDate, COMPANYINFO_TYPE_LIST> vo;
     insertResult = vo.insertVersion(reverseLastVersionDate, companyRecordFirstExpected);
     unittest::ExpectEqual(bool, true, insertResult);
     std::vector<decltype(vob)::t_versionDate> startDates{};
-    startDates.push_back(t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))));
+    startDates.push_back(t_versionDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))});
 
     ////////////////////////              SNAPSHOT change test
     const std::array <bool, std::tuple_size_v<t_companyInfo> > lotChangeFlg = {false, false, false, false, true, false, false, false};
 
     t_companyInfo lotChgInfo = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",,,0,2,,0,");
     dsvo::ChangesInDataSet<COMPANYINFO_TYPE_LIST> lotChange {lotChangeFlg, lotChgInfo};   // SNAPSHOT Change
-    insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))), lotChange);
+    insertResult = vob.insertDeltaVersion(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))}, lotChange);
     unittest::ExpectEqual(bool, true, insertResult);
 
     ////////////////////////              DELISTED change test
@@ -136,30 +137,30 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
     t_companyInfo delistedChgInfo = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",,,0,0,,0,DELISTED");
     dsvo::ChangesInDataSet<COMPANYINFO_TYPE_LIST> delistedChange {delistedChangeFlg, delistedChgInfo};   // DELISTED Change
-    insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2021)), std::chrono::December, std::chrono::day(unsigned(17))), delistedChange);
+    insertResult = vob.insertDeltaVersion(t_versionDate{std::chrono::year(int(2021)), std::chrono::December, std::chrono::day(unsigned(17))}, delistedChange);
     unittest::ExpectEqual(bool, true, insertResult);
 
     ////////////////////////              RELISTED change & symbolchange test
-    startDates.push_back(t_listingDate(std::chrono::year(int(2022)), std::chrono::January, std::chrono::day(unsigned(12))));
+    startDates.push_back(t_versionDate{std::chrono::year(int(2022)), std::chrono::January, std::chrono::day(unsigned(12))});
 
     t_companyInfo symChgOldInfo4 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("ANDHRAPAPER,,,0,0,,0,");
     t_companyInfo symChgNewInfo4 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("ANDHRAPAPLTD,,,0,0,,0,");
     dsvo::ChangesInDataSet<COMPANYINFO_TYPE_LIST> symbolChange4 {symbolChangeFlg, symChgOldInfo4, symChgNewInfo4, dsvo::ApplicableChangeDirection::REVERSE};  // DELTA Change
-    insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2022)), std::chrono::September, std::chrono::day(unsigned(19))), symbolChange4);
+    insertResult = vob.insertDeltaVersion(t_versionDate{std::chrono::year(int(2022)), std::chrono::September, std::chrono::day(unsigned(19))}, symbolChange4);
     unittest::ExpectEqual(bool, true, insertResult);
 
     t_companyInfo companyInfoAfterRelisting = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
       "ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTING"    );
 
     dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordAfterRelistedExpected {companyInfoAfterRelisting};
-    insertResult = vo.insertVersion(t_listingDate(std::chrono::year(int(2022)), std::chrono::September, std::chrono::day(unsigned(19))),
+    insertResult = vo.insertVersion(t_versionDate{std::chrono::year(int(2022)), std::chrono::September, std::chrono::day(unsigned(19))},
                                     companyRecordAfterRelistedExpected);
     unittest::ExpectEqual(bool, true, insertResult);
 
     ////////////////////////              SNAPSHOT change test
     t_companyInfo lotChgInfo2 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",,,0,5,,0,");
     dsvo::ChangesInDataSet<COMPANYINFO_TYPE_LIST> lotChange2 {lotChangeFlg, lotChgInfo2};   // SNAPSHOT Change
-    insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2023)), std::chrono::October, std::chrono::day(unsigned(28))), lotChange2);
+    insertResult = vob.insertDeltaVersion(t_versionDate{std::chrono::year(int(2023)), std::chrono::October, std::chrono::day(unsigned(28))}, lotChange2);
     unittest::ExpectEqual(bool, true, insertResult);
 
 
@@ -185,7 +186,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
 //  NOTE : the row below is manually deduced
 //  APPAPER,International Paper APPM Limited,EQ,13-MAY-2004,10,1,INE435A01028,10
-    t_listingDate  listingDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))};
+    t_versionDate  listingDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))};
     t_companyInfo companyInfoStart = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
       "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTING"    );
 
@@ -197,21 +198,21 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     unittest::ExpectEqual(bool, true, companyRecordFirstActual != vo.getDatasetLedger().cend()); // has dsvo::DataSet<COMPANYINFO_TYPE_LIST>
     unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecordStart,
                                                                 companyRecordFirstActual->second);
-    unittest::ExpectEqual(t_listingDate, listingDate,
+    unittest::ExpectEqual(t_versionDate, listingDate,
                                          companyRecordFirstActual->first);
     ////////
-    t_listingDate  prelistingDate{t_listingDate(std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(12)))};
+    t_versionDate  prelistingDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(12))};
     t_versionObject::t_datasetLedger::const_iterator companyRecordPreFirstActual =
       vo.getVersionAt(prelistingDate);
     unittest::ExpectEqual(bool, true, companyRecordPreFirstActual == vo.getDatasetLedger().cend()); // no record dsvo::DataSet<COMPANYINFO_TYPE_LIST>
     ////////
-    t_listingDate  postlistingDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(14))};
+    t_versionDate  postlistingDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(14))};
     t_versionObject::t_datasetLedger::const_iterator companyRecordPostFirstActual =
       vo.getVersionAt(postlistingDate);
     unittest::ExpectEqual(bool, true, companyRecordPostFirstActual != vo.getDatasetLedger().cend()); // has record dsvo::DataSet<COMPANYINFO_TYPE_LIST>
     unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecordStart,
                                                                 companyRecordPostFirstActual->second);
-    unittest::ExpectEqual(t_listingDate, listingDate,
+    unittest::ExpectEqual(t_versionDate, listingDate,
                                          companyRecordPostFirstActual->first);
 
 
@@ -221,32 +222,32 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
     dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordSecondExpected {companyInfoSecond};
 
-    t_listingDate secondDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))};
+    t_versionDate secondDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))};
     t_versionObject::t_datasetLedger::const_iterator companyRecordSecondActual =
       vo.getVersionAt(secondDate);
 
     unittest::ExpectEqual(bool, true, companyRecordSecondActual != vo.getDatasetLedger().cend()); // has dsvo::DataSet<COMPANYINFO_TYPE_LIST>
     unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecordSecondExpected,
                                                                 companyRecordSecondActual->second);
-    unittest::ExpectEqual(t_listingDate, secondDate,
+    unittest::ExpectEqual(t_versionDate, secondDate,
                                          companyRecordSecondActual->first);
     ////////
-    t_listingDate  preSecondDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(20))};
+    t_versionDate  preSecondDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(20))};
     t_versionObject::t_datasetLedger::const_iterator companyRecordPreSecondActual =
       vo.getVersionAt(preSecondDate);
     unittest::ExpectEqual(bool, true, companyRecordPreSecondActual != vo.getDatasetLedger().cend()); // has record dsvo::DataSet<COMPANYINFO_TYPE_LIST>
     unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecordStart,
                                                                 companyRecordPreSecondActual->second);
-    unittest::ExpectEqual(t_listingDate, listingDate,
+    unittest::ExpectEqual(t_versionDate, listingDate,
                                          companyRecordPreSecondActual->first);
     ////////
-    t_listingDate  postSecondDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(22))};
+    t_versionDate  postSecondDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(22))};
     t_versionObject::t_datasetLedger::const_iterator companyRecordPostSecondActual =
       vo.getVersionAt(postSecondDate);
     unittest::ExpectEqual(bool, true, companyRecordPostFirstActual != vo.getDatasetLedger().cend()); // has record dsvo::DataSet<COMPANYINFO_TYPE_LIST>
     unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecordSecondExpected,
                                                                 companyRecordPostSecondActual->second);
-    unittest::ExpectEqual(t_listingDate, listingDate,
+    unittest::ExpectEqual(t_versionDate, listingDate,
                                          companyRecordPostFirstActual->first);
 
 
@@ -258,7 +259,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordThirdExpected {companyInfoThird};
 
     t_versionObject::t_datasetLedger::const_iterator companyRecordThirdActual =
-      vo.getVersionAt(t_listingDate(std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))));
+      vo.getVersionAt(t_versionDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))});
 
     unittest::ExpectEqual(bool, true, companyRecordThirdActual != vo.getDatasetLedger().cend()); // has dsvo::DataSet<COMPANYINFO_TYPE_LIST>
 
@@ -270,7 +271,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 //  NOTE: the row below is not a versioned information, but info from EQUITY_L.csv
 //       ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,13-MAY-2004,10,1,INE435A01028,10
     t_versionObject::t_datasetLedger::const_iterator companyRecordFourthActual =
-      vo.getVersionAt(t_listingDate(std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5))));
+      vo.getVersionAt(t_versionDate{std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5))});
 
     unittest::ExpectEqual(bool, true, companyRecordFourthActual != vo.getDatasetLedger().cend()); // has dsvo::DataSet<COMPANYINFO_TYPE_LIST>
 
@@ -286,7 +287,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordFifthExpected {companyInfoFifth};
 
     t_versionObject::t_datasetLedger::const_iterator companyRecordFifthActual =
-      vo.getVersionAt(t_listingDate(std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))));
+      vo.getVersionAt(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))});
 
     unittest::ExpectEqual(bool, true, companyRecordFifthActual != vo.getDatasetLedger().cend()); // has dsvo::DataSet<COMPANYINFO_TYPE_LIST>
 
@@ -302,7 +303,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordSixthExpected {companyInfoSixth};
 
     t_versionObject::t_datasetLedger::const_iterator companyRecordSixthActual =
-      vo.getVersionAt(t_listingDate(std::chrono::year(int(2021)), std::chrono::December, std::chrono::day(unsigned(17))));
+      vo.getVersionAt(t_versionDate{std::chrono::year(int(2021)), std::chrono::December, std::chrono::day(unsigned(17))});
 
     unittest::ExpectEqual(bool, true, companyRecordSixthActual != vo.getDatasetLedger().cend()); // has dsvo::DataSet<COMPANYINFO_TYPE_LIST>
 
@@ -318,7 +319,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordRelistedExpected {companyInfoRelisted};
 
     t_versionObject::t_datasetLedger::const_iterator companyRecordRelistedActual =
-      vo.getVersionAt(t_listingDate(std::chrono::year(int(2022)), std::chrono::January, std::chrono::day(unsigned(12))));
+      vo.getVersionAt(t_versionDate{std::chrono::year(int(2022)), std::chrono::January, std::chrono::day(unsigned(12))});
 
     unittest::ExpectEqual(bool, true, companyRecordRelistedActual != vo.getDatasetLedger().cend()); // has dsvo::DataSet<COMPANYINFO_TYPE_LIST>
 
@@ -330,7 +331,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 //  NOTE: the row below is not a versioned information, but info from EQUITY_L.csv
 //  19-Sep-2022,EQUITY_L,ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTING
     t_versionObject::t_datasetLedger::const_iterator companyRecordCrown2Actual =
-      vo.getVersionAt(t_listingDate(std::chrono::year(int(2022)), std::chrono::September, std::chrono::day(unsigned(19))));
+      vo.getVersionAt(t_versionDate{std::chrono::year(int(2022)), std::chrono::September, std::chrono::day(unsigned(19))});
 
     unittest::ExpectEqual(bool, true, companyRecordCrown2Actual != vo.getDatasetLedger().cend()); // has dsvo::DataSet<COMPANYINFO_TYPE_LIST>
 
@@ -346,7 +347,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordNineExpected {companyInfoNine};
 
     t_versionObject::t_datasetLedger::const_iterator companyRecordNineActual =
-      vo.getVersionAt(t_listingDate(std::chrono::year(int(2023)), std::chrono::October, std::chrono::day(unsigned(28))));
+      vo.getVersionAt(t_versionDate{std::chrono::year(int(2023)), std::chrono::October, std::chrono::day(unsigned(28))});
 
     unittest::ExpectEqual(bool, true, companyRecordNineActual != vo.getDatasetLedger().cend()); // has dsvo::DataSet<COMPANYINFO_TYPE_LIST>
 

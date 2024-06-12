@@ -540,6 +540,7 @@ namespace datastructure { namespace versionedObject
               // has same 'deltaChangeDate' inserted on previous iteration loop
               datesDeltaChangesExist.erase(deltaChangeDate);
               datesDeltaChangesMismatch.insert(deltaChangeDate);
+              return;
             }
           } else {  // NOT a snapshot
             if(iterDelta->second.getApplicableChangeDirection() == ApplicableChangeDirection::FORWARD)
@@ -548,40 +549,44 @@ namespace datastructure { namespace versionedObject
               ++iterNextDatasetLedger;
               if( iterNextDatasetLedger != datasetLedger.cend() )
               {
+                t_versionDate deltaChangeNextDate = iterNextDatasetLedger->first;
                 if( iterDelta->second.isNextChgValueEqual_deltaChange(iterNextDatasetLedger->second.getRecord()) &&
                     iterDelta->second.isPreviousChgValueEqual_deltaChange(iterDatasetLedger->second.getRecord())
                   )
                 {
-                  //std::cout << "#### PATHTEST : FORWARD : insert : " << deltaChangeDate << std::endl;
-                  datesDeltaChangesExist.insert(deltaChangeDate);
+                  //std::cout << "#### PATHTEST : FORWARD : insert : " << deltaChangeNextDate << std::endl;
+                  datesDeltaChangesExist.insert(deltaChangeNextDate);
                 } else {
-                  //std::cout << "#### PATHTEST : FORWARD : erase : " << deltaChangeDate << std::endl;
+                  //std::cout << "#### PATHTEST : FORWARD : erase : " << deltaChangeNextDate << std::endl;
                   // since _deltaEntries is multi-map, possible that 'datesDeltaChangesExist'
-                  // has same 'deltaChangeDate' inserted on previous iteration loop
-                  datesDeltaChangesExist.erase(deltaChangeDate);
-                  datesDeltaChangesMismatch.insert(deltaChangeDate);
+                  // has same 'deltaChangeNextDate' inserted on previous iteration loop
+                  datesDeltaChangesExist.erase(deltaChangeNextDate);
+                  datesDeltaChangesMismatch.insert(deltaChangeNextDate);
+                  return;
                 }
               } else { // last iterator
                 // do nothing as it's probably new delta that needs to be applied later
-                  std::cout << "#### PATHTEST : FORWARD : donothing : " << deltaChangeDate << std::endl;
+                  //std::cout << "#### PATHTEST : FORWARD : donothing : " << deltaChangeDate << std::endl;
               }
             } else { // REVERSE direction
               if( iterDatasetLedger != datasetLedger.cbegin() )
               {
                 typename t_datasetLedger::const_iterator iterPrevDatasetLedger = iterDatasetLedger;
                 --iterPrevDatasetLedger;
+                t_versionDate deltaChangePrevDate = iterPrevDatasetLedger->first;
                 if( iterDelta->second.isNextChgValueEqual_deltaChange(iterDatasetLedger->second.getRecord()) &&
                     iterDelta->second.isPreviousChgValueEqual_deltaChange(iterPrevDatasetLedger->second.getRecord())
                   )
                 {
-                  //std::cout << "#### PATHTEST : REVERSE : insert : " << deltaChangeDate << std::endl;
-                  datesDeltaChangesExist.insert(deltaChangeDate);
+                  //std::cout << "#### PATHTEST : REVERSE : insert : " << deltaChangePrevDate << std::endl;
+                  datesDeltaChangesExist.insert(deltaChangePrevDate);
                 } else {
-                  //std::cout << "#### PATHTEST : REVERSE : erase : " << deltaChangeDate << std::endl;
+                  //std::cout << "#### PATHTEST : REVERSE : erase : " << deltaChangePrevDate << std::endl;
                   // since _deltaEntries is multi-map, possible that 'datesDeltaChangesExist'
-                  // has same 'deltaChangeDate' inserted on previous iteration loop
-                  datesDeltaChangesExist.erase(deltaChangeDate);
-                  datesDeltaChangesMismatch.insert(deltaChangeDate);
+                  // has same 'deltaChangePrevDate' inserted on previous iteration loop
+                  datesDeltaChangesExist.erase(deltaChangePrevDate);
+                  datesDeltaChangesMismatch.insert(deltaChangePrevDate);
+                  return;
                 }
               } else {  // first iterator
                 // do nothing as it's probably new delta that needs to be applied later

@@ -259,7 +259,7 @@ namespace datastructure { namespace versionedObject
         }
       }
 
-      {  // Similar check not applicable for  _buildForwardTimeline
+      { // Similar check not applicable for  _buildForwardTimeline
         auto iterDelta = _deltaEntries.begin();
         t_versionDate firstDeltaChangeDate = iterDelta->first;
         if( startDate >= firstDeltaChangeDate )
@@ -385,7 +385,7 @@ namespace datastructure { namespace versionedObject
       _deltaEntries.clear();
     }
 
-    void _buildBiDirectionalTimeline( // with filled VersionObject
+    bool _buildBiDirectionalTimeline( // with filled VersionObject
                   const std::vector<t_versionDate>& startDates,
                   t_versionedObject& vo,
                   const t_metaData* const metaDataResetClonerReverse = nullptr, // nullptr when MetaData is NOT used
@@ -483,16 +483,7 @@ namespace datastructure { namespace versionedObject
         ++iterISVOcopy;
       }
 
-      if(iterDeltaEntries != _deltaEntries.cend())
-      {
-        std::ostringstream eoss;
-        eoss << "ERROR(2) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildBiDirectionalTimeline() : startDates[";
-        for(auto sd : startDates) eoss << sd << ",";
-        eoss << "]" << std::endl << "Unprocessed deltaEntries, starting from deltaEntry-date[" << iterDeltaEntries->first << "]" << std::endl;
-        vo.toStr("VersionObject :: ", eoss);
-        toStr("VersionObjectBuilder :: ", eoss);
-        throw std::range_error(eoss.str());
-      }
+      return (iterDeltaEntries != _deltaEntries.cend());
     }
 
   public:
@@ -649,7 +640,7 @@ namespace datastructure { namespace versionedObject
       }
     }
 
-    inline const t_deltaEntriesMap& getContainer() const { return _deltaEntries; }
+    inline const t_deltaEntriesMap& getDeltaChangeMap() const { return _deltaEntries; }
   };
 
   template <typename VDT, typename M, typename ... T>
@@ -684,13 +675,13 @@ namespace datastructure { namespace versionedObject
     }
 
 
-    inline void buildBiDirectionalTimeline( // with filled VersionObject
+    inline bool buildBiDirectionalTimeline( // with filled VersionObject
             const std::vector<t_versionDate>& startDates,
             VersionedObject<VDT, M, T...>& vo,
             const t_metaData& metaDataResetClonerReverse, // when MetaData is used
             const t_metaData& metaDataResetClonerForward) // when MetaData is used
     {
-      this->_buildBiDirectionalTimeline(startDates, vo,
+      return this->_buildBiDirectionalTimeline(startDates, vo,
                             &metaDataResetClonerReverse, &metaDataResetClonerForward);
     }
   };
@@ -722,11 +713,11 @@ namespace datastructure { namespace versionedObject
       this->_buildReverseTimeline(startDate, vo);
     }
 
-    inline void buildBiDirectionalTimeline( // with filled VersionObject
+    inline bool buildBiDirectionalTimeline( // with filled VersionObject
             const std::vector<t_versionDate>& startDates,
             VersionedObject<VDT, T1, TR...>& vo) // when MetaData is NOT used
     {
-      this->_buildBiDirectionalTimeline(startDates, vo);
+      return this->_buildBiDirectionalTimeline(startDates, vo);
     }
   };
 } }  //  datastructure::versionedObject

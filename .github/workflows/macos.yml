@@ -49,7 +49,7 @@ jobs:
           - os: macos-13
             compiler : g++-13      #  https://github.com/panchaBhuta/converter/actions/runs/10863394822/job/30147499604
           - os : macos-12          #  This combination doesn't fail for 'convertor' and 'rapidcsv_FilterSort'
-            complier : default     #  https://github.com/panchaBhuta/DataStructureLib/actions/runs/11074208088/job/30772482835
+            compiler : default     #  https://github.com/panchaBhuta/DataStructureLib/actions/runs/11074208088/job/30772482835
     runs-on: ${{matrix.os}}
     steps:
       - name: Checkout Repo

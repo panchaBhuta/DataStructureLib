@@ -48,8 +48,8 @@ namespace datastructure { namespace bimap
     const decltype(_lefttMap)& _cLefttMap;
     const decltype(_rightMap)& _cRightMap;
 
-    const decltype(_lefttMap)::key_compare  _lefttKeyLessCompare;
-    const decltype(_rightMap)::key_compare  _rightKeyLessCompare;
+    const typename decltype(_lefttMap)::key_compare  _lefttKeyLessCompare;
+    const typename decltype(_rightMap)::key_compare  _rightKeyLessCompare;
 
   public:
     using lefttMapIterator = typename std::map<LEFTT, RIGHT>::iterator;
@@ -173,17 +173,17 @@ namespace datastructure { namespace bimap
     const decltype(_lefttMap1ToM)& _cLefttMap1ToM;
     const decltype(_rightMap1To1)& _cRightMap1To1;
 
-    const decltype(_lefttMap1ToM)::key_compare  _lefttKeyLessCompare;
-    const decltype(_rightMap1To1)::key_compare  _rightKeyLessCompare;
+    const typename decltype(_lefttMap1ToM)::key_compare  _lefttKeyLessCompare;
+    const typename decltype(_rightMap1To1)::key_compare  _rightKeyLessCompare;
 
   public:
-    using lefttMapIterator = std::map<LEFTT, std::set<RIGHT>>::iterator;
-    using rightMapIterator = std::map<RIGHT, LEFTT>::iterator;
-    using rightSetIterator = std::set<RIGHT     >::iterator;
+    using lefttMapIterator = typename std::map<LEFTT, std::set<RIGHT>>::iterator;
+    using rightMapIterator = typename std::map<RIGHT, LEFTT>::iterator;
+    using rightSetIterator = typename std::set<RIGHT     >::iterator;
 
-    using const_lefttMapIterator = std::map<LEFTT, std::set<RIGHT>>::const_iterator;
-    using const_rightMapIterator = std::map<RIGHT, LEFTT>::const_iterator;
-    using const_rightSetIterator = std::set<RIGHT     >::const_iterator;
+    using const_lefttMapIterator = typename std::map<LEFTT, std::set<RIGHT>>::const_iterator;
+    using const_rightMapIterator = typename std::map<RIGHT, LEFTT>::const_iterator;
+    using const_rightSetIterator = typename std::set<RIGHT     >::const_iterator;
 
 
     BiMap_LR1M_RL11()

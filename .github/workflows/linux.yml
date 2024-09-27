@@ -1,0 +1,105 @@
+name: Linux
+
+on:
+  push:
+    branches: [ master, main ]
+    paths-ignore:
+      - 'docs/**'
+    tags-ignore:
+      - v*
+  pull_request:
+    branches: [ master, main ]
+    paths-ignore:
+      - 'docs/**'
+    tags-ignore:
+      - v*
+  workflow_dispatch:
+
+#env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  #BUILD_TYPE: Release
+
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build-ubuntu:
+    name: Build
+    strategy:
+      fail-fast: false
+      matrix:
+        # https://github.com/actions/runner-images#available-images
+        # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources  (os-labels : ubuntu-22.04)
+        # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#preinstalled-software
+        os: [ ubuntu-24.04, ubuntu-22.04 ]  #  ubuntu-latest  ==  ubuntu-22.04
+        #  https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md#installed-software
+          #  GNU C++: 9.5.0, 10.5.0, 11.4.0, 12.3.0, 13.1.0
+          #  Clang: 13.0.1, 14.0.0, 15.0.7
+          #  default  ==  g++-11
+          #  clang++  ==  clang++-14
+        #compiler: [ default, g++-12, g++-13, clang++-13, clang++-14, clang++-15 ]
+        compiler: [ g++-14 ]  # cannot be empty list
+        exclude:
+          - os: ubuntu-22.04
+            compiler : g++-14
+        include:
+          - os: ubuntu-24.04
+            compiler : default         #    g++-13
+          - os: ubuntu-24.04
+            compiler : g++-12
+          - os: ubuntu-24.04
+            compiler : clang++         #    clang++-18
+          - os: ubuntu-24.04
+            compiler : clang++-17
+          - os: ubuntu-24.04
+            compiler : clang++-16
+          - os: ubuntu-22.04
+            compiler : g++-12
+          - os: ubuntu-22.04
+            compiler : default         #    g++-11
+          - os: ubuntu-22.04
+            compiler : clang++-15
+          - os: ubuntu-22.04
+            compiler : clang++         #    clang++-14
+          - os: ubuntu-22.04
+            compiler : clang++-13
+    runs-on: ${{matrix.os}}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - name: Get Version
+        run: uname -a && cmake --version
+      - name: Check Generators
+        # https://stackoverflow.com/questions/25941536/what-is-a-cmake-generator
+        run: cmake --help
+      - name: Deploy Test-Dependencies
+        run: ./make.sh deps
+      - name: Configure CMake (compiler=default) [Debug]
+        if: matrix.compiler == 'default'
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DRAPIDCSV_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug
+      - name: Configure CMake (compiler=NOT-default) [Debug]
+        if: matrix.compiler != 'default'
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DRAPIDCSV_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=${{matrix.compiler}}
+      - name: Build [Debug]
+        run: cmake --build "${{github.workspace}}/build-debug" --config Debug -j$(nproc)
+      - name: Test [Debug]
+        working-directory: ${{github.workspace}}/build-debug
+        #run: ctest -C Debug --output-on-failure -j
+        run: ctest -C Debug --verbose
+      - name: Configure CMake (compiler=default) [Release]
+        if: matrix.compiler == 'default'
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DRAPIDCSV_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release
+      - name: Configure CMake (compiler=NOT-default) [Release]
+        if: matrix.compiler != 'default'
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DRAPIDCSV_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${{matrix.compiler}}
+      - name: Build [Release]
+        run: cmake --build "${{github.workspace}}/build-release" --config Release -j$(nproc)
+      - name: Test [Release]
+        working-directory: ${{github.workspace}}/build-release
+        run: ctest -C Release --verbose
+      - name: Install [Release]
+        run: sudo cmake --install "${{github.workspace}}/build-release" --config Release
+      - name: Check Work-Arounds
+        run: grep define "${{github.workspace}}/build-release/_deps/converter-build/include/converter/_workaroundConfig.h" | grep -v -e "^//" -e " e_[^ ]*_FEATURE "

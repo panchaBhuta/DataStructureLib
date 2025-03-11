@@ -30,15 +30,17 @@
 
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
   #define VERSIONEDOBJECT_DEBUG_LOG(aMessage) { std::cout << aMessage << " :: file:" << DATASTRUCTURE_PREFERRED_PATH << ":" << __LINE__ << std::endl; }
+  #define VERSIONEDOBJECT_DEBUG_MSG(aMessage) { std::cout << aMessage << std::endl; }
   #define VERSIONEDOBJECT_DEBUG_TRY_START try {
   #define VERSIONEDOBJECT_DEBUG_TRY_END   }
-  #define VERSIONEDOBJECT_DEBUG_TRY_CATCH(EXCEPTION_TYPE)                             \
-      catch(const EXCEPTION_TYPE& ex) {                                               \
-        VERSIONEDOBJECT_DEBUG_LOG( "got-ERROR: " << ex.what() );                      \
-        throw ex;                                                                     \
+  #define VERSIONEDOBJECT_DEBUG_TRY_CATCH(EXCEPTION_TYPE)                                 \
+      catch(const EXCEPTION_TYPE& ex) {                                                   \
+        VERSIONEDOBJECT_DEBUG_LOG( "ERROR: " << #EXCEPTION_TYPE << " : " << ex.what() );  \
+        throw ex;                                                                         \
       }
 #else
   #define VERSIONEDOBJECT_DEBUG_LOG(aMessage)
+  #define VERSIONEDOBJECT_DEBUG_MSG(aMessage)
   #define VERSIONEDOBJECT_DEBUG_TRY_START
   #define VERSIONEDOBJECT_DEBUG_TRY_END
   #define VERSIONEDOBJECT_DEBUG_TRY_CATCH(EXCEPTION_TYPE)
@@ -286,14 +288,14 @@ namespace datastructure { namespace versionedObject
     // returns false if same record exists
     inline bool insertVersion(const t_versionDate& forDate, const t_dataset& newEntry)
     {
-      //VERSIONEDOBJECT_DEBUG_LOG( "versionDate=" << forDate << ", newEntry={ " << newEntry.toLog() << " }");  // this is too verbose
+      //VERSIONEDOBJECT_DEBUG_LOG( "DEBUG_LOG:  versionDate=" << forDate << ", newEntry={ " << newEntry.toLog() << " }");  // this is too verbose
       const auto [ iter, success ] = _datasetLedger.emplace(forDate, newEntry);
       if( (!success) && (iter->second != newEntry) )  // different record exits in _datasetLedger
       {
         static std::string errMsg("ERROR : failure in VersionedObject<VDT, MT...>::insertVersion() : different record exits in _datasetLedger");
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
         std::ostringstream eoss;
-        eoss << errMsg << " : forDate=" << forDate << " : prevEntry={ " << iter->second.toLog();
+        eoss << "DEBUG_LOG:  " << errMsg << " : forDate=" << forDate << " : prevEntry={ " << iter->second.toLog();
         eoss << " } : newEntry={ metaData=" << newEntry.toLog() << " }";
         VERSIONEDOBJECT_DEBUG_LOG(eoss.str());
 #endif
@@ -309,7 +311,7 @@ namespace datastructure { namespace versionedObject
       {
         return _datasetLedger.cend();
       }
-    
+
       // upper_bound -> returns an iterator to the first element greater than the given key
       auto iterC = _datasetLedger.upper_bound(forDate); // iterC points to first element that is after 'forDate'
       if(iterC == _datasetLedger.cbegin()) // no record before the 'forDate'
@@ -319,6 +321,35 @@ namespace datastructure { namespace versionedObject
       --iterC;
       return iterC;
     }
+
+    inline typename t_datasetLedger::const_iterator
+    getVersionBefore(const t_versionDate& forDate) const
+    {
+      if(_datasetLedger.empty())
+      {
+        return _datasetLedger.cend();
+      }
+
+      // lower_bound -> Returns an iterator pointing to the first element that is not less than (i.e. greater or equal to) key
+      auto iterC = _datasetLedger.lower_bound(forDate); // iterC points to first element that is greater or equal to 'forDate'
+      if(iterC == _datasetLedger.cend() ||
+         forDate <= iterC->first)
+      {
+        if(iterC == _datasetLedger.cbegin()) // no record before the 'forDate'
+        {
+          return _datasetLedger.cend();
+        }
+        return --iterC;
+      }
+
+      return iterC;
+    }
+
+    /*   TODO
+    inline typename t_datasetLedger::const_iterator
+    getVersionBefore(const t_versionDate& forDate) const
+    {}
+    */
 
     inline const t_datasetLedger& getDatasetLedger() const
     {

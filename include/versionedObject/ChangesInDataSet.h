@@ -13,21 +13,24 @@
 
 #pragma once
 
+#include <concepts>
 #include <type_traits>
 #include <array>
 
 #include <versionedObject/VersionedObject.h>
+#include <versionedObject/SnapshotDataSet.h>
 
 
 namespace datastructure { namespace versionedObject
 {
 
-  using SnapshotChange_ReverseTimelineBuild_exception  =  VO_exception<3>;
+  template <typename ... T>
+  class _ChangesInDataSetBase;
 
-  enum ApplicableChangeDirection {
-    FORWARD,
-    REVERSE
-  };
+    template<typename OT, typename ... T>
+    concept isChangeType =
+        (std::is_base_of_v< _SnapshotDataSetBase<T...>, OT> == true ||
+         std::is_base_of_v<_ChangesInDataSetBase<T...>, OT> == true );
 
   template <typename ... T>
   class _ChangesInDataSetBase
@@ -41,174 +44,69 @@ namespace datastructure { namespace versionedObject
     bool operator==(_ChangesInDataSetBase const&) const = default;
 
     // elements that has changed is indicated by 'true'
-    inline const std::array <bool, sizeof...(T)> getModifiedIndexes() const { return _modifiedElements; }
-    inline bool isSnapShot() const { return _isSnapshot; }
+    inline const std::array<ModficationType, sizeof...(T)>& getModifiedIndexes() const { return _modifiedElements; }
     inline ApplicableChangeDirection getApplicableChangeDirection() const { return _applicableChangeDirection; }
+    inline const t_record& getNewRecord() const { return _newValues; }
 
 
-    bool isNextChgValueEqual_deltaChange(const t_record& matchRecord) const
+    bool isNextChgValueEqual(const t_record& matchRecord) const
     {
-      if (_isSnapshot)
-      {
-        std::ostringstream eoss;
-        eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::isNextChgValueEqual_deltaChange() : ";
-        eoss << "is applicable only for delta-change and NOT for snapshotChange. {";
-        toCSV(eoss);
-        eoss << "}" << std::endl;
-        throw SnapshotChange_ReverseTimelineBuild_exception(eoss.str());
-      }
-
       return _isNextChgValueEqual<sizeof...(T) -1>(matchRecord);
     }
 
-    bool isPreviousChgValueEqual_deltaChange(const t_record& matchRecord) const
+    bool isPreviousChgValueEqual(const t_record& matchRecord) const
     {
-      if (_isSnapshot)
-      {
-        std::ostringstream eoss;
-        eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::isPreviousChgValueEqual_deltaChange() : ";
-        eoss << "is applicable only for snapshotChange and NOT for delta-change. {";
-        toCSV(eoss);
-        eoss << "}" << std::endl;
-        throw SnapshotChange_ReverseTimelineBuild_exception(eoss.str());
-      }
-
       return _isPreviousChgValueEqual<sizeof...(T) -1>(matchRecord);
     }
 
-    bool isSnapshotChgValueEqual(const t_record& matchRecord) const
-    {
-      if (!_isSnapshot)
-      {
-        std::ostringstream eoss;
-        eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::isSnapshotChgValueEqual() : ";
-        eoss << "is applicable only for snapshotChange and NOT for delta-change. {";
-        toCSV(eoss);
-        eoss << "}" << std::endl;
-        throw SnapshotChange_ReverseTimelineBuild_exception(eoss.str());
-      }
-
-      return _isNextChgValueEqual<sizeof...(T) -1>(matchRecord);
-    }
-
+    template<bool VALIDATE>
     void getLatestRecord( t_record& updateRecord,
                           std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
     {
-      _getLatestValue<sizeof...(T) -1, true>(updateRecord, hitheroProcessedElements);
+      _getLatestValue<sizeof...(T) -1, VALIDATE>(updateRecord, hitheroProcessedElements);
     }
+
+    template<bool VALIDATE>
     void getLatestRecord(t_record& updateRecord) const
     {
       std::array <bool, sizeof...(T)> hitheroProcessedElements;
-      for(size_t i = 0; i < sizeof...(T); ++i)
-      {
-        hitheroProcessedElements[i] = false;
-      }
-      _getLatestValue<sizeof...(T) -1, false>(updateRecord, hitheroProcessedElements);
+      hitheroProcessedElements.fill(false);
+      _getLatestValue<sizeof...(T) -1, VALIDATE>(updateRecord, hitheroProcessedElements);
     }
 
-    void getLatestRecord_deltaChange(t_record& updateRecord,
-                    std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
-    {
-      if (_isSnapshot)
-      {
-        std::ostringstream eoss;
-        eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::getLatestRecord_deltaChange(2) : ";
-        eoss << "is applicable only for delta-change and NOT for snapshotChange. {";
-        toCSV(eoss);
-        eoss << "}" << std::endl;
-        throw SnapshotChange_ReverseTimelineBuild_exception(eoss.str());
-      }
-
-      _getLatestValue<sizeof...(T) -1, true>(updateRecord, hitheroProcessedElements);
-    }
-
-    void getLatestRecord_deltaChange(t_record& updateRecord) const
-    {
-      if (_isSnapshot)
-      {
-        std::ostringstream eoss;
-        eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::getLatestRecord_deltaChange(1) : ";
-        eoss << "is applicable only for delta-change and NOT for snapshotChange. {";
-        toCSV(eoss);
-        eoss << "}" << std::endl;
-        throw SnapshotChange_ReverseTimelineBuild_exception(eoss.str());
-      }
-      getLatestValue(updateRecord);
-    }
-
-    void getPreviousRecord_deltaChange( t_record& updateRecord,
+    template<bool VALIDATE>
+    void getPreviousRecord( t_record& updateRecord,
             std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
     {
-      if (_isSnapshot)
-      {
-        std::ostringstream eoss;
-        eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::getPreviousRecord_deltaChange(2) : ";
-        eoss << "is applicable only for delta-change and NOT for snapshotChange. {";
-        toCSV(eoss);
-        eoss << "}" << std::endl;
-        throw SnapshotChange_ReverseTimelineBuild_exception(eoss.str());
-      }
-
-      _getPreviousValue<sizeof...(T) -1, true>(updateRecord, hitheroProcessedElements);
+      _getPreviousValue<sizeof...(T) -1, VALIDATE>(updateRecord, hitheroProcessedElements);
     }
 
-    void getPreviousRecord_deltaChange( t_record& updateRecord) const
+    template<bool VALIDATE>
+    void getPreviousRecord( t_record& updateRecord) const
     {
-      if (_isSnapshot)
-      {
-        std::ostringstream eoss;
-        eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::getPreviousRecord_deltaChange(1) : ";
-        eoss << "is applicable only for delta-change and NOT for snapshotChange. {";
-        toCSV(eoss);
-        eoss << "}" << std::endl;
-        throw SnapshotChange_ReverseTimelineBuild_exception(eoss.str());
-      }
-
       std::array <bool, sizeof...(T)> hitheroProcessedElements;
-      for(size_t i = 0; i < sizeof...(T); ++i)
-      {
-        hitheroProcessedElements[i] = false;
-      }
-      _getPreviousValue<sizeof...(T) -1, false>(updateRecord, hitheroProcessedElements);
+      hitheroProcessedElements.fill(false);
+      _getPreviousValue<sizeof...(T) -1, VALIDATE>(updateRecord, hitheroProcessedElements);
     }
 
-    void getSnapshotRecord( t_record& updateRecord,
-            std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
+    int isSubset(const _SnapshotDataSetBase<T...>& other) const // if greater than 0 then yes
     {
-      if (!_isSnapshot)
+      std::array <int, sizeof...(T)> mergeableElements;
+      mergeableElements.fill(0);
+      _isMergeable<sizeof...(T) -1, _SnapshotDataSetBase<T...> >(other, mergeableElements);  // 0, 1, 2
+
+      size_t mergeableCount1 = 0;
+      for(size_t iii = 0; iii < sizeof...(T); ++iii )
       {
-        std::ostringstream eoss;
-        eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::getSnapshotRecord(2) : ";
-        eoss << "is applicable only for snapshotChange and NOT for delta-change. {";
-        toCSV(eoss);
-        eoss << "}" << std::endl;
-        throw SnapshotChange_ReverseTimelineBuild_exception(eoss.str());
+        if(mergeableElements.at(iii) == 2)
+          return -mergeableElements.at(iii);
+
+        if(mergeableElements.at(iii) == 1) // skip the 0's
+          ++mergeableCount1;
       }
 
-      _getLatestValue<sizeof...(T) -1, true>(updateRecord, hitheroProcessedElements);
+      return mergeableCount1;
     }
-
-    void getSnapshotRecord( t_record& updateRecord) const
-    {
-      if (!_isSnapshot)
-      {
-        std::ostringstream eoss;
-        eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::getSnapshotRecord(1) : ";
-        eoss << "is applicable only for snapshotChange and NOT for delta-change. {";
-        toCSV(eoss);
-        eoss << "}" << std::endl;
-        throw SnapshotChange_ReverseTimelineBuild_exception(eoss.str());
-      }
-
-      std::array <bool, sizeof...(T)> hitheroProcessedElements;
-      for(size_t i = 0; i < sizeof...(T); ++i)
-      {
-        hitheroProcessedElements[i] = false;
-      }
-      _getLatestValue<sizeof...(T) -1, false>(updateRecord, hitheroProcessedElements);
-    }
-
-
 
     inline void toCSV(std::ostream& oss) const
     {
@@ -224,41 +122,50 @@ namespace datastructure { namespace versionedObject
     }
 
   protected:
-    _ChangesInDataSetBase( const std::array <bool, sizeof...(T)> modifiedElements,
+    _ChangesInDataSetBase( const std::array<bool, sizeof...(T)>& modifiedElements,
                            const t_record& oldValues,
                            const t_record& newValues,
                                  ApplicableChangeDirection applicableChangeDirection)
-      : _modifiedElements(modifiedElements),
+      : _modifiedElements(),
         _oldValues(oldValues),
         _newValues(newValues),
-        _isSnapshot(false),
         _applicableChangeDirection(applicableChangeDirection)
-    {}
+    {
+      for(size_t iii = 0; iii < sizeof...(T); ++iii)
+      {
+        _modifiedElements.at(iii) = (modifiedElements.at(iii) ? DELTA_CHANGE : NO_MODIFICATION);
+      }
+    }
 
-    _ChangesInDataSetBase( const std::array <bool, sizeof...(T)> modifiedElements,
-                           const t_record& snapshotValues,
-                                 ApplicableChangeDirection applicableChangeDirection = ApplicableChangeDirection::FORWARD)
-      : _modifiedElements(modifiedElements),
+    _ChangesInDataSetBase(const _SnapshotDataSetBase<T...>& snapOther)
+      : _modifiedElements(snapOther.getModifiedIndexes()),
         _oldValues(),
-        _newValues(snapshotValues),
-        _isSnapshot(true),
-        _applicableChangeDirection(applicableChangeDirection)
+        _newValues(snapOther.getNewRecord()),
+        _applicableChangeDirection(snapOther.getApplicableChangeDirection())
     {}
 
     template<size_t IDX>
     inline void _toCSV(std::ostream& oss) const
     {
-      oss << ",";
-      if( _modifiedElements.at(IDX) ) // check if element is marked for change
+      if constexpr( IDX == 0 )
       {
-        if (!_isSnapshot)
+        if(_applicableChangeDirection == ApplicableChangeDirection::FORWARD)
         {
-          // NOTE :: will fail for types that donot support "operator<<"
-          oss << std::get<IDX>(_oldValues) << "->" << std::get<IDX>(_newValues);
-        } else {
-          // NOTE :: will fail for types that donot support "operator<<"
-          oss << std::get<IDX>(_newValues);
+          oss << ",FORWARD";
+        } else  {
+          oss << ",REVERSE";
         }
+      }
+
+      oss << ",";
+      if( _modifiedElements.at(IDX) == DELTA_CHANGE ) // check if element is marked for change
+      {
+        // NOTE :: will fail for types that donot support "operator<<"
+        oss << std::get<IDX>(_oldValues) << "->" << std::get<IDX>(_newValues);
+      } else if( _modifiedElements.at(IDX) == SNAPSHOT ) // check if element is marked for change
+      {
+        // NOTE :: will fail for types that donot support "operator<<"
+        oss << std::get<IDX>(_newValues);
       }
 
       if constexpr( IDX < (sizeof...(T)-1) )
@@ -270,7 +177,7 @@ namespace datastructure { namespace versionedObject
     template<size_t IDX>
     inline bool _isNextChgValueEqual(const t_record& matchRecord) const
     {
-      if( _modifiedElements.at(IDX) && 
+      if( _modifiedElements.at(IDX) != NO_MODIFICATION && 
           ( std::get<IDX>(matchRecord) != std::get<IDX>(_newValues) ) )
       {
         return false;
@@ -289,7 +196,7 @@ namespace datastructure { namespace versionedObject
     template<size_t IDX>
     inline bool _isPreviousChgValueEqual(const t_record& matchRecord) const
     {
-      if( _modifiedElements.at(IDX) && 
+      if( _modifiedElements.at(IDX) == DELTA_CHANGE && 
           ( std::get<IDX>(matchRecord) != std::get<IDX>(_oldValues) ) )
       {
         return false;
@@ -309,7 +216,7 @@ namespace datastructure { namespace versionedObject
     inline void _getLatestValue(t_record& updateRecord,
                                 std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
     {
-      if( _modifiedElements.at(IDX) ) // check if element is marked for change
+      if( _modifiedElements.at(IDX) != NO_MODIFICATION ) // check if element is marked for change
       {
         if constexpr(VALIDATE)
         {
@@ -323,7 +230,7 @@ namespace datastructure { namespace versionedObject
           }
           hitheroProcessedElements[IDX] = true;
 
-          if (!_isSnapshot)
+          if( _modifiedElements.at(IDX) == DELTA_CHANGE )
           {
             if( std::get<IDX>(updateRecord) != std::get<IDX>(_oldValues) )
             {
@@ -333,8 +240,6 @@ namespace datastructure { namespace versionedObject
               eoss << "} doesn't match with expected old-Value{" << std::get<IDX>(_oldValues) << "}" << std::endl;
               throw std::invalid_argument(eoss.str());
             }
-          } else {
-            //TODO :: check if there is something to do here?
           }
         }
 
@@ -353,7 +258,7 @@ namespace datastructure { namespace versionedObject
     inline void _getPreviousValue(t_record& updateRecord,
                                   std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
     {
-      if( _modifiedElements.at(IDX) ) // check if element is marked for change
+      if( _modifiedElements.at(IDX) != NO_MODIFICATION ) // check if element is marked for change
       {
         if constexpr(VALIDATE)
         {
@@ -372,12 +277,13 @@ namespace datastructure { namespace versionedObject
             std::ostringstream eoss;
             eoss << "ERROR(2) : in function _ChangesInDataSetBase<T ...>::_getPreviousValue() : ";
             eoss << " at tuple-index[" << IDX << "] : updateRecord-value{" << std::get<IDX>(updateRecord);
-            eoss << "} doesn't match with expected old-Value{" << std::get<IDX>(_newValues) << "}" << std::endl;
+            eoss << "} doesn't match with expected new-Value{" << std::get<IDX>(_newValues) << "}" << std::endl;
             throw std::invalid_argument(eoss.str());
           }
         }
 
-        std::get<IDX>(updateRecord) = std::get<IDX>(_oldValues);
+        if( _modifiedElements.at(IDX) == DELTA_CHANGE )
+          std::get<IDX>(updateRecord) = std::get<IDX>(_oldValues);
       }
 
       if constexpr( IDX > 0 )
@@ -388,10 +294,133 @@ namespace datastructure { namespace versionedObject
       }
     }
 
-    const std::array <bool, sizeof...(T)> _modifiedElements;        // elements that has changed is indicated by 'true'
-    const t_record _oldValues;                                      // value(s) of elements before change
-    const t_record _newValues;                                      // value(s) of elements after  change
-    const bool     _isSnapshot;
+    template <isChangeType<T...> OT>
+    int _merge(const OT& other)
+    {
+      //static_assert(std::is_same_v<decltype(other), const  _SnapshotDataSetBase<T...>& > == true ||
+      //              std::is_same_v<decltype(other), const _ChangesInDataSetBase<T...>& > == true );
+  
+      std::array <int, sizeof...(T)> mergeableElements;
+      mergeableElements.fill(0);
+      _isMergeable<sizeof...(T) -1, OT>(other, mergeableElements);
+
+      size_t mergeableCount1 = 0;
+      size_t mergeableCount2 = 0;
+      for(size_t iii = 0; iii < sizeof...(T); ++iii )
+      {
+        if(mergeableElements.at(iii) < 0)
+          return mergeableElements.at(iii);
+
+        if(mergeableElements.at(iii) == 1) // this.element == other.element
+          ++mergeableCount1;
+
+        if(mergeableElements.at(iii) == 2) // this.element is Null : AND : other.element has some value
+          ++mergeableCount2;
+      }
+
+      if(mergeableCount2 > 0)
+        _merge<sizeof...(T) -1, OT>(other, mergeableElements);
+
+      return mergeableCount1 + mergeableCount2;
+    }
+
+    template <size_t IDX, isChangeType<T...> OT>
+    void _merge(const OT& other, std::array <int, sizeof...(T)>& mergeableElements)
+    {
+      //static_assert(std::is_same_v<decltype(other), const  _SnapshotDataSetBase<T...>& > == true ||
+      //              std::is_same_v<decltype(other), const _ChangesInDataSetBase<T...>& > == true );
+
+      if(mergeableElements.at(IDX) == 2)  // copy where applicable
+      {
+        std::get<IDX>(_newValues) = std::get<IDX>(other.getNewRecord());
+        if constexpr(std::is_same_v<OT, _ChangesInDataSetBase<T...> > == true)
+        {
+          std::get<IDX>(_oldValues) = std::get<IDX>(other._oldValues);
+          _modifiedElements.at(IDX) = DELTA_CHANGE;
+        } else
+        if constexpr(std::is_same_v<OT, _SnapshotDataSetBase<T...> > == true)
+        {
+          _modifiedElements.at(IDX) = SNAPSHOT;
+        } else {
+          static_assert(false);
+        }
+      }
+
+      if constexpr( IDX > 0 )
+      {
+        // "((IDX>0)?(IDX-1):0)" eliminates infinite compile time looping,
+        // and we don't have to define function specialization for _merge<0>()
+        _merge< ((IDX>0)?(IDX-1):0) , OT >(other, mergeableElements);
+      }
+    }
+
+
+    template<size_t IDX, isChangeType<T...> OT>
+    void _isMergeable(const OT& other, std::array <int, sizeof...(T)>& mergeableElements) const
+    {
+      //static_assert(std::is_same_v<decltype(other), const  _SnapshotDataSetBase<T...>& > == true ||
+      //              std::is_same_v<decltype(other), const _ChangesInDataSetBase<T...>& > == true );
+
+      if( _modifiedElements.at(IDX) != NO_MODIFICATION ) // check if element is marked for change
+      {
+        if( other.getModifiedIndexes().at(IDX) != NO_MODIFICATION )
+        {
+          if constexpr((sizeof...(T) -1) == IDX)
+          {
+            if(other.getApplicableChangeDirection() != _applicableChangeDirection)
+            {
+              std::ostringstream eoss;
+              eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::_isMergeable(const auto&) : ";
+              eoss << " other._applicableChangeDirection{" << (other.getApplicableChangeDirection()==FORWARD?"FORWARD":"REVERSE");
+              eoss << "} doesn't match with expected this._applicableChangeDirection{" << (_applicableChangeDirection==FORWARD?"FORWARD":"REVERSE") << "}" << std::endl;
+              throw std::invalid_argument(eoss.str());
+            }
+          }
+
+          bool isError = std::get<IDX>(other.getNewRecord()) != std::get<IDX>(_newValues);
+          if constexpr(std::is_same_v<decltype(other), const  _ChangesInDataSetBase<T...>& >)
+          {
+            isError |= (std::get<IDX>(other._oldValues) != std::get<IDX>(_oldValues));
+          }
+          if(isError)
+          {
+            std::ostringstream eoss;
+            if constexpr(std::is_same_v<decltype(other), const  _ChangesInDataSetBase<T...>& >)
+            {
+              eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::_isMergeable(const _ChangesInDataSetBase<T...>& other) : ";
+              eoss << " at tuple-index[" << IDX << "] : other<newvalue,oldvalue>{" << std::get<IDX>(other._newValues);
+              eoss << ',' << std::get<IDX>(other._oldValues);
+              eoss << "} doesn't match with expected this<newvalue,oldvalue>{" << std::get<IDX>(_newValues);
+              eoss << ',' << std::get<IDX>(_oldValues) << "}" << std::endl;
+            } else {
+              eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::_isMergeable(const _SnapshotDataSetBase<T...>& other) : ";
+              eoss << " at tuple-index[" << IDX << "] : other-value{" << std::get<IDX>(other.getNewRecord());
+              eoss << "} doesn't match with expected this-Value{" << std::get<IDX>(_newValues) << "}" << std::endl;
+            }
+            throw std::invalid_argument(eoss.str());
+          }
+          mergeableElements.at(IDX) = 1;  // elements of both tuple matches
+        // } else { do nothing
+        }
+      } else {
+        if( other.getModifiedIndexes().at(IDX) != NO_MODIFICATION )
+        {
+          mergeableElements.at(IDX) = 2;  // element of other-tuple exists and is copyable to this-tuple.
+        // } else { do nothing
+        }
+      }
+
+      if constexpr( IDX > 0 )
+      {
+        // "((IDX>0)?(IDX-1):0)" eliminates infinite compile time looping,
+        // and we don't have to define function specialization for _isMergeable<0>()
+        _isMergeable< ((IDX>0)?(IDX-1):0), OT >(other, mergeableElements);
+      }
+    }
+
+    std::array <ModficationType, sizeof...(T)> _modifiedElements;        // elements that has changed is indicated by 'true'
+    t_record _oldValues;                                      // value(s) of elements before change
+    t_record _newValues;                                      // value(s) of elements after  change
     const ApplicableChangeDirection _applicableChangeDirection;
   };
 
@@ -407,7 +436,7 @@ namespace datastructure { namespace versionedObject
     using t_record  = typename std::tuple<T ...>;
 
     ChangesInDataSet( const M& metaData,
-                      const std::array <bool, sizeof...(T)> modifiedElements,
+                      const std::array<bool, sizeof...(T)>& modifiedElements,
                       const t_record& oldValues,
                       const t_record& newValues,
                       ApplicableChangeDirection applicableChangeDirection)
@@ -415,12 +444,9 @@ namespace datastructure { namespace versionedObject
         _metaData(metaData)
     {}
 
-    ChangesInDataSet( const M& metaData,
-                      const std::array <bool, sizeof...(T)> modifiedElements,
-                      const t_record& snapshotValues,
-                      ApplicableChangeDirection applicableChangeDirection = ApplicableChangeDirection::FORWARD)
-      : _ChangesInDataSetBase<T...>(modifiedElements, snapshotValues, applicableChangeDirection),
-        _metaData(metaData)
+    ChangesInDataSet( const SnapshotDataSet<M, T...>& otherSnapDataset)
+      : _ChangesInDataSetBase<T...>(otherSnapDataset),
+        _metaData(otherSnapDataset.getMetaData())
     {}
 
     ChangesInDataSet() = delete;
@@ -429,6 +455,32 @@ namespace datastructure { namespace versionedObject
     bool operator==(ChangesInDataSet const&) const = default;
 
     inline const M&           getMetaData() const { return _metaData; }
+
+    int merge(const auto& other)
+    {
+      if constexpr(std::is_same_v<decltype(other), const  SnapshotDataSet<M, T...>& > == true)
+      {
+        // this->_metaData.merge(other..getMetaData()); call append instead
+        this->_metaData.appendMetaInfo(other.getMetaData()); // TODO : _source as vector
+
+        return this->_merge(dynamic_cast<const _SnapshotDataSetBase<T...>& >(other));
+      } else
+      if constexpr(std::is_same_v<decltype(other), const  ChangesInDataSet<M, T...>& > == true)
+      {
+        // this->_metaData.merge(other..getMetaData()); call append instead
+        this->_metaData.appendMetaInfo(other.getMetaData());
+
+        return this->_merge(dynamic_cast<const _ChangesInDataSetBase<T...>& >(other));
+      } else
+      if constexpr(std::is_same_v<decltype(other), const  SnapshotDataSet<T...>& > == true)
+      {
+         // special case: SnapshotDataSet<T...> is without metaInfo, as it's part of
+         //               previous ChangesInDataSet<M, T...> OR SnapshotDataSet<M, T...>
+         //               that's being appended here.
+        return this->_merge(dynamic_cast<const _SnapshotDataSetBase<T...>& >(other));
+      } else
+        static_assert(false);
+    }
 
     inline void toCSV(std::ostream& oss) const
     {
@@ -457,18 +509,29 @@ namespace datastructure { namespace versionedObject
   public:
     using t_record  = typename std::tuple<T1, TR...>;
 
-    ChangesInDataSet( const std::array <bool, std::tuple_size_v<t_record>> modifiedElements,
+    ChangesInDataSet( const std::array<bool, std::tuple_size_v<t_record>>& modifiedElements,
                       const t_record& oldValues,
                       const t_record& newValues,
                       ApplicableChangeDirection applicableChangeDirection)
       : _ChangesInDataSetBase<T1, TR...>(modifiedElements, oldValues, newValues, applicableChangeDirection)
     {}
 
-    ChangesInDataSet( const std::array <bool, std::tuple_size_v<t_record>> modifiedElements,
-                      const t_record& snapshotValues,
-                      ApplicableChangeDirection applicableChangeDirection = ApplicableChangeDirection::FORWARD)
-      : _ChangesInDataSetBase<T1, TR...>(modifiedElements, snapshotValues, applicableChangeDirection)
+    ChangesInDataSet( const SnapshotDataSet<T1, TR...>& otherSnapDataset)
+      : _ChangesInDataSetBase<T1, TR...>(otherSnapDataset)
     {}
+
+    int merge(const auto& other)
+    {
+      if constexpr(std::is_same_v<decltype(other), const  SnapshotDataSet<T1, TR...>& > == true)
+      {
+        return this->_merge(dynamic_cast<const _SnapshotDataSetBase<T1, TR...>& >(other));
+      } else
+      if constexpr(std::is_same_v<decltype(other), const  ChangesInDataSet<T1, TR...>& > == true)
+      {
+        return this->_merge(dynamic_cast<const _ChangesInDataSetBase<T1, TR...>& >(other));
+      } else
+        static_assert(false);
+    }
 
     ChangesInDataSet() = delete;
     ChangesInDataSet(ChangesInDataSet const&) = default;

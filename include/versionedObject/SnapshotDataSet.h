@@ -124,13 +124,14 @@ namespace datastructure { namespace versionedObject
       {
         if(_applicableChangeDirection == ApplicableChangeDirection::FORWARD)
         {
-          oss << ",FORWARD";
+          oss << "[FORWARD]:";
         } else  {
-          oss << ",REVERSE";
+          oss << "[REVERSE]:";
         }
+      } else {
+        oss << ",";
       }
 
-      oss << ",";
       if( _modifiedElements.at(IDX) == SNAPSHOT ) // check if element is marked for change
       {
         // NOTE :: will fail for types that donot support "operator<<"

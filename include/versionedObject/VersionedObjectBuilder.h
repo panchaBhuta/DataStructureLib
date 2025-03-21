@@ -206,14 +206,14 @@ namespace datastructure { namespace versionedObject
             ledgerIter = vo.getVersionBefore(presentDeltaChangeDate);
 
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
-        std::cout << "DEBUG_LOG:    ** deltaEntryDate[" << iterDelta->first << "]->versionObjectDate[" << std::flush;
+        std::cout << "DEBUG_LOG:    ** deltaEntryDate[" << iterDelta->first << "] >> versionObjectDate[" << std::flush;
         if( ledgerIter != vo.getDatasetLedger().end() )
         {
           std::cout << ledgerIter->first << std::flush;
         } else {
           std::cout << "ERROR:NULL-DATE" << std::flush;
         }
-        std::cout << "] -> data{" << ledgerIter->second.toCSV() 
+        std::cout << "]:data{" << ledgerIter->second.toCSV() 
                   << "} << deltaChange{" << iterDelta->second.toCSV() << "}" << std::endl;
 #endif
 
@@ -355,14 +355,14 @@ namespace datastructure { namespace versionedObject
                 ledgerIter = vo.getVersionAt(presentDeltaChangeDate);
 
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
-        std::cout << "DEBUG_LOG:    ** deltaEntryDate[" << presentDeltaChangeDate << "]->versionObjectDate[" << std::flush;
+        std::cout << "DEBUG_LOG:    ** deltaEntryDate[" << presentDeltaChangeDate << "] >> versionObjectDate[" << std::flush;
         if( ledgerIter != vo.getDatasetLedger().cend() )
         {
           std::cout << ledgerIter->first << std::flush;
         } else {
           std::cout << "ERROR:NULL-DATE" << std::flush;
         }
-        std::cout << "] -> data{" << ledgerIter->second.toCSV() 
+        std::cout << "]:data{" << ledgerIter->second.toCSV() 
                   << "} << deltaChange{" << rIterDelta->second.toCSV() << "}" << std::endl << std::flush;
 #endif
 
@@ -458,46 +458,6 @@ namespace datastructure { namespace versionedObject
           VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   ReverseTimeline1 initialization  START <<<<<<<<<<<<<<<<<");
           _VersionedObjectBuilderBase<VDT, MT...> tempVOB{};
 
-          iterISVOcopyBegin =
-                    ( iterComboChgEntries != comboChgEntries.cend() ?
-                      initialStateVOcopy.getDatasetLedger().upper_bound(iterComboChgEntries->first) :
-                      initialStateVOcopy.getDatasetLedger().cend() );
-
-          iterComboChgEntriesLast = iterComboChgEntries;
-          while(    iterComboChgEntries != comboChgEntries.cend()
-                &&  iterComboChgEntries->second.getApplicableChangeDirection() == ApplicableChangeDirection::REVERSE
-               )
-          {
-            tempVOB.insertDeltaVersion(iterComboChgEntries->first, iterComboChgEntries->second);
-            iterComboChgEntriesLast = iterComboChgEntries;
-            ++iterComboChgEntries;
-            changeProcessed = true;
-          }
-          iterISVOcopyEnd =
-                    ( iterComboChgEntriesLast != comboChgEntries.cend() ?
-                      initialStateVOcopy.getDatasetLedger().upper_bound(iterComboChgEntriesLast->first) :
-                      initialStateVOcopy.getDatasetLedger().cend() );
-
-          VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   reverse-applicable ::  " \
-               "{iterComboChgEntriesStart->first[" << _checkDateEnd(comboChgEntries.cbegin(), comboChgEntries.cend()) \
-            << "]..iterComboChgEntriesLast->first[" << _checkDateEnd(iterComboChgEntriesLast, comboChgEntries.cend()) \
-            << "]} ==>> {iterISVOcopyStart->first[" << _checkDateEnd(iterISVOcopyBegin, initialStateVOcopy.getDatasetLedger().cend()) \
-            << "]..iterISVOcopyLast->first[" << _checkDateEnd(iterISVOcopyEnd, initialStateVOcopy.getDatasetLedger().cend()) << "]}" );
-
-          t_versionedObject reverseBuildVO{};
-          if(iterISVOcopyEnd != initialStateVOcopy.getDatasetLedger().cend())
-          {
-            ++iterISVOcopyEnd;
-          }
-          while( iterISVOcopyBegin != iterISVOcopyEnd )
-          {
-            reverseBuildVO.insertVersion(iterISVOcopyBegin->first, iterISVOcopyBegin->second);
-            ++iterISVOcopyBegin;
-          }
-
-          t_deltaEntriesMap tmpComboChgEntries{tempVOB._deltaChgEntries};
-          tempVOB._updateComboDataSet(tmpComboChgEntries);
-
           if(buildReverseIter >= startDates.size())
           {
             std::ostringstream eoss;
@@ -509,6 +469,54 @@ namespace datastructure { namespace versionedObject
             tmpComboChgEntries.clear();
             throw std::out_of_range(eoss.str());
           }
+
+          iterISVOcopyBegin =
+                    ( iterComboChgEntries != comboChgEntries.cend() ?
+                      initialStateVOcopy.getDatasetLedger().lower_bound(iterComboChgEntries->first) :
+                      initialStateVOcopy.getDatasetLedger().cend() );
+          if(iterISVOcopyBegin != initialStateVOcopy.getDatasetLedger().cbegin())
+          {
+            --iterISVOcopyBegin;  // This Version-Date is before first(Chronolgical-order) Change-Date list.
+            //   here expected  (iterISVOcopyBegin->first == startDates[buildReverseIter])
+          }
+
+#if FLAG_VERSIONEDOBJECT_debug_log == 1
+          auto iterComboChgEntriesFirst = iterComboChgEntries;
+#endif
+          iterComboChgEntriesLast = iterComboChgEntries;
+          while(    iterComboChgEntries != comboChgEntries.cend()
+                &&  iterComboChgEntries->second.getApplicableChangeDirection() == ApplicableChangeDirection::REVERSE
+               )
+          {
+            tempVOB.insertDeltaVersion(iterComboChgEntries->first, iterComboChgEntries->second);
+            iterComboChgEntriesLast = iterComboChgEntries;
+            ++iterComboChgEntries;
+            changeProcessed = true;
+          }
+          iterISVOcopyEnd =   //  Get the start seed for REVERSE. This Version-Date is same/after last Change-Date.
+                    ( iterComboChgEntriesLast != comboChgEntries.cend() ?
+                      initialStateVOcopy.getDatasetLedger().upper_bound(iterComboChgEntriesLast->first) :
+                      initialStateVOcopy.getDatasetLedger().cend() );
+
+#if FLAG_VERSIONEDOBJECT_debug_log == 1
+          auto iterISVOcopyLast = iterISVOcopyEnd;
+          if(iterISVOcopyEnd != initialStateVOcopy.getDatasetLedger().cbegin()) --iterISVOcopyLast;
+          VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   reverse-applicable ::  " \
+               "{iterComboChgEntriesStart->first[" << _checkDateEnd(iterComboChgEntriesFirst, comboChgEntries.cend()) \
+            << "]..iterComboChgEntriesLast->first[" << _checkDateEnd(iterComboChgEntriesLast, comboChgEntries.cend()) \
+            << "]} ==>> {iterISVOcopyStart->first[" << _checkDateEnd(iterISVOcopyBegin, initialStateVOcopy.getDatasetLedger().cend()) \
+            << "]..iterISVOcopyLast->first[" << _checkDateEnd(iterISVOcopyLast, initialStateVOcopy.getDatasetLedger().cend()) << "]}" );
+#endif
+
+          t_versionedObject reverseBuildVO{};
+          while( iterISVOcopyBegin != iterISVOcopyEnd )
+          {
+            reverseBuildVO.insertVersion(iterISVOcopyBegin->first, iterISVOcopyBegin->second);
+            ++iterISVOcopyBegin;
+          }
+
+          t_deltaEntriesMap tmpComboChgEntries{tempVOB._deltaChgEntries};
+          tempVOB._updateComboDataSet(tmpComboChgEntries);
 
           tempVOB._buildReverseTimeline(startDates[buildReverseIter++], // use 0, then increment to 1
                                         reverseBuildVO, tmpComboChgEntries,
@@ -541,20 +549,23 @@ namespace datastructure { namespace versionedObject
                       initialStateVOcopy.getDatasetLedger().cend() );
           if(iterISVOcopyBegin != initialStateVOcopy.getDatasetLedger().cbegin())
           {
-            --iterISVOcopyBegin;
+            --iterISVOcopyBegin;  //  Get the start seed for FORWARD. This Version-Date is before first Change-date.
           }
 
+#if FLAG_VERSIONEDOBJECT_debug_log == 1
+          auto iterComboChgEntriesFirst = iterComboChgEntries;
+#endif
           iterComboChgEntriesLast = iterComboChgEntries;
           while(    iterComboChgEntries != comboChgEntries.cend()
                 &&  iterComboChgEntries->second.getApplicableChangeDirection() == ApplicableChangeDirection::FORWARD
-                )
+               )
           {
             tempVOB.insertDeltaVersion(iterComboChgEntries->first, iterComboChgEntries->second);
             iterComboChgEntriesLast = iterComboChgEntries;
             ++iterComboChgEntries;
             changeProcessed = true;
           }
-          iterISVOcopyEnd =
+          iterISVOcopyEnd =   // This Version-Date is after(i.e exclusive as it's .cend()) the last-valid Change-Date.
                     ( iterComboChgEntriesLast != comboChgEntries.cend() ?
                       initialStateVOcopy.getDatasetLedger().upper_bound(iterComboChgEntriesLast->first) :
                       initialStateVOcopy.getDatasetLedger().cend() );
@@ -563,7 +574,7 @@ namespace datastructure { namespace versionedObject
           auto iterISVOcopyLast = iterISVOcopyEnd;
           if(iterISVOcopyEnd != initialStateVOcopy.getDatasetLedger().cbegin()) --iterISVOcopyLast;
           VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   forward-applicable ::  " \
-                "{iterComboChgEntriesStart->first[" << _checkDateEnd(comboChgEntries.cbegin(), comboChgEntries.cend()) \
+                "{iterComboChgEntriesStart->first[" << _checkDateEnd(iterComboChgEntriesFirst, comboChgEntries.cend()) \
             << "]..iterComboChgEntriesLast->first[" << _checkDateEnd(iterComboChgEntriesLast, comboChgEntries.cend()) \
             << "]} ==>> {iterISVOcopyStart->first[" << _checkDateEnd(iterISVOcopyBegin, initialStateVOcopy.getDatasetLedger().cend()) \
             << "]..iterISVOcopyLast->first[" << _checkDateEnd(iterISVOcopyLast, initialStateVOcopy.getDatasetLedger().cend()) << "]}" );
@@ -600,11 +611,9 @@ namespace datastructure { namespace versionedObject
 
       if(iterComboChgEntries != comboChgEntries.cend())
       {
-        std::ostringstream eoss;
-        eoss << "ERROR(2) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildBiDirectionalTimeline() : unprocessed Changes for dates[";
-        for(;iterComboChgEntries != comboChgEntries.cend(); ++iterComboChgEntries) eoss << iterComboChgEntries->first << ",";
-        eoss << "]" << std::endl;
-        throw std::out_of_range(eoss.str());
+        std::cout << "ERROR(2) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildBiDirectionalTimeline() : unprocessed Changes for dates[";
+        for(;iterComboChgEntries != comboChgEntries.cend(); ++iterComboChgEntries) std::cout << iterComboChgEntries->first << ",";
+        std::cout << "]" << std::endl;
       }
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildBiDirectionalTimeline(END)");
 

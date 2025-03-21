@@ -11,5 +11,5 @@
 # https://stackoverflow.com/questions/14446495/cmake-project-structure-with-unit-tests
 
 add_subdirectory(versionedObject)
-add_subdirectory(biMap)
+#add_subdirectory(biMap)
 

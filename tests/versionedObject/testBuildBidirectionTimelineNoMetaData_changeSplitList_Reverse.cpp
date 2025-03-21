@@ -164,6 +164,31 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   unittest::ExpectEqual(bool, insertResultExpected, insertResult);
 
 
+  std::vector<decltype(vob)::t_versionDate> startDates{};
+  startDates.push_back(t_versionDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))});
+
+  auto buildResult = vob.buildBiDirectionalTimeline( startDates, vo);
+  unittest::ExpectEqual(decltype(vob)::t_deltaEntriesMap_iter_diff_type, 3, buildResult.first); // 3 calls to insertDeltaVersion()
+  unittest::ExpectEqual(decltype(vob)::t_deltaEntriesMap_iter_diff_type, 0, buildResult.second);
+
+  //std::cout << "#### vo start ######\n" << vo.toCSV() << "#### vo end ######\n";
+  std::string voStrBidi =
+    "13-May-2004,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTING\n"
+    "21-Jan-2014,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTING\n"
+    "22-Jan-2020,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTING\n"
+    "05-Mar-2020,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTING\n";
+
+  if(!insertResultExpected)
+  {
+    // on second run
+    voStrBidi += "07-Apr-2021,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTING\n";
+  }
+
+  unittest::ExpectEqual(std::string, voStrBidi, vo.toCSV());
+
+  vob.clear();
+
+
   {
     ////   SNAPSHOT change test  : applicable for 'buildForwardTimeline'  ( NOT for buildReverseTimeline )
     const std::array <bool, std::tuple_size_v<t_companyInfo> > lotChangeFlg = {false, false, false, false, true, false, false};
@@ -173,27 +198,22 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     insertResult = vob.insertSnapshotVersion(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))}, lotChange);
     unittest::ExpectEqual(bool, true, insertResult);
   }
-
-
-  std::vector<decltype(vob)::t_versionDate> startDates{};
-  startDates.push_back(t_versionDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))});
-
-  auto buildResult = vob.buildBiDirectionalTimeline( startDates, vo);
-  unittest::ExpectEqual(decltype(vob)::t_deltaEntriesMap_iter_diff_type, 4, buildResult.first);
+  //   Only FORWARD Change. 'startDates' is not needed here
+  startDates.clear();
+  buildResult = vob.buildBiDirectionalTimeline( startDates, vo);
+  unittest::ExpectEqual(decltype(vob)::t_deltaEntriesMap_iter_diff_type, 1, buildResult.first); // 1 calls to insertDeltaVersion()
   unittest::ExpectEqual(decltype(vob)::t_deltaEntriesMap_iter_diff_type, 0, buildResult.second);
+
 
 
 //#################### check all versioned objects
 
   //std::cout << "#### vo start ######\n" << vo.toCSV() << "#### vo end ######\n";
-  std::string voStrBidi =
-    "13-May-2004,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTING\n"
-    "21-Jan-2014,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTING\n"
-    "22-Jan-2020,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTING\n"
-    "05-Mar-2020,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTING\n"
-    "07-Apr-2021,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTING\n";
+  std::string voStrForward = voStrBidi +
+    (insertResultExpected?"07-Apr-2021,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTING\n":"");
 
-  unittest::ExpectEqual(std::string, voStrBidi, vo.toCSV());
+  unittest::ExpectEqual(std::string, voStrForward, vo.toCSV());
+
 
 
   t_versionObject::t_datasetLedger::const_iterator companyRecordFirstActual =

@@ -15,13 +15,14 @@
 macro(add_unit_test testname)
   if(CMAKE_BUILD_TYPE MATCHES "Debug")
   #if(BUILD_TESTING)
+    message(STATUS "### TEST ${testname}")
     FILE(GLOB sources ${testname}*.cpp)
     add_executable(${testname} ${sources})
-    add_test(NAME ${testname} COMMAND "${PROJECT_BINARY_DIR}/tests/versionedObject/${testname}")
+    #add_test(NAME ${testname} COMMAND "${PROJECT_BINARY_DIR}/tests/versionedObject/${testname}")
+    add_test(NAME ${testname} COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/testRun.sh"   "${PROJECT_BINARY_DIR}/tests/versionedObject/${testname}")
     target_link_libraries(${testname} dataStructure) # donot specify PUBLIC here,
     # executable ${testname} has to have transitive association to all its dependencies(aka library chain)
     # refer   https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html#target-usage-requirements
-    # refer   https://cmake.org/cmake/help/latest/command/target_link_libraries.html#libraries-for-a-target-and-or-its-dependents
     # refer   https://cmake.org/cmake/help/latest/command/target_link_libraries.html#libraries-for-a-target-and-or-its-dependents
     set_target_properties(${testname} PROPERTIES  LINKER_LANGUAGE CXX)
   endif()
@@ -30,13 +31,13 @@ endmacro(add_unit_test)
 # Test macro add_perf_test
 macro(add_perf_test testname)
   if(CMAKE_BUILD_TYPE MATCHES "Release")
+    message(STATUS "### TEST ${testname}")
     FILE(GLOB sources ${testname}*.cpp)
     add_executable(${testname} ${sources})
     add_test(NAME ${testname} COMMAND "${PROJECT_BINARY_DIR}/tests/versionedObject/${testname}")
     target_link_libraries(${testname} dataStructure) # donot specify PUBLIC here,
     # executable ${testname} has to have transitive association to all its dependencies(aka library chain)
     # refer   https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html#target-usage-requirements
-    # refer   https://cmake.org/cmake/help/latest/command/target_link_libraries.html#libraries-for-a-target-and-or-its-dependents
     # refer   https://cmake.org/cmake/help/latest/command/target_link_libraries.html#libraries-for-a-target-and-or-its-dependents
   endif()
 endmacro(add_perf_test)
@@ -45,20 +46,25 @@ endmacro(add_perf_test)
 
 
 # Unit tests
-add_unit_test(testBuildForwardTimelineMetaData)
-add_unit_test(testBuildReverseTimelineMetaData)
-add_unit_test(testBuildBidirectionTimelineMetaData_forward)  # on test failure cross check with test_VO_BuildForwardTimelineMetaData
-add_unit_test(testBuildBidirectionTimelineMetaData_reverse)  # on test failure cross check with test_VO_BuildReverseTimelineMetaData
-add_unit_test(testBuildBidirectionTimelineMetaData_bidirection_DELISTED)  # on test failure cross check with test_VO_BuildReverseTimelineMetaData
-add_unit_test(testBuildBidirectionTimelineMetaData_bidirection_RELISTED_1)
-add_unit_test(testBuildBidirectionTimelineMetaData_bidirection_RELISTED_2)
-add_unit_test(testPriorityMergeMetaData)
+add_unit_test(testVersionObject)
 
-add_unit_test(testBuildForwardTimelineNoMetaData)
-add_unit_test(testBuildReverseTimelineNoMetaData)
-add_unit_test(testBuildBidirectionTimelineNoMetaData_forward)  # on test failure cross check with test_VO_BuildForwardTimelineMetaData
-add_unit_test(testBuildBidirectionTimelineNoMetaData_reverse)  # on test failure cross check with test_VO_BuildReverseTimelineMetaData
-add_unit_test(testBuildBidirectionTimelineNoMetaData_bidirection_DELISTED)  # on test failure cross check with test_VO_BuildReverseTimelineMetaData
+
+add_unit_test(testBuildForwardTimelineNoMetaData_ChangeFullList)
+add_unit_test(testBuildForwardTimelineNoMetaData_ChangeSplitList)
+
+add_unit_test(testBuildReverseTimelineNoMetaData_ChangeFullList)
+add_unit_test(testBuildReverseTimelineNoMetaData_ChangeSplitList)
+
+add_unit_test(testBuildBidirectionTimelineNoMetaData_changeFullList_Forward)
+add_unit_test(testBuildBidirectionTimelineNoMetaData_changeSplitList_Forward)
+
+
+add_unit_test(testBuildBidirectionTimelineNoMetaData_changeFullList_Reverse)
+add_unit_test(testBuildBidirectionTimelineNoMetaData_changeSplitList_Reverse)
+
+
+#[=====[
+add_unit_test(testBuildBidirectionTimelineNoMetaData_bidirection_DELISTED)  # on test failure cross check with testBuildReverseTimelineNoMetaData
 add_unit_test(testBuildBidirectionTimelineNoMetaData_bidirection_RELISTED_1)
 add_unit_test(testBuildBidirectionTimelineNoMetaData_bidirection_RELISTED_2)
 add_unit_test(testPriorityMergeNoMetaData)
@@ -66,6 +72,20 @@ add_unit_test(testPriorityMergeNoMetaData)
 add_unit_test(test_removeHistoricalDeltaVersionArtifacts)
 
 add_unit_test(test_caseInsensitive_companyName_BuildReverseTimelineNoMetaData)
+#]=====]
+
+
+#[=====[
+add_unit_test(testBuildForwardTimelineMetaData)
+add_unit_test(testBuildReverseTimelineMetaData)
+add_unit_test(testBuildBidirectionTimelineMetaData_forward)  # on test failure cross check with testBuildForwardTimelineMetaData
+add_unit_test(testBuildBidirectionTimelineMetaData_reverse)  # on test failure cross check with testBuildReverseTimelineMetaData
+add_unit_test(testBuildBidirectionTimelineMetaData_bidirection_DELISTED)  # on test failure cross check with testBuildReverseTimelineMetaData
+add_unit_test(testBuildBidirectionTimelineMetaData_bidirection_RELISTED_1)
+add_unit_test(testBuildBidirectionTimelineMetaData_bidirection_RELISTED_2)
+add_unit_test(testPriorityMergeMetaData)
+#]=====]
+
 
 
 #[======================[

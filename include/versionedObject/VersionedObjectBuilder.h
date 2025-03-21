@@ -458,18 +458,6 @@ namespace datastructure { namespace versionedObject
           VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   ReverseTimeline1 initialization  START <<<<<<<<<<<<<<<<<");
           _VersionedObjectBuilderBase<VDT, MT...> tempVOB{};
 
-          if(buildReverseIter >= startDates.size())
-          {
-            std::ostringstream eoss;
-            eoss << "ERROR(1) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildBiDirectionalTimeline() : list of startDates[";
-            for(auto sd : startDates) eoss << sd << ",";
-            eoss << "] has insufficient dates." << std::endl;
-            vo.toStr("VersionObject :: ", eoss);
-            toStr(tmpComboChgEntries, "VersionObjectBuilder :: ", eoss);
-            tmpComboChgEntries.clear();
-            throw std::out_of_range(eoss.str());
-          }
-
           iterISVOcopyBegin =
                     ( iterComboChgEntries != comboChgEntries.cend() ?
                       initialStateVOcopy.getDatasetLedger().lower_bound(iterComboChgEntries->first) :
@@ -517,6 +505,18 @@ namespace datastructure { namespace versionedObject
 
           t_deltaEntriesMap tmpComboChgEntries{tempVOB._deltaChgEntries};
           tempVOB._updateComboDataSet(tmpComboChgEntries);
+
+          if(buildReverseIter >= startDates.size())
+          {
+            std::ostringstream eoss;
+            eoss << "ERROR(1) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildBiDirectionalTimeline() : list of startDates[";
+            for(auto sd : startDates) eoss << sd << ",";
+            eoss << "] has insufficient dates." << std::endl;
+            vo.toStr("VersionObject :: ", eoss);
+            toStr(tmpComboChgEntries, "VersionObjectBuilder :: ", eoss);
+            tmpComboChgEntries.clear();
+            throw std::out_of_range(eoss.str());
+          }
 
           tempVOB._buildReverseTimeline(startDates[buildReverseIter++], // use 0, then increment to 1
                                         reverseBuildVO, tmpComboChgEntries,

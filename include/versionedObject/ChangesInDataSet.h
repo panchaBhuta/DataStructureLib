@@ -166,7 +166,7 @@ namespace datastructure { namespace versionedObject
       } else if( _modifiedElements.at(IDX) == SNAPSHOT ) // check if element is marked for change
       {
         // NOTE :: will fail for types that donot support "operator<<"
-        oss << std::get<IDX>(_newValues);
+        oss << "...->" << std::get<IDX>(_newValues);
       }
 
       if constexpr( IDX < (sizeof...(T)-1) )

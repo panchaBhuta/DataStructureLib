@@ -25,7 +25,7 @@ void interimForwardTest(t_versionObject& vo,
 
     t_companyInfo delistedChgInfo = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",,,0,0,,0,DELISTED");
     dsvo::SnapshotDataSet<COMPANYINFO_TYPE_LIST> delistedChange {delistedChangeFlg, delistedChgInfo, dsvo::ApplicableChangeDirection::FORWARD};   // DELISTED Change
-    bool insertResult = vob.insertDeltaVersion(t_versionDate{std::chrono::year(int(2021)), std::chrono::December, std::chrono::day(unsigned(17))}, delistedChange);
+    bool insertResult = vob.insertSnapshotVersion(t_versionDate{std::chrono::year(int(2021)), std::chrono::December, std::chrono::day(unsigned(17))}, delistedChange);
     unittest::ExpectEqual(bool, true, insertResult);
   }
 
@@ -48,7 +48,7 @@ void interimForwardTest(t_versionObject& vo,
     ////////////////////////              SNAPSHOT change test
     t_companyInfo lotChgInfo2 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",,,0,5,,0,");
     dsvo::SnapshotDataSet<COMPANYINFO_TYPE_LIST> lotChange2 {lotChangeFlg, lotChgInfo2, dsvo::ApplicableChangeDirection::FORWARD};   // SNAPSHOT Change
-    bool insertResult = vob.insertDeltaVersion(t_versionDate{std::chrono::year(int(2023)), std::chrono::October, std::chrono::day(unsigned(28))}, lotChange2);
+    bool insertResult = vob.insertSnapshotVersion(t_versionDate{std::chrono::year(int(2023)), std::chrono::October, std::chrono::day(unsigned(28))}, lotChange2);
     unittest::ExpectEqual(bool, true, insertResult);
   }
 

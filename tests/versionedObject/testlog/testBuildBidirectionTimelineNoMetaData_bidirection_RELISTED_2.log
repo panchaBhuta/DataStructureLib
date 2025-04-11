@@ -1,10 +1,10 @@
 TEST_LOG : FIRST VO load , no initial data. fresh start.
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=21-Jan-2014 : dataset={[REVERSE]:APPAPER->IPAPPM,,,,,,,} : Insert success
-DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=21-Jan-2014 : dataset={[FORWARD]:,International Paper APPM Limited,,,,,,} success
+DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=21-Jan-2014 : dataset={[FORWARD]:,International Paper APPM Limited,,,,,,} : Insert success
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=22-Jan-2020 : dataset={[REVERSE]:IPAPPM->ANDPAPER,,,,,,,} : Insert success
-DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=22-Jan-2020 : dataset={[FORWARD]:,ANDHRA PAPER LIMITED,,,,,,} success
+DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=22-Jan-2020 : dataset={[FORWARD]:,ANDHRA PAPER LIMITED,,,,,,} : Insert success
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=05-Mar-2020 : dataset={[REVERSE]:ANDPAPER->ANDHRAPAP,,,,,,,} : Insert success
-DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=05-Mar-2020 : dataset={[FORWARD]:,ANDHRA PAPER LIMITED,,,,,,} success
+DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=05-Mar-2020 : dataset={[FORWARD]:,ANDHRA PAPER LIMITED,,,,,,} : Insert success
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=22-Jan-2020 : dataset={[REVERSE]:,International Paper APPM Limited->ANDHRA PAPER LIMITED,,,,,,} : dataset exists, Insert failed
 DEBUG_LOG:    existingChgDataSet={[REVERSE]:IPAPPM->ANDPAPER,,,,,,,}
 DEBUG_LOG:    merged-existingChgDataSet={[REVERSE]:IPAPPM->ANDPAPER,International Paper APPM Limited->ANDHRA PAPER LIMITED,,,,,,}
@@ -13,12 +13,12 @@ DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=22-Jan-2020 : dataset={[
 DEBUG_LOG:    ChangesInDataSet<MT...>={[REVERSE]:IPAPPM->ANDPAPER,International Paper APPM Limited->ANDHRA PAPER LIMITED,,,,,,}
 debug_LOG: vo.insertVersion() -> reverseLastVersionDate: 05-Mar-2020; DATASET{ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}
 debug_LOG: vo.insertVersion() insertResult=1
-DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=07-Apr-2021 : dataset={[FORWARD]:,,,,2,,,} success
-DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=17-Dec-2021 : dataset={[FORWARD]:,,,,,,,...->DELISTED} : Insert success
+DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=07-Apr-2021 : dataset={[FORWARD]:,,,,2,,,} : Insert success
+DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=17-Dec-2021 : dataset={[FORWARD]:,,,,,,,DELISTED} : Insert success
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=19-Sep-2022 : dataset={[REVERSE]:ANDHRAPAPER->ANDHRAPAPLTD,,,,,,,} : Insert success
 debug_LOG: vo.insertVersion() -> afterRelisted-next-versionDate: 19-Sep-2022; DATASET{ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED}
-debug_LOG: vo.insertVersion() relisted-insertResult=1
-DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=28-Oct-2023 : dataset={[FORWARD]:,,,,...->5,,,} : Insert success
+debug_LOG: vo.insertVersion() afterRelisted-insertResult=1
+DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=28-Oct-2023 : dataset={[FORWARD]:,,,,5,,,} : Insert success
 DEBUG_LOG:##VersionedObjectBuilder<VDT, T1, TR...>::buildBiDirectionalTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)
 DEBUG_LOG:  +++++before combo+++++++
@@ -26,15 +26,15 @@ DEBUG_LOG:    _logDeltaEntriesMap(START)
 DEBUG_LOG:    versionDate[21-Jan-2014] : delta{[REVERSE]:APPAPER->IPAPPM,,,,,,,}
 DEBUG_LOG:    versionDate[22-Jan-2020] : delta{[REVERSE]:IPAPPM->ANDPAPER,International Paper APPM Limited->ANDHRA PAPER LIMITED,,,,,,}
 DEBUG_LOG:    versionDate[05-Mar-2020] : delta{[REVERSE]:ANDPAPER->ANDHRAPAP,,,,,,,}
-DEBUG_LOG:    versionDate[17-Dec-2021] : delta{[FORWARD]:,,,,,,,...->DELISTED}
 DEBUG_LOG:    versionDate[19-Sep-2022] : delta{[REVERSE]:ANDHRAPAPER->ANDHRAPAPLTD,,,,,,,}
-DEBUG_LOG:    versionDate[28-Oct-2023] : delta{[FORWARD]:,,,,...->5,,,}
 DEBUG_LOG:    _logDeltaEntriesMap(END)
 DEBUG_LOG:  ~~~~~~~~~~~~~~~~~~~~~~~~
 DEBUG_LOG:    _logSnapEntriesMap(START)
 DEBUG_LOG:    versionDate[21-Jan-2014] : snap{[FORWARD]:,International Paper APPM Limited,,,,,,}
 DEBUG_LOG:    versionDate[05-Mar-2020] : snap{[FORWARD]:,ANDHRA PAPER LIMITED,,,,,,}
 DEBUG_LOG:    versionDate[07-Apr-2021] : snap{[FORWARD]:,,,,2,,,}
+DEBUG_LOG:    versionDate[17-Dec-2021] : snap{[FORWARD]:,,,,,,,DELISTED}
+DEBUG_LOG:    versionDate[28-Oct-2023] : snap{[FORWARD]:,,,,5,,,}
 DEBUG_LOG:    _logSnapEntriesMap(END)
 DEBUG_LOG:  -----before combo-------
 DEBUG_LOG:  +++++after combo+++++++
@@ -50,13 +50,17 @@ DEBUG_LOG:    _logDeltaEntriesMap(END)
 DEBUG_LOG:  -----after combo-------
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(END)
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildBiDirectionalTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
+DEBUG_LOG:    list of startDates[13-May-2004,12-Jan-2022,]
 DEBUG_LOG:    prebuild-VO: versionDate=05-Mar-2020, dataSet={ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    prebuild-VO: versionDate=19-Sep-2022, dataSet={ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED}
 DEBUG_LOG:   ReverseTimeline1 initialization  START <<<<<<<<<<<<<<<<<
+DEBUG_LOG:   iterComboChgEntries->first = 21-Jan-2014  : iterComboChgEntriesEnd->first(tentative) = 19-Sep-2022
+DEBUG_LOG:   iterISVOcopyBegin->first = 05-Mar-2020  : iterISVOcopyEnd->first(tentative) = 19-Sep-2022
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=21-Jan-2014 : dataset={[REVERSE]:APPAPER->IPAPPM,...->International Paper APPM Limited,,,,,,} : Insert success
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=22-Jan-2020 : dataset={[REVERSE]:IPAPPM->ANDPAPER,International Paper APPM Limited->ANDHRA PAPER LIMITED,,,,,,} : Insert success
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=05-Mar-2020 : dataset={[REVERSE]:ANDPAPER->ANDHRAPAP,...->ANDHRA PAPER LIMITED,,,,,,} : Insert success
-DEBUG_LOG:   reverse-applicable ::  {iterComboChgEntriesStart->first[21-Jan-2014]..iterComboChgEntriesLast->first[05-Mar-2020]} ==>> {iterISVOcopyStart->first[05-Mar-2020]..iterISVOcopyLast->first[05-Mar-2020]}
+DEBUG_LOG:   {iterComboChgEntriesStart->first[21-Jan-2014]..iterComboChgEntriesLast->first[05-Mar-2020]}
+DEBUG_LOG:   {iterISVOcopyStart->first[05-Mar-2020]..iterISVOcopyLast->first[05-Mar-2020]}
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)
 DEBUG_LOG:  +++++before combo+++++++
 DEBUG_LOG:    _logDeltaEntriesMap(START)
@@ -128,8 +132,11 @@ DEBUG_LOG:    postbuild-VO: versionDate=17-Dec-2021, dataSet={ANDHRAPAP,ANDHRA P
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline(END) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
 DEBUG_LOG:   ForwardTimeline2 initialization   END >>>>>>>>>>>>>>>>
 DEBUG_LOG:   ReverseTimeline1 initialization  START <<<<<<<<<<<<<<<<<
+DEBUG_LOG:   iterComboChgEntries->first = 19-Sep-2022  : iterComboChgEntriesEnd->first(tentative) = END
+DEBUG_LOG:   iterISVOcopyBegin->first = 19-Sep-2022  : iterISVOcopyEnd->first(tentative) = END
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=19-Sep-2022 : dataset={[REVERSE]:ANDHRAPAPER->ANDHRAPAPLTD,,,,,,,} : Insert success
-DEBUG_LOG:   reverse-applicable ::  {iterComboChgEntriesStart->first[19-Sep-2022]..iterComboChgEntriesLast->first[19-Sep-2022]} ==>> {iterISVOcopyStart->first[05-Mar-2020]..iterISVOcopyLast->first[19-Sep-2022]}
+DEBUG_LOG:   {iterComboChgEntriesStart->first[19-Sep-2022]..iterComboChgEntriesLast->first[19-Sep-2022]}
+DEBUG_LOG:   {iterISVOcopyStart->first[19-Sep-2022]..iterISVOcopyLast->first[19-Sep-2022]}
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)
 DEBUG_LOG:  +++++before combo+++++++
 DEBUG_LOG:    _logDeltaEntriesMap(START)
@@ -146,12 +153,10 @@ DEBUG_LOG:    _logDeltaEntriesMap(END)
 DEBUG_LOG:  -----after combo-------
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(END)
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline(START) : startDate=12-Jan-2022 :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
-DEBUG_LOG:    prebuild-VO: versionDate=05-Mar-2020, dataSet={ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    prebuild-VO: versionDate=19-Sep-2022, dataSet={ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED}
 DEBUG_LOG:    ** deltaEntryDate[19-Sep-2022] >> versionObjectDate[19-Sep-2022]:data{ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED} << deltaChange{[REVERSE]:ANDHRAPAPER->ANDHRAPAPLTD,,,,,,,}
 DEBUG_LOG: vo.insertVersion() -> versionDate: 12-Jan-2022; DATASET{ANDHRAPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED}
 DEBUG_LOG: vo.insertVersion() insertResult=1
-DEBUG_LOG:    postbuild-VO: versionDate=05-Mar-2020, dataSet={ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    postbuild-VO: versionDate=12-Jan-2022, dataSet={ANDHRAPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED}
 DEBUG_LOG:    postbuild-VO: versionDate=19-Sep-2022, dataSet={ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED}
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline(END) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
@@ -196,11 +201,11 @@ DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildBiDirectionalTimeline
 DEBUG_LOG:##VersionedObjectBuilder<VDT, T1, TR...>::buildBiDirectionalTimeline(END) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
 TEST_LOG : SECOND VO load , with existing data reloaded again. scenario after first load.
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=21-Jan-2014 : dataset={[REVERSE]:APPAPER->IPAPPM,,,,,,,} : Insert success
-DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=21-Jan-2014 : dataset={[FORWARD]:,International Paper APPM Limited,,,,,,} success
+DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=21-Jan-2014 : dataset={[FORWARD]:,International Paper APPM Limited,,,,,,} : Insert success
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=22-Jan-2020 : dataset={[REVERSE]:IPAPPM->ANDPAPER,,,,,,,} : Insert success
-DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=22-Jan-2020 : dataset={[FORWARD]:,ANDHRA PAPER LIMITED,,,,,,} success
+DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=22-Jan-2020 : dataset={[FORWARD]:,ANDHRA PAPER LIMITED,,,,,,} : Insert success
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=05-Mar-2020 : dataset={[REVERSE]:ANDPAPER->ANDHRAPAP,,,,,,,} : Insert success
-DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=05-Mar-2020 : dataset={[FORWARD]:,ANDHRA PAPER LIMITED,,,,,,} success
+DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=05-Mar-2020 : dataset={[FORWARD]:,ANDHRA PAPER LIMITED,,,,,,} : Insert success
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=22-Jan-2020 : dataset={[REVERSE]:,International Paper APPM Limited->ANDHRA PAPER LIMITED,,,,,,} : dataset exists, Insert failed
 DEBUG_LOG:    existingChgDataSet={[REVERSE]:IPAPPM->ANDPAPER,,,,,,,}
 DEBUG_LOG:    merged-existingChgDataSet={[REVERSE]:IPAPPM->ANDPAPER,International Paper APPM Limited->ANDHRA PAPER LIMITED,,,,,,}
@@ -209,12 +214,12 @@ DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=22-Jan-2020 : dataset={[
 DEBUG_LOG:    ChangesInDataSet<MT...>={[REVERSE]:IPAPPM->ANDPAPER,International Paper APPM Limited->ANDHRA PAPER LIMITED,,,,,,}
 debug_LOG: vo.insertVersion() -> reverseLastVersionDate: 05-Mar-2020; DATASET{ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}
 debug_LOG: vo.insertVersion() insertResult=0
-DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=07-Apr-2021 : dataset={[FORWARD]:,,,,2,,,} success
-DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=17-Dec-2021 : dataset={[FORWARD]:,,,,,,,...->DELISTED} : Insert success
+DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=07-Apr-2021 : dataset={[FORWARD]:,,,,2,,,} : Insert success
+DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=17-Dec-2021 : dataset={[FORWARD]:,,,,,,,DELISTED} : Insert success
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=19-Sep-2022 : dataset={[REVERSE]:ANDHRAPAPER->ANDHRAPAPLTD,,,,,,,} : Insert success
 debug_LOG: vo.insertVersion() -> afterRelisted-next-versionDate: 19-Sep-2022; DATASET{ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED}
-debug_LOG: vo.insertVersion() relisted-insertResult=0
-DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=28-Oct-2023 : dataset={[FORWARD]:,,,,...->5,,,} : Insert success
+debug_LOG: vo.insertVersion() afterRelisted-insertResult=0
+DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=28-Oct-2023 : dataset={[FORWARD]:,,,,5,,,} : Insert success
 DEBUG_LOG:##VersionedObjectBuilder<VDT, T1, TR...>::buildBiDirectionalTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)
 DEBUG_LOG:  +++++before combo+++++++
@@ -222,15 +227,15 @@ DEBUG_LOG:    _logDeltaEntriesMap(START)
 DEBUG_LOG:    versionDate[21-Jan-2014] : delta{[REVERSE]:APPAPER->IPAPPM,,,,,,,}
 DEBUG_LOG:    versionDate[22-Jan-2020] : delta{[REVERSE]:IPAPPM->ANDPAPER,International Paper APPM Limited->ANDHRA PAPER LIMITED,,,,,,}
 DEBUG_LOG:    versionDate[05-Mar-2020] : delta{[REVERSE]:ANDPAPER->ANDHRAPAP,,,,,,,}
-DEBUG_LOG:    versionDate[17-Dec-2021] : delta{[FORWARD]:,,,,,,,...->DELISTED}
 DEBUG_LOG:    versionDate[19-Sep-2022] : delta{[REVERSE]:ANDHRAPAPER->ANDHRAPAPLTD,,,,,,,}
-DEBUG_LOG:    versionDate[28-Oct-2023] : delta{[FORWARD]:,,,,...->5,,,}
 DEBUG_LOG:    _logDeltaEntriesMap(END)
 DEBUG_LOG:  ~~~~~~~~~~~~~~~~~~~~~~~~
 DEBUG_LOG:    _logSnapEntriesMap(START)
 DEBUG_LOG:    versionDate[21-Jan-2014] : snap{[FORWARD]:,International Paper APPM Limited,,,,,,}
 DEBUG_LOG:    versionDate[05-Mar-2020] : snap{[FORWARD]:,ANDHRA PAPER LIMITED,,,,,,}
 DEBUG_LOG:    versionDate[07-Apr-2021] : snap{[FORWARD]:,,,,2,,,}
+DEBUG_LOG:    versionDate[17-Dec-2021] : snap{[FORWARD]:,,,,,,,DELISTED}
+DEBUG_LOG:    versionDate[28-Oct-2023] : snap{[FORWARD]:,,,,5,,,}
 DEBUG_LOG:    _logSnapEntriesMap(END)
 DEBUG_LOG:  -----before combo-------
 DEBUG_LOG:  +++++after combo+++++++
@@ -246,6 +251,7 @@ DEBUG_LOG:    _logDeltaEntriesMap(END)
 DEBUG_LOG:  -----after combo-------
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(END)
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildBiDirectionalTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
+DEBUG_LOG:    list of startDates[13-May-2004,12-Jan-2022,]
 DEBUG_LOG:    prebuild-VO: versionDate=13-May-2004, dataSet={APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    prebuild-VO: versionDate=21-Jan-2014, dataSet={IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    prebuild-VO: versionDate=22-Jan-2020, dataSet={ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}
@@ -256,10 +262,13 @@ DEBUG_LOG:    prebuild-VO: versionDate=12-Jan-2022, dataSet={ANDHRAPAPER,ANDHRA 
 DEBUG_LOG:    prebuild-VO: versionDate=19-Sep-2022, dataSet={ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED}
 DEBUG_LOG:    prebuild-VO: versionDate=28-Oct-2023, dataSet={ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,5,INE546B12139,10,LISTED}
 DEBUG_LOG:   ReverseTimeline1 initialization  START <<<<<<<<<<<<<<<<<
+DEBUG_LOG:   iterComboChgEntries->first = 21-Jan-2014  : iterComboChgEntriesEnd->first(tentative) = 19-Sep-2022
+DEBUG_LOG:   iterISVOcopyBegin->first = 13-May-2004  : iterISVOcopyEnd->first(tentative) = 12-Jan-2022
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=21-Jan-2014 : dataset={[REVERSE]:APPAPER->IPAPPM,...->International Paper APPM Limited,,,,,,} : Insert success
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=22-Jan-2020 : dataset={[REVERSE]:IPAPPM->ANDPAPER,International Paper APPM Limited->ANDHRA PAPER LIMITED,,,,,,} : Insert success
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=05-Mar-2020 : dataset={[REVERSE]:ANDPAPER->ANDHRAPAP,...->ANDHRA PAPER LIMITED,,,,,,} : Insert success
-DEBUG_LOG:   reverse-applicable ::  {iterComboChgEntriesStart->first[21-Jan-2014]..iterComboChgEntriesLast->first[05-Mar-2020]} ==>> {iterISVOcopyStart->first[13-May-2004]..iterISVOcopyLast->first[05-Mar-2020]}
+DEBUG_LOG:   {iterComboChgEntriesStart->first[21-Jan-2014]..iterComboChgEntriesLast->first[05-Mar-2020]}
+DEBUG_LOG:   {iterISVOcopyStart->first[13-May-2004]..iterISVOcopyLast->first[05-Mar-2020]}
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)
 DEBUG_LOG:  +++++before combo+++++++
 DEBUG_LOG:    _logDeltaEntriesMap(START)
@@ -336,8 +345,11 @@ DEBUG_LOG:    postbuild-VO: versionDate=17-Dec-2021, dataSet={ANDHRAPAP,ANDHRA P
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline(END) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
 DEBUG_LOG:   ForwardTimeline2 initialization   END >>>>>>>>>>>>>>>>
 DEBUG_LOG:   ReverseTimeline1 initialization  START <<<<<<<<<<<<<<<<<
+DEBUG_LOG:   iterComboChgEntries->first = 19-Sep-2022  : iterComboChgEntriesEnd->first(tentative) = END
+DEBUG_LOG:   iterISVOcopyBegin->first = 12-Jan-2022  : iterISVOcopyEnd->first(tentative) = END
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=19-Sep-2022 : dataset={[REVERSE]:ANDHRAPAPER->ANDHRAPAPLTD,,,,,,,} : Insert success
-DEBUG_LOG:   reverse-applicable ::  {iterComboChgEntriesStart->first[19-Sep-2022]..iterComboChgEntriesLast->first[19-Sep-2022]} ==>> {iterISVOcopyStart->first[12-Jan-2022]..iterISVOcopyLast->first[19-Sep-2022]}
+DEBUG_LOG:   {iterComboChgEntriesStart->first[19-Sep-2022]..iterComboChgEntriesLast->first[19-Sep-2022]}
+DEBUG_LOG:   {iterISVOcopyStart->first[12-Jan-2022]..iterISVOcopyLast->first[19-Sep-2022]}
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)
 DEBUG_LOG:  +++++before combo+++++++
 DEBUG_LOG:    _logDeltaEntriesMap(START)

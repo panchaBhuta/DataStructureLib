@@ -8,29 +8,43 @@ void interimReverseTest(t_versionObject& vo,
                         dsvo::VersionedObjectBuilder<t_versionDate, COMPANYINFO_TYPE_LIST>& vob,
                         [[maybe_unused]] const t_versionDate&  listingDate)
 {
+/*
   {
-    ////   SNAPSHOT change test  : applicable for 'buildForwardTimeline'  ( NOT for buildReverseTimeline )
+    //startDates.push_back(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))});
     const std::array <bool, std::tuple_size_v<t_companyInfo> > lotChangeFlg = {false, false, false, false, true, false, false, false};
 
-    t_companyInfo lotChgInfo = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",,,0,2,,0,");
-    dsvo::SnapshotDataSet<COMPANYINFO_TYPE_LIST> lotChange {lotChangeFlg, lotChgInfo, dsvo::ApplicableChangeDirection::FORWARD};   // SNAPSHOT Change
-    bool insertResult = vob.insertSnapshotVersion(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))}, lotChange);
+    t_companyInfo lotChgOldInfo = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",,,0,1,,0,");
+    t_companyInfo lotChgNewInfo = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",,,0,2,,0,");
+    dsvo::ChangesInDataSet<COMPANYINFO_TYPE_LIST> lotChange {lotChangeFlg, lotChgOldInfo, lotChgNewInfo, dsvo::ApplicableChangeDirection::REVERSE};   // Delta Change
+    bool insertResult = vob.insertDeltaVersion(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))}, lotChange);
     unittest::ExpectEqual(bool, true, insertResult);
   }
+*/
 
   {
     ////////////////////////              DELISTED change test
     const std::array <bool, std::tuple_size_v<t_companyInfo> > delistedChangeFlg = {false, false, false, false, false, false, false, true};
 
-    t_companyInfo delistedChgInfo = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",,,0,0,,0,DELISTED");
-    dsvo::SnapshotDataSet<COMPANYINFO_TYPE_LIST> delistedChange {delistedChangeFlg, delistedChgInfo, dsvo::ApplicableChangeDirection::FORWARD};   // DELISTED Change
-    bool insertResult = vob.insertSnapshotVersion(t_versionDate{std::chrono::year(int(2021)), std::chrono::December, std::chrono::day(unsigned(17))}, delistedChange);
+    t_companyInfo delistedChgOldInfo = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",,,0,0,,0,LISTED");
+    t_companyInfo delistedChgNewInfo = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",,,0,0,,0,DELISTED");
+    dsvo::ChangesInDataSet<COMPANYINFO_TYPE_LIST> delistedChange {delistedChangeFlg, delistedChgOldInfo, delistedChgNewInfo, dsvo::ApplicableChangeDirection::REVERSE};   // DELISTED Change
+    bool insertResult = vob.insertDeltaVersion(t_versionDate{std::chrono::year(int(2021)), std::chrono::December, std::chrono::day(unsigned(17))}, delistedChange);
     unittest::ExpectEqual(bool, true, insertResult);
   }
 
   {
-    ////////////////////////              RELISTED change & symbolchange test
-    //startDates.push_back(t_versionDate{std::chrono::year(int(2022)), std::chrono::January, std::chrono::day(unsigned(12))});
+    ////////////////////////              RELISTED change
+    const std::array <bool, std::tuple_size_v<t_companyInfo> > relistedChangeFlg = {true, false, false, false, true, true, false, true};
+
+    t_companyInfo relistedChgOldInfo = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("ANDHRAPAP,,,0,2,INE435A01028,0,DELISTED");
+    t_companyInfo relistedChgNewInfo = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("ANDHRAPAPER,,,0,1,INE546B12139,0,LISTED");
+    dsvo::ChangesInDataSet<COMPANYINFO_TYPE_LIST> relistedChange {relistedChangeFlg, relistedChgOldInfo, relistedChgNewInfo, dsvo::ApplicableChangeDirection::REVERSE};   // DELISTED Change
+    bool insertResult = vob.insertDeltaVersion(t_versionDate{std::chrono::year(int(2022)), std::chrono::January, std::chrono::day(unsigned(12))}, relistedChange);
+    unittest::ExpectEqual(bool, true, insertResult);
+  }
+
+  {
+    ////////////////////////              symbolchange test
     const std::array <bool, std::tuple_size_v<t_companyInfo> > symbolChangeFlg = {true, false, false, false, false, false, false, false};
 
     t_companyInfo symChgOldInfo4 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal("ANDHRAPAPER,,,0,0,,0,");
@@ -52,39 +66,29 @@ void interimReverseTest(t_versionObject& vo,
     unittest::ExpectEqual(bool, insertResultExpected, insertResult);
   }
 
-  {
-    const std::array <bool, std::tuple_size_v<t_companyInfo> > lotChangeFlg = {false, false, false, false, true, false, false, false};
+  using t_vob = typename std::remove_reference<decltype(vob)>::type;
+  std::vector<typename t_vob::t_versionDate> startDates{};
+  startDates.push_back(t_versionDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))});
+  startDates.push_back(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))});
+  //startDates.push_back(t_versionDate{std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(05))});
 
-    ////////////////////////              SNAPSHOT change test
-    t_companyInfo lotChgInfo2 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",,,0,5,,0,");
-    dsvo::SnapshotDataSet<COMPANYINFO_TYPE_LIST> lotChange2 {lotChangeFlg, lotChgInfo2, dsvo::ApplicableChangeDirection::FORWARD};   // SNAPSHOT Change
-    bool insertResult = vob.insertSnapshotVersion(t_versionDate{std::chrono::year(int(2023)), std::chrono::October, std::chrono::day(unsigned(28))}, lotChange2);
-    unittest::ExpectEqual(bool, true, insertResult);
-  }
-
-    using t_vob = typename std::remove_reference<decltype(vob)>::type;
-    std::vector<typename t_vob::t_versionDate> startDates{};
-    startDates.push_back(t_versionDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))});
-    startDates.push_back(t_versionDate{std::chrono::year(int(2022)), std::chrono::January, std::chrono::day(unsigned(12))});
-
-    auto buildResult = vob.buildBiDirectionalTimeline( startDates, vo);
-    unittest::ExpectEqual(typename t_vob::t_deltaEntriesMap_iter_diff_type, 7, buildResult.first); // 7 calls to insertDeltaVersion()/vob.insertSnapshotVersion()
-    unittest::ExpectEqual(typename t_vob::t_deltaEntriesMap_iter_diff_type, 0, buildResult.second);
+  auto buildResult = vob.buildBiDirectionalTimeline( startDates, vo);
+  unittest::ExpectEqual(typename t_vob::t_deltaEntriesMap_iter_diff_type, 6, buildResult.first); // 6 calls to insertDeltaVersion()/vob.insertSnapshotVersion()
+  unittest::ExpectEqual(typename t_vob::t_deltaEntriesMap_iter_diff_type, 0, buildResult.second);
 
 
-    //std::cout << "#### vo start ######\n" << vo.toCSV() << "#### vo end ######\n";
-    std::string voStrBidirection =
+  //std::cout << "#### vo start ######\n" << vo.toCSV() << "#### vo end ######\n";
+  std::string voStrBidirection =
     "13-May-2004,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"              // listingDate-1-of-reverse
     "21-Jan-2014,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"               // REVERSE
     "22-Jan-2020,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n"                         // REVERSE
     "05-Mar-2020,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n"                        // REVERSE + vo.insertVersion(...)
-    "07-Apr-2021,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED\n"                        // FORWARD
-    "17-Dec-2021,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,DELISTED\n"                      // FORWARD
-    "12-Jan-2022,ANDHRAPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED\n"                      // listingDate-2-of-reverse
-    "19-Sep-2022,ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED\n"                     // REVERSE + vo.insertVersion(...)
-    "28-Oct-2023,ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,5,INE546B12139,10,LISTED\n";                    // FORWARD
+    "07-Apr-2021,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED\n"                        // listingDate-2-of-reverse
+    "17-Dec-2021,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,DELISTED\n"                      // REVERSE
+    "12-Jan-2022,ANDHRAPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED\n"                      // REVERSE
+    "19-Sep-2022,ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED\n";                    // REVERSE + vo.insertVersion(...)
 
-    unittest::ExpectEqual(std::string, voStrBidirection, vo.toCSV());
+  unittest::ExpectEqual(std::string, voStrBidirection, vo.toCSV());
 }
 
 
@@ -158,21 +162,5 @@ void endReverseTest(                 t_versionObject& vo,
 
   unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecordAfterRelistedExpected,
                                                               companyRecordCrown2Actual->second);
-
-
-//  ",,,0,5,,0,"
-//  28-Oct-2023,ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,5,INE546B12139,10,LISTED
-    t_companyInfo companyInfoNine = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
-      "ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,5,INE546B12139,10,LISTED"    );
-
-    dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordNineExpected {companyInfoNine};
-
-    t_versionObject::t_datasetLedger::const_iterator companyRecordNineActual =
-      vo.getVersionAt(t_versionDate{std::chrono::year(int(2023)), std::chrono::October, std::chrono::day(unsigned(28))});
-
-    unittest::ExpectEqual(bool, true, companyRecordNineActual != vo.getDatasetLedger().cend()); // has dsvo::DataSet<COMPANYINFO_TYPE_LIST>
-
-    unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecordNineExpected,
-                                                                companyRecordNineActual->second);
 
 }

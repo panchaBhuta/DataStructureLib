@@ -445,7 +445,7 @@ namespace datastructure { namespace versionedObject
         _metaData(metaData)
     {}
 
-    ChangesInDataSet( const SnapshotDataSet<M, T...>& otherSnapDataset)
+    explicit ChangesInDataSet( const SnapshotDataSet<M, T...>& otherSnapDataset)
       : _ChangesInDataSetBase<T...>(otherSnapDataset),
         _metaData(otherSnapDataset.getMetaData())
     {}
@@ -517,7 +517,7 @@ namespace datastructure { namespace versionedObject
       : _ChangesInDataSetBase<T1, TR...>(modifiedElements, oldValues, newValues, applicableChangeDirection)
     {}
 
-    ChangesInDataSet( const SnapshotDataSet<T1, TR...>& otherSnapDataset)
+    explicit ChangesInDataSet( const SnapshotDataSet<T1, TR...>& otherSnapDataset)
       : _ChangesInDataSetBase<T1, TR...>(otherSnapDataset)
     {}
 

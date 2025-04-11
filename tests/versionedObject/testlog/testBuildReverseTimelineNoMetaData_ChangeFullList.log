@@ -1,10 +1,10 @@
 TEST_LOG : FIRST VO load , no initial data. fresh start.
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=21-Jan-2014 : dataset={[REVERSE]:APPAPER->IPAPPM,,,,,,,} : Insert success
-DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=21-Jan-2014 : dataset={[FORWARD]:,International Paper APPM Limited,,,,,,} success
+DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=21-Jan-2014 : dataset={[FORWARD]:,International Paper APPM Limited,,,,,,} : Insert success
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=22-Jan-2020 : dataset={[REVERSE]:IPAPPM->ANDPAPER,,,,,,,} : Insert success
-DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=22-Jan-2020 : dataset={[FORWARD]:,ANDHRA PAPER LIMITED,,,,,,} success
+DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=22-Jan-2020 : dataset={[FORWARD]:,ANDHRA PAPER LIMITED,,,,,,} : Insert success
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=05-Mar-2020 : dataset={[REVERSE]:ANDPAPER->ANDHRAPAP,,,,,,,} : Insert success
-DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=05-Mar-2020 : dataset={[FORWARD]:,ANDHRA PAPER LIMITED,,,,,,} success
+DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=05-Mar-2020 : dataset={[FORWARD]:,ANDHRA PAPER LIMITED,,,,,,} : Insert success
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=22-Jan-2020 : dataset={[REVERSE]:,International Paper APPM Limited->ANDHRA PAPER LIMITED,,,,,,} : dataset exists, Insert failed
 DEBUG_LOG:    existingChgDataSet={[REVERSE]:IPAPPM->ANDPAPER,,,,,,,}
 DEBUG_LOG:    merged-existingChgDataSet={[REVERSE]:IPAPPM->ANDPAPER,International Paper APPM Limited->ANDHRA PAPER LIMITED,,,,,,}
@@ -54,11 +54,11 @@ DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline(END) 
 DEBUG_LOG:##VersionedObjectBuilder<VDT, T1, TR...>::buildReverseTimeline(END) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
 TEST_LOG : SECOND VO load , with existing data reloaded again. scenario after first load.
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=21-Jan-2014 : dataset={[REVERSE]:APPAPER->IPAPPM,,,,,,,} : Insert success
-DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=21-Jan-2014 : dataset={[FORWARD]:,International Paper APPM Limited,,,,,,} success
+DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=21-Jan-2014 : dataset={[FORWARD]:,International Paper APPM Limited,,,,,,} : Insert success
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=22-Jan-2020 : dataset={[REVERSE]:IPAPPM->ANDPAPER,,,,,,,} : Insert success
-DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=22-Jan-2020 : dataset={[FORWARD]:,ANDHRA PAPER LIMITED,,,,,,} success
+DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=22-Jan-2020 : dataset={[FORWARD]:,ANDHRA PAPER LIMITED,,,,,,} : Insert success
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=05-Mar-2020 : dataset={[REVERSE]:ANDPAPER->ANDHRAPAP,,,,,,,} : Insert success
-DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=05-Mar-2020 : dataset={[FORWARD]:,ANDHRA PAPER LIMITED,,,,,,} success
+DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=05-Mar-2020 : dataset={[FORWARD]:,ANDHRA PAPER LIMITED,,,,,,} : Insert success
 DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=22-Jan-2020 : dataset={[REVERSE]:,International Paper APPM Limited->ANDHRA PAPER LIMITED,,,,,,} : dataset exists, Insert failed
 DEBUG_LOG:    existingChgDataSet={[REVERSE]:IPAPPM->ANDPAPER,,,,,,,}
 DEBUG_LOG:    merged-existingChgDataSet={[REVERSE]:IPAPPM->ANDPAPER,International Paper APPM Limited->ANDHRA PAPER LIMITED,,,,,,}

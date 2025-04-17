@@ -486,27 +486,14 @@ namespace datastructure { namespace versionedObject
 
           iterComboChgEntriesEnd = // exclusive
                     ( (startDateIter+1) < startDates.size() ?
-                      comboChgEntries.lower_bound(startDates[startDateIter+1]) :
+                      comboChgEntries.upper_bound(startDates[startDateIter+1]) :
                       comboChgEntries.cend() );
 
           iterISVOcopyEnd =  // exclusive
           //NOTE : there can be 2 consecutive startDates, but following REVERSE-FORWARD-REVERSE configuration
                     ( (startDateIter+1) < startDates.size() ?
-                      initialStateVOcopy.getDatasetLedger().lower_bound(startDates[startDateIter+1]) :
+                      initialStateVOcopy.getDatasetLedger().upper_bound(startDates[startDateIter+1]) :
                       initialStateVOcopy.getDatasetLedger().cend() );
-
-/*
-          iterISVOcopyBegin = 
-                    ( iterComboChgEntries != comboChgEntries.cend() ?
-                      initialStateVOcopy.getDatasetLedger().lower_bound(iterComboChgEntries->first) :
-                      initialStateVOcopy.getDatasetLedger().cend() );
-          if(    iterISVOcopyBegin != initialStateVOcopy.getDatasetLedger().cbegin()
-              && previousACD == ApplicableChangeDirection::FORWARD)
-          {
-            --iterISVOcopyBegin;  // This Version-Date is before first(Chronolgical-order) Change-Date list.
-            //   here expected  (iterISVOcopyBegin->first == startDates[startDateIter])
-          }
-*/
 
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
 VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterComboChgEntries->first = " << _checkDateEnd(iterComboChgEntries, comboChgEntries.cend()) \
@@ -524,35 +511,8 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
             tempVOB.insertDeltaVersion(iterComboChgEntries->first, iterComboChgEntries->second);
             iterComboChgEntriesLast = iterComboChgEntries;
             changeProcessed = true;
-/*
-            if(iterComboChgEntries->first == iterISVOcopyBegin->first)
-            {
-              reverseBuildVO.insertVersion(iterISVOcopyBegin->first, iterISVOcopyBegin->second);
-              ++iterComboChgEntries;
-              break;
-            }
-*/
             ++iterComboChgEntries;
           }
-/*
-          if(reverseBuildVO.getDatasetLedger().size() != 1)
-          {
-            std::ostringstream eoss;
-            eoss << "ERROR(2) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildBiDirectionalTimeline() :"
-                    " expected a delta-Change-date matching with a version-date(i.e missing versionObject with any"
-                    " one of the delta-Change-date's) : list of startDates[";
-            for(auto sd : startDates) eoss << sd << ",";
-            eoss << "]." << std::endl;
-            vo.toStr("VersionObject :: ", eoss);
-            toStr(tempVOB._deltaChgEntries, "VersionObjectBuilder :: ", eoss);
-            throw std::out_of_range(eoss.str());
-          }
-
-          iterISVOcopyEnd =   //  Get the start seed for REVERSE. This Version-Date is same/after last Change-Date.
-                    ( iterComboChgEntriesLast != comboChgEntries.cend() ?
-                      initialStateVOcopy.getDatasetLedger().upper_bound(iterComboChgEntriesLast->first) :
-                      initialStateVOcopy.getDatasetLedger().cend() );
-*/
 
           iterComboChgEntriesEnd = // exclusive
                   ( iterComboChgEntriesLast != comboChgEntries.cend() ?
@@ -563,10 +523,19 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
                   ( iterComboChgEntriesLast != comboChgEntries.cend() ?
                     initialStateVOcopy.getDatasetLedger().upper_bound(iterComboChgEntriesLast->first) :
                     initialStateVOcopy.getDatasetLedger().cend() );
+/*
+          if( iterISVOcopyEnd != initialStateVOcopy.getDatasetLedger().cend() &&
+              iterISVOcopyEnd == iterISVOcopyBegin )
+          {
+            VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   WARNING : iterISVOcopyEnd->first = " << iterISVOcopyEnd->first \
+                  << " is equal to iterISVOcopyBegin->first. Incrementing iterISVOcopyEnd." );
+            ++iterISVOcopyEnd;
+          }
+*/
 
-  #if FLAG_VERSIONEDOBJECT_debug_log == 1
+#if FLAG_VERSIONEDOBJECT_debug_log == 1
           auto iterISVOcopyLast = iterISVOcopyEnd;
-          if(iterISVOcopyEnd != initialStateVOcopy.getDatasetLedger().cbegin()) --iterISVOcopyLast;
+          if( iterISVOcopyEnd != initialStateVOcopy.getDatasetLedger().cbegin()) --iterISVOcopyLast;
           VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   " \
                "{iterComboChgEntriesStart->first[" << _checkDateEnd(iterComboChgEntriesFirst, comboChgEntries.cend()) \
             << "]..iterComboChgEntriesLast->first[" << _checkDateEnd(iterComboChgEntriesLast, comboChgEntries.cend()) << "]}" );
@@ -577,7 +546,10 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
 
           for(auto iterISVOcopy = iterISVOcopyBegin; iterISVOcopy != iterISVOcopyEnd; ++iterISVOcopy )
           {
+            VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: reverseBuildVO.insertVersion() -> versionDate: " << iterISVOcopy->first << "; DATASET{" << iterISVOcopy->second.toCSV() << "}");
+            //bool insertResult = 
             reverseBuildVO.insertVersion(iterISVOcopy->first, iterISVOcopy->second);
+            //VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: reverseBuildVO.insertVersion() insertResult=" << insertResult); is always true
           }
 
           t_deltaEntriesMap tmpComboChgEntries{tempVOB._deltaChgEntries};
@@ -660,7 +632,10 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
           t_versionedObject forwardBuildVO{};
           while( iterISVOcopyBegin != iterISVOcopyEnd )
           {
+            VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: forwardBuildVO.insertVersion() -> versionDate: " << iterISVOcopyBegin->first << "; DATASET{" << iterISVOcopyBegin->second.toCSV() << "}");
+            //bool insertResult = 
             forwardBuildVO.insertVersion(iterISVOcopyBegin->first, iterISVOcopyBegin->second);
+            // VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: forwardBuildVO.insertVersion() insertResult=" << insertResult); is always true
             ++iterISVOcopyBegin;
           }
 

@@ -46,7 +46,8 @@ endmacro(add_perf_test)
 
 
 
-
+#[===[
+#]===]
 # Unit tests
 add_unit_test(testVersionObject)
 
@@ -62,12 +63,18 @@ add_unit_test(testBuildBidirectionTimelineNoMetaData_changeSplitList_Forward   t
 add_unit_test(testBuildBidirectionTimelineNoMetaData_changeFullList_Reverse    testReverseTimeLineCommon.cpp)
 add_unit_test(testBuildBidirectionTimelineNoMetaData_changeSplitList_Reverse   testReverseTimeLineCommon.cpp)
 
+add_unit_test(testBuildBidirectionTimelineNoMetaData_multiForward              testForwardTimeLineCommon.cpp)
+add_unit_test(testBuildBidirectionTimelineNoMetaData_multiReverse              testReverseTimeLineCommon.cpp)
+add_unit_test(testBuildBidirectionTimelineNoMetaData_multiReverse_v2           testReverseTimeLineCommon.cpp)
+#add_unit_test(testBuildBidirectionTimelineNoMetaData_multiReverse_failure      testReverseTimeLineCommon.cpp)
+
+
 add_unit_test(testBuildBidirectionTimelineNoMetaData_bidirection_DELISTED      testReverseTimeLineCommon.cpp)
 add_unit_test(testBuildBidirectionTimelineNoMetaData_bidirection_RELISTED_1    testReverseTimeLineCommon.cpp)
 add_unit_test(testBuildBidirectionTimelineNoMetaData_bidirection_RELISTED_2    testReverseTimeLineCommon.cpp)
+#[===[
+#]===]
 
-
-add_unit_test(testBuildBidirectionTimelineNoMetaData_multiForward              testForwardTimeLineCommon.cpp)
 
 #[=====[
 add_unit_test(testPriorityMergeNoMetaData)

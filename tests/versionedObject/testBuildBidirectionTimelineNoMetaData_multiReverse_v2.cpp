@@ -9,6 +9,17 @@ void interimReverseTest(t_versionObject& vo,
                         [[maybe_unused]] const t_versionDate&  listingDate)
 {
   {
+    //startDates.push_back(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))});
+    const std::array <bool, std::tuple_size_v<t_companyInfo> > lotChangeFlg = {false, false, false, false, true, false, false, false};
+
+    t_companyInfo lotChgOldInfo = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",,,0,1,,0,");
+    t_companyInfo lotChgNewInfo = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",,,0,2,,0,");
+    dsvo::ChangesInDataSet<COMPANYINFO_TYPE_LIST> lotChange {lotChangeFlg, lotChgOldInfo, lotChgNewInfo, dsvo::ApplicableChangeDirection::REVERSE};   // Delta Change
+    bool insertResult = vob.insertDeltaVersion(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))}, lotChange);
+    unittest::ExpectEqual(bool, true, insertResult);
+  }
+
+  {
     ////////////////////////              DELISTED change test
     const std::array <bool, std::tuple_size_v<t_companyInfo> > delistedChangeFlg = {false, false, false, false, false, false, false, true};
 
@@ -56,11 +67,12 @@ void interimReverseTest(t_versionObject& vo,
   using t_vob = typename std::remove_reference<decltype(vob)>::type;
   std::vector<typename t_vob::t_versionDate> startDates{};
   startDates.push_back(t_versionDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))});
-  startDates.push_back(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))});
-  //startDates.push_back(t_versionDate{std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(05))});
+  //  NOTE : 07-Apr-2021 is not applicable here, use 05-Mar-2020 instead
+  //startDates.push_back(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))});
+  startDates.push_back(t_versionDate{std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(05))});
 
   auto buildResult = vob.buildBiDirectionalTimeline( startDates, vo);
-  unittest::ExpectEqual(typename t_vob::t_deltaEntriesMap_iter_diff_type, 6, buildResult.first); // 6 calls to insertDeltaVersion()/vob.insertSnapshotVersion()
+  unittest::ExpectEqual(typename t_vob::t_deltaEntriesMap_iter_diff_type, 7, buildResult.first); // 7 calls to insertDeltaVersion()/vob.insertSnapshotVersion()
   unittest::ExpectEqual(typename t_vob::t_deltaEntriesMap_iter_diff_type, 0, buildResult.second);
 
 
@@ -69,8 +81,8 @@ void interimReverseTest(t_versionObject& vo,
     "13-May-2004,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"              // listingDate-1-of-reverse
     "21-Jan-2014,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"               // REVERSE
     "22-Jan-2020,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n"                         // REVERSE
-    "05-Mar-2020,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n"                        // REVERSE + vo.insertVersion(...)
-    "07-Apr-2021,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED\n"                        // listingDate-2-of-reverse
+    "05-Mar-2020,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n"                        // REVERSE + vo.insertVersion(...) + listingDate-2-of-reverse
+    "07-Apr-2021,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED\n"                        // REVERSE
     "17-Dec-2021,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,DELISTED\n"                      // REVERSE
     "12-Jan-2022,ANDHRAPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED\n"                      // REVERSE
     "19-Sep-2022,ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED\n";                    // REVERSE + vo.insertVersion(...)

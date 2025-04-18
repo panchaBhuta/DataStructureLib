@@ -7,8 +7,8 @@
 namespace unittest
 {
   template<>
-  struct SScompatible<dsvo::VersionedObject<t_fmtdbY, COMPANYINFO_TYPE_LIST>> {
-    inline static std::string getVal(const dsvo::VersionedObject<t_versionDate, COMPANYINFO_TYPE_LIST>& val)
+  struct SScompatible<t_versionObject> {
+    inline static std::string getVal(const t_versionObject& val)
     {
       return val.toCSV();
     }

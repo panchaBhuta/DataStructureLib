@@ -1,0 +1,61 @@
+TEST_LOG : FIRST VO load , no initial data. fresh start.
+DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=31-Dec-2014 : dataset={[REVERSE]:A2ZMES->A2ZINFRA,,,,,,,} : Insert success
+DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=31-Dec-2014 : dataset={[REVERSE]:,A2Z Maintenance & Engineering Services Limited->A2Z INFRA ENGINEERING LIMITED,,,,,,} : dataset exists, Insert failed
+DEBUG_LOG:    existingChgDataSet={[REVERSE]:A2ZMES->A2ZINFRA,,,,,,,}
+DEBUG_LOG:    merged-existingChgDataSet={[REVERSE]:A2ZMES->A2ZINFRA,A2Z Maintenance & Engineering Services Limited->A2Z INFRA ENGINEERING LIMITED,,,,,,}
+DEBUG_LOG:##VersionedObjectBuilder<VDT, T1, TR...>::buildReverseTimeline(START) : startDate=23-Dec-2010 :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)
+DEBUG_LOG:  +++++before combo+++++++
+DEBUG_LOG:    _logDeltaEntriesMap(START)
+DEBUG_LOG:    versionDate[31-Dec-2014] : delta{[REVERSE]:A2ZMES->A2ZINFRA,A2Z Maintenance & Engineering Services Limited->A2Z INFRA ENGINEERING LIMITED,,,,,,}
+DEBUG_LOG:    _logDeltaEntriesMap(END)
+DEBUG_LOG:  ~~~~~~~~~~~~~~~~~~~~~~~~
+DEBUG_LOG:    _logSnapEntriesMap(START)
+DEBUG_LOG:    _logSnapEntriesMap(END)
+DEBUG_LOG:  -----before combo-------
+DEBUG_LOG:  +++++after combo+++++++
+DEBUG_LOG:    _logDeltaEntriesMap(START)
+DEBUG_LOG:    versionDate[31-Dec-2014] : delta{[REVERSE]:A2ZMES->A2ZINFRA,A2Z Maintenance & Engineering Services Limited->A2Z INFRA ENGINEERING LIMITED,,,,,,}
+DEBUG_LOG:    _logDeltaEntriesMap(END)
+DEBUG_LOG:  -----after combo-------
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(END)
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline(START) : startDate=23-Dec-2010 :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
+DEBUG_LOG:    prebuild-VO: versionDate=31-Dec-2014, dataSet={A2ZINFRA,A2Z Infra Engineering Limited,BE,10,1,INE619I01012,10,}
+DEBUG_LOG:    ** deltaEntryDate[31-Dec-2014] >> versionObjectDate[31-Dec-2014]:data{A2ZINFRA,A2Z Infra Engineering Limited,BE,10,1,INE619I01012,10,} << deltaChange{[REVERSE]:A2ZMES->A2ZINFRA,A2Z Maintenance & Engineering Services Limited->A2Z INFRA ENGINEERING LIMITED,,,,,,}
+DEBUG_LOG: vo.insertVersion() -> versionDate: 23-Dec-2010; DATASET{A2ZMES,A2Z Maintenance & Engineering Services Limited,BE,10,1,INE619I01012,10,}
+DEBUG_LOG: vo.insertVersion() insertResult=1
+DEBUG_LOG:    postbuild-VO: versionDate=23-Dec-2010, dataSet={A2ZMES,A2Z Maintenance & Engineering Services Limited,BE,10,1,INE619I01012,10,}
+DEBUG_LOG:    postbuild-VO: versionDate=31-Dec-2014, dataSet={A2ZINFRA,A2Z Infra Engineering Limited,BE,10,1,INE619I01012,10,}
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline(END) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
+DEBUG_LOG:##VersionedObjectBuilder<VDT, T1, TR...>::buildReverseTimeline(END) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
+TEST_LOG : SECOND VO load , with existing data reloaded again. scenario after first load.
+DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=31-Dec-2014 : dataset={[REVERSE]:A2ZMES->A2ZINFRA,,,,,,,} : Insert success
+DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=31-Dec-2014 : dataset={[REVERSE]:,A2Z Maintenance & Engineering Services Limited->A2Z INFRA ENGINEERING LIMITED,,,,,,} : dataset exists, Insert failed
+DEBUG_LOG:    existingChgDataSet={[REVERSE]:A2ZMES->A2ZINFRA,,,,,,,}
+DEBUG_LOG:    merged-existingChgDataSet={[REVERSE]:A2ZMES->A2ZINFRA,A2Z Maintenance & Engineering Services Limited->A2Z INFRA ENGINEERING LIMITED,,,,,,}
+DEBUG_LOG:##VersionedObjectBuilder<VDT, T1, TR...>::buildReverseTimeline(START) : startDate=23-Dec-2010 :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)
+DEBUG_LOG:  +++++before combo+++++++
+DEBUG_LOG:    _logDeltaEntriesMap(START)
+DEBUG_LOG:    versionDate[31-Dec-2014] : delta{[REVERSE]:A2ZMES->A2ZINFRA,A2Z Maintenance & Engineering Services Limited->A2Z INFRA ENGINEERING LIMITED,,,,,,}
+DEBUG_LOG:    _logDeltaEntriesMap(END)
+DEBUG_LOG:  ~~~~~~~~~~~~~~~~~~~~~~~~
+DEBUG_LOG:    _logSnapEntriesMap(START)
+DEBUG_LOG:    _logSnapEntriesMap(END)
+DEBUG_LOG:  -----before combo-------
+DEBUG_LOG:  +++++after combo+++++++
+DEBUG_LOG:    _logDeltaEntriesMap(START)
+DEBUG_LOG:    versionDate[31-Dec-2014] : delta{[REVERSE]:A2ZMES->A2ZINFRA,A2Z Maintenance & Engineering Services Limited->A2Z INFRA ENGINEERING LIMITED,,,,,,}
+DEBUG_LOG:    _logDeltaEntriesMap(END)
+DEBUG_LOG:  -----after combo-------
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(END)
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline(START) : startDate=23-Dec-2010 :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
+DEBUG_LOG:    prebuild-VO: versionDate=23-Dec-2010, dataSet={A2ZMES,A2Z Maintenance & Engineering Services Limited,BE,10,1,INE619I01012,10,}
+DEBUG_LOG:    prebuild-VO: versionDate=31-Dec-2014, dataSet={A2ZINFRA,A2Z Infra Engineering Limited,BE,10,1,INE619I01012,10,}
+DEBUG_LOG:    ** deltaEntryDate[31-Dec-2014] >> versionObjectDate[31-Dec-2014]:data{A2ZINFRA,A2Z Infra Engineering Limited,BE,10,1,INE619I01012,10,} << deltaChange{[REVERSE]:A2ZMES->A2ZINFRA,A2Z Maintenance & Engineering Services Limited->A2Z INFRA ENGINEERING LIMITED,,,,,,}
+DEBUG_LOG: vo.insertVersion() -> versionDate: 23-Dec-2010; DATASET{A2ZMES,A2Z Maintenance & Engineering Services Limited,BE,10,1,INE619I01012,10,}
+DEBUG_LOG: vo.insertVersion() insertResult=0
+DEBUG_LOG:    postbuild-VO: versionDate=23-Dec-2010, dataSet={A2ZMES,A2Z Maintenance & Engineering Services Limited,BE,10,1,INE619I01012,10,}
+DEBUG_LOG:    postbuild-VO: versionDate=31-Dec-2014, dataSet={A2ZINFRA,A2Z Infra Engineering Limited,BE,10,1,INE619I01012,10,}
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline(END) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
+DEBUG_LOG:##VersionedObjectBuilder<VDT, T1, TR...>::buildReverseTimeline(END) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number

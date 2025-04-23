@@ -31,7 +31,7 @@ NOTE: columns { SYMBOL, NAME OF COMPANY, ... }
 */
 
 using t_symbol      = std::string;
-using t_companyName = converter::ci_string;; //std::string;
+using t_companyName = converter::ci_string;; //std::string;  REFER test :test_caseInsensitive_companyName_BuildReverseTimelineNoMetaData
 using t_series      = std::string;
 using t_listingDate = t_fmtdbY; // std::chrono::year_month_day;
 using t_paidUpValue = uint16_t;

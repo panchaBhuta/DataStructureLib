@@ -73,10 +73,10 @@ add_unit_test(testBuildBidirectionTimelineNoMetaData_bidirection_RELISTED_v2   t
 
 add_unit_test(testPriorityMergeNoMetaData)
 add_unit_test(test_caseInsensitive_companyName_BuildReverseTimelineNoMetaData)
+
+
 #[=====[
-
-add_unit_test(test_removeHistoricalDeltaVersionArtifacts)
-
+add_unit_test(test_removeHistoricalDeltaVersionArtifacts_NoMetaData            testReverseTimeLineCommon.cpp)
 #]=====]
 
 

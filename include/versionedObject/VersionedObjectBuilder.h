@@ -6,8 +6,8 @@
  *
  * Copyright (C) 2023-2024 Gautam Dhar
  * All rights reserved.
- * 
- * dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details. 
+ *
+ * dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details.
  *
  */
 
@@ -213,7 +213,7 @@ namespace datastructure { namespace versionedObject
         } else {
           std::cout << "ERROR:NULL-DATE" << std::flush;
         }
-        std::cout << "]:data{" << ledgerIter->second.toCSV() 
+        std::cout << "]:data{" << ledgerIter->second.toCSV()
                   << "} << deltaChange{" << iterDelta->second.toCSV() << "}" << std::endl;
 #endif
 
@@ -362,7 +362,7 @@ namespace datastructure { namespace versionedObject
         } else {
           std::cout << "ERROR:NULL-DATE" << std::flush;
         }
-        std::cout << "]:data{" << ledgerIter->second.toCSV() 
+        std::cout << "]:data{" << ledgerIter->second.toCSV()
                   << "} << deltaChange{" << rIterDelta->second.toCSV() << "}" << std::endl << std::flush;
 #endif
 
@@ -547,7 +547,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
           for(auto iterISVOcopy = iterISVOcopyBegin; iterISVOcopy != iterISVOcopyEnd; ++iterISVOcopy )
           {
             VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: reverseBuildVO.insertVersion() -> versionDate: " << iterISVOcopy->first << "; DATASET{" << iterISVOcopy->second.toCSV() << "}");
-            //bool insertResult = 
+            //bool insertResult =
             reverseBuildVO.insertVersion(iterISVOcopy->first, iterISVOcopy->second);
             //VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: reverseBuildVO.insertVersion() insertResult=" << insertResult); is always true
           }
@@ -633,7 +633,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
           while( iterISVOcopyBegin != iterISVOcopyEnd )
           {
             VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: forwardBuildVO.insertVersion() -> versionDate: " << iterISVOcopyBegin->first << "; DATASET{" << iterISVOcopyBegin->second.toCSV() << "}");
-            //bool insertResult = 
+            //bool insertResult =
             forwardBuildVO.insertVersion(iterISVOcopyBegin->first, iterISVOcopyBegin->second);
             // VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: forwardBuildVO.insertVersion() insertResult=" << insertResult); is always true
             ++iterISVOcopyBegin;
@@ -875,22 +875,23 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
       return retn;
     }
 
+    /*
     inline void removeHistoricalDeltaVersionArtifacts(
                     const t_versionedObject& historicalVO,
                     std::set<t_versionDate>& datesDeltaChangesExistOrg,
                     std::set<t_versionDate>& datesDeltaChangesMismatch)
     {
       std::set<t_versionDate> datesDeltaChangesExist;
-      typename t_deltaEntriesMap::const_iterator iterDelta = _deltaChgEntries.cbegin(); // multimap
-
       const t_datasetLedger& datasetLedger = historicalVO.getDatasetLedger();
+
+      typename t_deltaEntriesMap::const_iterator iterDelta = _deltaChgEntries.cbegin(); // map
       while( iterDelta != _deltaChgEntries.cend() )
       {
         t_versionDate deltaChangeDate = iterDelta->first;
         typename t_datasetLedger::const_iterator iterDatasetLedger = datasetLedger.find(deltaChangeDate);
         if( iterDatasetLedger != datasetLedger.cend() )
         {
-          if(iterDelta->second.isSnapShot()) 
+          if(iterDelta->second.isSnapShot())
           {
             if(iterDelta->second.isSnapshotChgValueEqual(iterDatasetLedger->second.getRecord()))
             {
@@ -970,6 +971,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
       }
       datesDeltaChangesExistOrg.merge(datesDeltaChangesExist);
     }
+    */
 
     inline void toCSV(const t_deltaEntriesMap& comboChgEntries, const std::string& prefix, std::ostream& oss) const
     {

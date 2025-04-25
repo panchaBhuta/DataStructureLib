@@ -90,24 +90,10 @@ namespace datastructure { namespace versionedObject
         _prefix{prefix}
     {}
 
-    /*
-    MetaDataSource()
-      : _source{"DefaultConstructor"},
-        _prefix{'@'}
-    {}
-    */
-
     //MetaDataSource() = default;
     MetaDataSource(MetaDataSource const&) = default;
     MetaDataSource& operator=(MetaDataSource const&) = default;
     bool operator==(MetaDataSource const& other) const = default;
-
-    /*
-    inline void appendMetaInfo(const MetaDataSource& other)
-    {
-      _source = _source + other._prefix + other._source;
-    }
-    */
 
     inline void toCSV(std::ostream& oss) const
     {

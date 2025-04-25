@@ -317,7 +317,6 @@ namespace datastructure { namespace versionedObject
     int merge(const SnapshotDataSet<M, T...>& other)
     {
       this->_metaData.merge(other._metaData);
-      //this->_metaData.appendMetaInfo(other._metaData);
       return this->template _merge<sizeof...(T) -1>(other);
     }
 

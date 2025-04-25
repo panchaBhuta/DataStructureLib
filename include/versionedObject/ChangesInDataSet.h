@@ -462,14 +462,12 @@ namespace datastructure { namespace versionedObject
       if constexpr(std::is_same_v<decltype(other), const  SnapshotDataSet<M, T...>& > == true)
       {
         this->_metaData.merge(other.getMetaData());
-        //this->_metaData.appendMetaInfo(other.getMetaData());
 
         return this->_merge(dynamic_cast<const _SnapshotDataSetBase<T...>& >(other));
       } else
       if constexpr(std::is_same_v<decltype(other), const  ChangesInDataSet<M, T...>& > == true)
       {
         this->_metaData.merge(other.getMetaData());
-        //this->_metaData.appendMetaInfo(other.getMetaData());
 
         return this->_merge(dynamic_cast<const _ChangesInDataSetBase<T...>& >(other));
       } else

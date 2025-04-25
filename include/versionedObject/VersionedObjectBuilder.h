@@ -61,12 +61,12 @@ namespace datastructure { namespace versionedObject
     _VersionedObjectBuilderBase() : _deltaChgEntries(), _snapShotEntries() {}
 
     inline static t_dataset _datasetFactory(
-                    [[maybe_unused]]  const t_metaData* const ptrMetaData,
+                    [[maybe_unused]]  const t_deltaEntriesMap::mapped_type& changesInDataSet,
                                       const t_record& record)
     {
       if constexpr ( t_dataset::hasMetaData() )
       {
-        return t_dataset(*ptrMetaData, record);
+        return t_dataset(changesInDataSet.getMetaData(), record);
       } else {
         return t_dataset(record);
       }
@@ -128,8 +128,7 @@ namespace datastructure { namespace versionedObject
 
     void _buildForwardTimeline( // with filled VersionObject
                   t_versionedObject& vo,
-                  const t_deltaEntriesMap& comboChgEntries,
-                  const t_metaData* const metaDataResetCloner = nullptr) // nullptr when MetaData is NOT used
+                  const t_deltaEntriesMap& comboChgEntries)
     {
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline(START)");
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
@@ -234,12 +233,7 @@ namespace datastructure { namespace versionedObject
           // 'getLatestRecord()' is called with VALIDATE=true
           iterDelta->second.template getLatestRecord<true>(record, hitheroProcessedElements);
 
-          const t_metaData* ptrMetaData = metaDataResetCloner;
-          if constexpr ( t_dataset::hasMetaData() )
-          {
-            ptrMetaData = &(iterDelta->second.getMetaData());
-          }
-          t_dataset dataset = _datasetFactory(ptrMetaData, record);
+          t_dataset dataset = _datasetFactory(iterDelta->second, record);
           VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: vo.insertVersion() -> versionDate: " << presentDeltaChangeDate << "; DATASET{" << dataset.toCSV() << "}");
           bool insertResult = vo.insertVersion( presentDeltaChangeDate, dataset );
           VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: vo.insertVersion() insertResult=" << insertResult);
@@ -266,8 +260,7 @@ namespace datastructure { namespace versionedObject
     void _buildReverseTimeline( // with filled VersionObject
                   const t_versionDate& startDate,
                   t_versionedObject& vo,
-                  const t_deltaEntriesMap& comboChgEntries,
-                  const t_metaData* const metaDataResetCloner = nullptr) // nullptr when MetaData is NOT used
+                  const t_deltaEntriesMap& comboChgEntries)
     {
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline(START) : startDate=" << startDate);
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
@@ -388,7 +381,7 @@ namespace datastructure { namespace versionedObject
           // 'getPreviousRecord()' is called with VALIDATE=true
           rIterDelta->second.template getPreviousRecord<true>(record, hitheroProcessedElements);
 
-          t_dataset dataset = _datasetFactory(metaDataResetCloner, record);
+          t_dataset dataset = _datasetFactory(rIterDelta->second, record);
           ++rPastIterDelta;
           pastDeltaChangeDate =   ( rPastIterDelta != comboChgEntries.rend() )  ?
                                     rPastIterDelta->first  :
@@ -433,9 +426,7 @@ namespace datastructure { namespace versionedObject
     _buildBiDirectionalTimeline( // with filled VersionObject
                   const std::vector<t_versionDate>& startDates,
                   t_versionedObject& vo,
-                  const t_deltaEntriesMap& comboChgEntries,
-                  const t_metaData* const metaDataResetClonerReverse = nullptr, // nullptr when MetaData is NOT used
-                  const t_metaData* const metaDataResetClonerForward = nullptr) // nullptr when MetaData is NOT used
+                  const t_deltaEntriesMap& comboChgEntries)
     {
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildBiDirectionalTimeline(START)");
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
@@ -573,8 +564,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
           }
 
           tempVOB._buildReverseTimeline(startDates[startDateIter++], // use 0, then increment to 1
-                                        reverseBuildVO, tmpComboChgEntries,
-                                        metaDataResetClonerReverse);
+                                        reverseBuildVO, tmpComboChgEntries);
           tmpComboChgEntries.clear();
 
           size_t count = 1; // count is 1 NOT zero, as the last valid element in 'reverseBuildVO' is seed,
@@ -646,7 +636,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
 
           t_deltaEntriesMap tmpComboChgEntries{tempVOB._deltaChgEntries};
           tempVOB._updateComboDataSet(tmpComboChgEntries);
-          tempVOB._buildForwardTimeline(forwardBuildVO, tmpComboChgEntries, metaDataResetClonerForward);
+          tempVOB._buildForwardTimeline(forwardBuildVO, tmpComboChgEntries);
           tmpComboChgEntries.clear();
 
           auto  partialResultIter  = forwardBuildVO.getDatasetLedger().cbegin();
@@ -1053,26 +1043,24 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
     virtual ~VersionedObjectBuilder() {}
 
     inline void buildForwardTimeline( // with filled VersionObject
-            VersionedObject<VDT, M, T...>&  vo,
-            const t_metaData& metaDataResetCloner) // when MetaData is used
+            VersionedObject<VDT, M, T...>&  vo)
     {
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:##VersionedObjectBuilder<VDT, M, T...>::buildForwardTimeline(START)");
       t_deltaEntriesMap comboChgEntries{this->_deltaChgEntries};
       this->_updateComboDataSet(comboChgEntries);
-      this->_buildForwardTimeline(vo, comboChgEntries, &metaDataResetCloner);
+      this->_buildForwardTimeline(vo, comboChgEntries);
       comboChgEntries.clear();
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:##VersionedObjectBuilder<VDT, M, T...>::buildForwardTimeline(END)");
     }
 
     inline void buildReverseTimeline( // with filled VersionObject
             const t_versionDate& startDate,
-            VersionedObject<VDT, M, T...>& vo,
-            const t_metaData& metaDataResetCloner) // when MetaData is used
+            VersionedObject<VDT, M, T...>& vo)
     {
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:##VersionedObjectBuilder<VDT, M, T...>::buildReverseTimeline(START) : startDate=" << startDate);
       t_deltaEntriesMap comboChgEntries{this->_deltaChgEntries};
       this->_updateComboDataSet(comboChgEntries);
-      this->_buildReverseTimeline(startDate, vo, comboChgEntries, &metaDataResetCloner);
+      this->_buildReverseTimeline(startDate, vo, comboChgEntries);
       comboChgEntries.clear();
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:##VersionedObjectBuilder<VDT, M, T...>::buildReverseTimeline(END)");
     }
@@ -1081,16 +1069,13 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
     inline std::pair< t_deltaEntriesMap_iter_diff_type, t_deltaEntriesMap_iter_diff_type >
     buildBiDirectionalTimeline( // with filled VersionObject
             const std::vector<t_versionDate>& startDates,
-            VersionedObject<VDT, M, T...>& vo,
-            const t_metaData& metaDataResetClonerReverse, // when MetaData is used
-            const t_metaData& metaDataResetClonerForward) // when MetaData is used
+            VersionedObject<VDT, M, T...>& vo)
     {
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:##VersionedObjectBuilder<VDT, M, T...>::buildBiDirectionalTimeline(START)");
       t_deltaEntriesMap comboChgEntries{this->_deltaChgEntries};
       this->_updateComboDataSet(comboChgEntries);
       std::pair< t_deltaEntriesMap_iter_diff_type, t_deltaEntriesMap_iter_diff_type >
-            ret = this->_buildBiDirectionalTimeline(startDates, vo, comboChgEntries,
-                            &metaDataResetClonerReverse, &metaDataResetClonerForward);
+            ret = this->_buildBiDirectionalTimeline(startDates, vo, comboChgEntries);
       comboChgEntries.clear();
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:##VersionedObjectBuilder<VDT, M, T...>::buildBiDirectionalTimeline(END)");
       return ret;

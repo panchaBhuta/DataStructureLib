@@ -16,8 +16,8 @@ void interimForwardTest(t_versionObject& vo,
     unittest::ExpectEqual(bool, true, insertResult2);
   }
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource resetMeta("" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
-  vob.buildForwardTimeline(vo TEST_WITH_METADATA(COMMA resetMeta));
+
+  vob.buildForwardTimeline(vo);
 
 
   //std::cout << "#### vo start ######\n" << vo.toCSV() << "#### vo end ######\n";

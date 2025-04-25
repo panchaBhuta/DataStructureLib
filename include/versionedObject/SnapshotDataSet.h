@@ -316,8 +316,8 @@ namespace datastructure { namespace versionedObject
 
     int merge(const SnapshotDataSet<M, T...>& other)
     {
-      // this->_metaData.merge(other._metaData); call append instead
-      this->_metaData.appendMetaInfo(other._metaData);
+      this->_metaData.merge(other._metaData);
+      //this->_metaData.appendMetaInfo(other._metaData);
       return this->template _merge<sizeof...(T) -1>(other);
     }
 
@@ -339,7 +339,7 @@ namespace datastructure { namespace versionedObject
     }
 
   private:
-    const M           _metaData;     // metaData-id of a change instance
+    M           _metaData;     // metaData-id of a change instance
   };
 
   template <c_noMetaData T1, typename ... TR>

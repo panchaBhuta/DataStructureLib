@@ -12,7 +12,7 @@
 
 
 # Test function add_unit_test
-function(add_unit_test testname)
+function(add_unit_test testname OPTION_ENABLE_METADATA)
   if(CMAKE_BUILD_TYPE MATCHES "Debug")
   #if(BUILD_TESTING)
     message(STATUS "### TEST ${testname}")
@@ -22,6 +22,7 @@ function(add_unit_test testname)
     add_test(NAME ${testname} COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/testRun.sh"   "${PROJECT_BINARY_DIR}/tests/versionedObject/${testname}")
     target_include_directories(${testname} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
     target_link_libraries(${testname} dataStructure) # donot specify PUBLIC here,
+    target_compile_definitions(${testname} PRIVATE TEST_ENABLE_METADATA=$<BOOL:${OPTION_ENABLE_METADATA}>)
     # executable ${testname} has to have transitive association to all its dependencies(aka library chain)
     # refer   https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html#target-usage-requirements
     # refer   https://cmake.org/cmake/help/latest/command/target_link_libraries.html#libraries-for-a-target-and-or-its-dependents
@@ -30,7 +31,7 @@ function(add_unit_test testname)
 endfunction(add_unit_test)
 
 # Test macro add_perf_test
-macro(add_perf_test testname)
+macro(add_perf_test testname OPTION_ENABLE_METADATA)
   if(CMAKE_BUILD_TYPE MATCHES "Release")
     message(STATUS "### TEST ${testname}")
     # https://cmake.org/cmake/help/latest/manual/cmake-generator-expressions.7.html#genex:condition
@@ -38,6 +39,7 @@ macro(add_perf_test testname)
     add_executable(${testname} ${sources})
     add_test(NAME ${testname} COMMAND "${PROJECT_BINARY_DIR}/tests/versionedObject/${testname}")
     target_link_libraries(${testname} dataStructure) # donot specify PUBLIC here,
+    target_compile_definitions(${testname} PRIVATE TEST_ENABLE_METADATA=$<BOOL:${OPTION_ENABLE_METADATA}>)
     # executable ${testname} has to have transitive association to all its dependencies(aka library chain)
     # refer   https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html#target-usage-requirements
     # refer   https://cmake.org/cmake/help/latest/command/target_link_libraries.html#libraries-for-a-target-and-or-its-dependents
@@ -47,38 +49,40 @@ endmacro(add_perf_test)
 
 
 # Unit tests
-add_unit_test(testVersionObject)
+add_unit_test(testVersionObject  0)
 
-add_unit_test(testBuildForwardTimelineNoMetaData_ChangeFullList                testForwardTimeLineCommon.cpp)
-add_unit_test(testBuildForwardTimelineNoMetaData_ChangeSplitList               testForwardTimeLineCommon.cpp)
+add_unit_test(testBuildForwardTimelineNoMetaData_ChangeFullList                0  testForwardTimeLineCommon.cpp)
+add_unit_test(testBuildForwardTimelineNoMetaData_ChangeSplitList               0  testForwardTimeLineCommon.cpp)
 
-add_unit_test(testBuildReverseTimelineNoMetaData_ChangeFullList                testReverseTimeLineCommon.cpp)
-add_unit_test(testBuildReverseTimelineNoMetaData_ChangeSplitList               testReverseTimeLineCommon.cpp)
+add_unit_test(testBuildReverseTimelineNoMetaData_ChangeFullList                0  testReverseTimeLineCommon.cpp)
+add_unit_test(testBuildReverseTimelineNoMetaData_ChangeSplitList               0  testReverseTimeLineCommon.cpp)
 
-add_unit_test(testBuildBidirectionTimelineNoMetaData_changeFullList_Forward    testForwardTimeLineCommon.cpp)
-add_unit_test(testBuildBidirectionTimelineNoMetaData_changeSplitList_Forward   testForwardTimeLineCommon.cpp)
+add_unit_test(testBuildBidirectionTimelineNoMetaData_changeFullList_Forward    0  testForwardTimeLineCommon.cpp)
+add_unit_test(testBuildBidirectionTimelineNoMetaData_changeSplitList_Forward   0  testForwardTimeLineCommon.cpp)
 
-add_unit_test(testBuildBidirectionTimelineNoMetaData_changeFullList_Reverse    testReverseTimeLineCommon.cpp)
-add_unit_test(testBuildBidirectionTimelineNoMetaData_changeSplitList_Reverse   testReverseTimeLineCommon.cpp)
+add_unit_test(testBuildBidirectionTimelineNoMetaData_changeFullList_Reverse    0  testReverseTimeLineCommon.cpp)
+add_unit_test(testBuildBidirectionTimelineNoMetaData_changeSplitList_Reverse   0  testReverseTimeLineCommon.cpp)
 
-add_unit_test(testBuildBidirectionTimelineNoMetaData_multiForward              testForwardTimeLineCommon.cpp)
-add_unit_test(testBuildBidirectionTimelineNoMetaData_multiReverse_v1           testReverseTimeLineCommon.cpp)
-add_unit_test(testBuildBidirectionTimelineNoMetaData_multiReverse_v2           testReverseTimeLineCommon.cpp)
-
-
-add_unit_test(testBuildBidirectionTimelineNoMetaData_bidirection_DELISTED      testReverseTimeLineCommon.cpp)
-add_unit_test(testBuildBidirectionTimelineNoMetaData_bidirection_RELISTED_v1   testReverseTimeLineCommon.cpp)
-add_unit_test(testBuildBidirectionTimelineNoMetaData_bidirection_RELISTED_v2   testReverseTimeLineCommon.cpp)
+add_unit_test(testBuildBidirectionTimelineNoMetaData_multiForward              0  testForwardTimeLineCommon.cpp)
+add_unit_test(testBuildBidirectionTimelineNoMetaData_multiReverse_v1           0  testReverseTimeLineCommon.cpp)
+add_unit_test(testBuildBidirectionTimelineNoMetaData_multiReverse_v2           0  testReverseTimeLineCommon.cpp)
 
 
-add_unit_test(testPriorityMergeNoMetaData)
-add_unit_test(test_caseInsensitive_companyName_BuildReverseTimelineNoMetaData)
+add_unit_test(testBuildBidirectionTimelineNoMetaData_bidirection_DELISTED      0  testReverseTimeLineCommon.cpp)
+add_unit_test(testBuildBidirectionTimelineNoMetaData_bidirection_RELISTED_v1   0  testReverseTimeLineCommon.cpp)
+add_unit_test(testBuildBidirectionTimelineNoMetaData_bidirection_RELISTED_v2   0  testReverseTimeLineCommon.cpp)
+
+
+add_unit_test(testPriorityMergeNoMetaData  0)
+add_unit_test(test_caseInsensitive_companyName_BuildReverseTimelineNoMetaData  0)
 
 
 #[=====[
 add_unit_test(test_removeHistoricalDeltaVersionArtifacts_NoMetaData            testReverseTimeLineCommon.cpp)
 #]=====]
 
+
+add_unit_test(testBuildForwardTimelineMetaData_ChangeFullList                1  testForwardTimeLineCommon.cpp)
 
 #[=====[
 add_unit_test(testBuildForwardTimelineMetaData)

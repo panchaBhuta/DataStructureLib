@@ -13,6 +13,14 @@
 
 #include <unittest.h>
 
+//#define COMMA ,  defined in 'unittest.h'
+
+#if TEST_ENABLE_METADATA == 1
+  #define TEST_WITH_METADATA(X)  X
+#else
+  #define TEST_WITH_METADATA(X)
+#endif
+
 using t_fmtdbY = converter::format_year_month_day<converter::dbY_fmt, converter::FailureS2Tprocess::THROW_ERROR>;
 
 
@@ -31,7 +39,7 @@ NOTE: columns { SYMBOL, NAME OF COMPANY, ... }
 */
 
 using t_symbol      = std::string;
-using t_companyName = converter::ci_string;; //std::string;  REFER test :test_caseInsensitive_companyName_BuildReverseTimelineNoMetaData
+using t_companyName = converter::ci_string; //std::string;  REFER test :test_caseInsensitive_companyName_BuildReverseTimelineNoMetaData
 using t_series      = std::string;
 using t_listingDate = t_fmtdbY; // std::chrono::year_month_day;
 using t_paidUpValue = uint16_t;
@@ -46,15 +54,21 @@ using t_companyInfo = std::tuple<COMPANYINFO_TYPE_LIST>;
 
 namespace dsvo = datastructure::versionedObject;
 
-using t_versionDate = t_fmtdbY; // std::chrono::year_month_day;
-using t_versionObject = dsvo::VersionedObject<t_versionDate, COMPANYINFO_TYPE_LIST>;
+#define COMPANYMETAINFO_TYPE_LIST  TEST_WITH_METADATA(dsvo::MetaDataSource COMMA) COMPANYINFO_TYPE_LIST
 
+using t_versionDate = t_fmtdbY; // std::chrono::year_month_day;
+using t_versionObject = dsvo::VersionedObject<t_versionDate, COMPANYMETAINFO_TYPE_LIST>;
+using t_versionObjectBuilder = dsvo::VersionedObjectBuilder<t_versionDate, COMPANYMETAINFO_TYPE_LIST>;
+using t_changesInDataSet = dsvo::ChangesInDataSet<COMPANYMETAINFO_TYPE_LIST>;
+using t_snapshotDataSet  = dsvo::SnapshotDataSet<COMPANYMETAINFO_TYPE_LIST>;
+using t_dataSet  = dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>;
+using t_convertFromString = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>;
 
 namespace unittest
 {
   template<>
-  struct SScompatible<dsvo::DataSet<COMPANYINFO_TYPE_LIST>> {
-    inline static std::string getVal(const dsvo::DataSet<COMPANYINFO_TYPE_LIST>& val)
+  struct SScompatible<t_dataSet> {
+    inline static std::string getVal(const t_dataSet& val)
     {
       return val.toCSV();
     }

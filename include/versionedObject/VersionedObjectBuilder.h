@@ -234,7 +234,12 @@ namespace datastructure { namespace versionedObject
           // 'getLatestRecord()' is called with VALIDATE=true
           iterDelta->second.template getLatestRecord<true>(record, hitheroProcessedElements);
 
-          t_dataset dataset = _datasetFactory(metaDataResetCloner, record);
+          const t_metaData* ptrMetaData = metaDataResetCloner;
+          if constexpr ( t_dataset::hasMetaData() )
+          {
+            ptrMetaData = &(iterDelta->second.getMetaData());
+          }
+          t_dataset dataset = _datasetFactory(ptrMetaData, record);
           VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: vo.insertVersion() -> versionDate: " << presentDeltaChangeDate << "; DATASET{" << dataset.toCSV() << "}");
           bool insertResult = vo.insertVersion( presentDeltaChangeDate, dataset );
           VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: vo.insertVersion() insertResult=" << insertResult);

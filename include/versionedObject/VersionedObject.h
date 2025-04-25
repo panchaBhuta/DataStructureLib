@@ -14,6 +14,7 @@
 #pragma once
 
 #include <map>
+#include <set>
 #include <tuple>
 #include <variant>
 #include <string>
@@ -74,40 +75,52 @@ namespace datastructure { namespace versionedObject
   // this is optional. A user can define their own MetaData class and pass it to "DataSet<>"
   // A user defined MetaData class needs to define three components as below:
   //      1. using isMetaData = std::true_type;
-  //      2. void appendMetaInfo(const MetaDataSource& other) { ... }
+  //      2. void merge(const MetaDataSource& other) { ... }
   //      3. assignment operator
   class MetaDataSource
   {
-  private:
-    std::string   _source;
-    char          _prefix;
-
   public:
     using isMetaData = std::true_type;
+    enum eDataBuild { FORWARD = '+',
+                      REVERSE = '-',
+                      RECORD  = '^' };
 
-    MetaDataSource(const std::string& source, char prefix)
-      : _source(source),
-        _prefix(prefix)
+    MetaDataSource(const std::string& source, eDataBuild prefix)
+      : _source{source},
+        _prefix{prefix}
     {}
 
+    /*
     MetaDataSource()
-      : _source("DefaultConstructor"),
-        _prefix('@')
+      : _source{"DefaultConstructor"},
+        _prefix{'@'}
     {}
+    */
 
     //MetaDataSource() = default;
     MetaDataSource(MetaDataSource const&) = default;
     MetaDataSource& operator=(MetaDataSource const&) = default;
     bool operator==(MetaDataSource const& other) const = default;
 
+    /*
     inline void appendMetaInfo(const MetaDataSource& other)
     {
       _source = _source + other._prefix + other._source;
     }
+    */
 
     inline void toCSV(std::ostream& oss) const
     {
-      oss << _source;
+      if (_source.empty()) return;
+
+      std::ostringstream ostr;
+      for (const auto& sr : _source)
+        ostr << sr << '#';
+
+      std::string result{ostr.str()};
+      result.pop_back(); // remove last '#'
+
+      oss << char(_prefix) << result;
     }
 
     inline std::string toCSV() const
@@ -119,8 +132,22 @@ namespace datastructure { namespace versionedObject
 
     void merge(MetaDataSource const& other)
     {
-      _source += (other._prefix + other._source);
+      if(_prefix == eDataBuild::RECORD)
+      {
+        throw std::domain_error{"MetaDataSource::merge() is not compatible for 'eDataBuild::RECORD'"};
+      }
+      if(_prefix != other._prefix)
+      {
+        throw std::domain_error{"MetaDataSource::merge() expects same Build-type"};
+      }
+
+      std::set<std::string> oSourceCopy {other._source}; // why : refer https://en.cppreference.com/w/cpp/container/set/merge
+      _source.merge(oSourceCopy);
     }
+
+    private:
+      std::set<std::string>   _source;
+      eDataBuild              _prefix;
   };
 
 

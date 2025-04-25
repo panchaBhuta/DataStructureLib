@@ -22,7 +22,6 @@ A2Z Infra Engineering Limited,A2ZMES,A2ZINFRA,31-DEC-2014
 
 
 
-  dsvo::MetaDataSource namChgMeta("namechange",'-');
   const std::array <bool, std::tuple_size_v<t_companyInfo> > nameChangeFlg = {false, true, false, false, false, false, false};
 
 //  NOTE : the row below is from namechange.csv

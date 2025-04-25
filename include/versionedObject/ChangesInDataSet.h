@@ -461,15 +461,15 @@ namespace datastructure { namespace versionedObject
     {
       if constexpr(std::is_same_v<decltype(other), const  SnapshotDataSet<M, T...>& > == true)
       {
-        // this->_metaData.merge(other..getMetaData()); call append instead
-        this->_metaData.appendMetaInfo(other.getMetaData()); // TODO : _source as vector
+        this->_metaData.merge(other.getMetaData());
+        //this->_metaData.appendMetaInfo(other.getMetaData());
 
         return this->_merge(dynamic_cast<const _SnapshotDataSetBase<T...>& >(other));
       } else
       if constexpr(std::is_same_v<decltype(other), const  ChangesInDataSet<M, T...>& > == true)
       {
-        // this->_metaData.merge(other..getMetaData()); call append instead
-        this->_metaData.appendMetaInfo(other.getMetaData());
+        this->_metaData.merge(other.getMetaData());
+        //this->_metaData.appendMetaInfo(other.getMetaData());
 
         return this->_merge(dynamic_cast<const _ChangesInDataSetBase<T...>& >(other));
       } else
@@ -501,7 +501,7 @@ namespace datastructure { namespace versionedObject
     }
 
   private:
-    const M           _metaData;     // metaData-id of a change instance
+    M           _metaData;     // metaData-id of a change instance
   };
 
   template <c_noMetaData T1, typename ... TR>

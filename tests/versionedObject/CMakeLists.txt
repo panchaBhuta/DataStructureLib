@@ -83,6 +83,7 @@ add_unit_test(test_removeHistoricalDeltaVersionArtifacts_NoMetaData            t
 
 
 add_unit_test(testBuildForwardTimelineMetaData_ChangeFullList                1  testForwardTimeLineCommon.cpp)
+add_unit_test(testBuildForwardTimelineMetaData_ChangeSplitList               1  testForwardTimeLineCommon.cpp)
 
 #[=====[
 add_unit_test(testBuildForwardTimelineMetaData)

@@ -30,8 +30,12 @@ ANDHRA PAPER LIMITED,IPAPPM,ANDPAPER,22-JAN-2020
 ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 */
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource symChgMeta("symbolchange" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
-  TEST_WITH_METADATA(dsvo::MetaDataSource namChgMeta("namechange" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
+  TEST_WITH_METADATA(dsvo::MetaDataSource symChgMeta("symbolChange" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
+  TEST_WITH_METADATA(dsvo::MetaDataSource namChgMeta("nameChange" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
+
+
+  TEST_WITH_METADATA(dsvo::MetaDataSource symSpotMeta("symbolSpot" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
+  TEST_WITH_METADATA(dsvo::MetaDataSource namSpotMeta("nameSpot" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
 
   const std::array <bool, std::tuple_size_v<t_companyInfo> > symbolChangeFlg = {true, false, false, false, false, false, false, false};
   const std::array <bool, std::tuple_size_v<t_companyInfo> >   nameChangeFlg = {false, true, false, false, false, false, false, false};
@@ -44,7 +48,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   unittest::ExpectEqual(bool, true, insertResult);
   // VOB model error on this t_companyInfo companyNameKeyInfo1 = t_convertFromString::ToVal(",ANDHRA PAPER LIMITED,,0,0,,0,");
   t_companyInfo companyNameKeyInfo1 = t_convertFromString::ToVal(",International Paper APPM Limited,,0,0,,0,");
-  t_snapshotDataSet companyNameKeyDataSet1 {TEST_WITH_METADATA(symChgMeta COMMA) nameChangeFlg, companyNameKeyInfo1, dsvo::ApplicableChangeDirection::FORWARD};   // CompanyName as identifier
+  t_snapshotDataSet companyNameKeyDataSet1 {TEST_WITH_METADATA(namSpotMeta COMMA) nameChangeFlg, companyNameKeyInfo1, dsvo::ApplicableChangeDirection::FORWARD};   // CompanyName as identifier
   insertResult = vob.insertSnapshotVersion(t_versionDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))}, companyNameKeyDataSet1);
   unittest::ExpectEqual(bool, true, insertResult);
 
@@ -54,7 +58,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   insertResult = vob.insertDeltaVersion(t_versionDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))}, symbolChange2);
   unittest::ExpectEqual(bool, true, insertResult);
   t_companyInfo companyNameKeyInfo2 = t_convertFromString::ToVal(",ANDHRA PAPER LIMITED,,0,0,,0,");
-  t_snapshotDataSet companyNameKeyDataSet2 {TEST_WITH_METADATA(symChgMeta COMMA) nameChangeFlg, companyNameKeyInfo2, dsvo::ApplicableChangeDirection::FORWARD};   // CompanyName as identifier
+  t_snapshotDataSet companyNameKeyDataSet2 {TEST_WITH_METADATA(namSpotMeta COMMA) nameChangeFlg, companyNameKeyInfo2, dsvo::ApplicableChangeDirection::FORWARD};   // CompanyName as identifier
   insertResult = vob.insertSnapshotVersion(t_versionDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))}, companyNameKeyDataSet2);
   unittest::ExpectEqual(bool, true, insertResult);
 
@@ -65,7 +69,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   insertResult = vob.insertDeltaVersion(reverseLastVersionDate, symbolChange3);
   unittest::ExpectEqual(bool, true, insertResult);
   t_companyInfo companyNameKeyInfo3 = t_convertFromString::ToVal(",ANDHRA PAPER LIMITED,,0,0,,0,");
-  t_snapshotDataSet companyNameKeyDataSet3 {TEST_WITH_METADATA(symChgMeta COMMA) nameChangeFlg, companyNameKeyInfo3, dsvo::ApplicableChangeDirection::FORWARD};   // CompanyName as identifier
+  t_snapshotDataSet companyNameKeyDataSet3 {TEST_WITH_METADATA(namSpotMeta COMMA) nameChangeFlg, companyNameKeyInfo3, dsvo::ApplicableChangeDirection::FORWARD};   // CompanyName as identifier
   insertResult = vob.insertSnapshotVersion(reverseLastVersionDate, companyNameKeyDataSet3);
   unittest::ExpectEqual(bool, true, insertResult);
 
@@ -81,7 +85,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   insertResult = vob.insertDeltaVersion(t_versionDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))}, nameChange1);
   unittest::ExpectEqual(bool, false, insertResult);
   t_companyInfo symbolKeyInfo1 = t_convertFromString::ToVal("ANDPAPER,,,0,0,,0,");
-  t_snapshotDataSet symbolKeyDataSet1 {TEST_WITH_METADATA(namChgMeta COMMA) symbolChangeFlg, symbolKeyInfo1, dsvo::ApplicableChangeDirection::FORWARD};   // Symbol as identifier
+  t_snapshotDataSet symbolKeyDataSet1 {TEST_WITH_METADATA(symSpotMeta COMMA) symbolChangeFlg, symbolKeyInfo1, dsvo::ApplicableChangeDirection::FORWARD};   // Symbol as identifier
   insertResult = vob.insertSnapshotVersion(t_versionDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))}, symbolKeyDataSet1);
   unittest::ExpectEqual(bool, false, insertResult);
 
@@ -108,7 +112,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   t_companyInfo companyInfoLatest = t_convertFromString::ToVal(
     "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED"    );
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource symChgMetaExp("symbolchange" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
+  TEST_WITH_METADATA(dsvo::MetaDataSource symChgMetaExp("symbolChange" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
   t_dataSet companyRecordFourthExpected {TEST_WITH_METADATA(symChgMetaExp COMMA) companyInfoLatest};
 ////////////    NOT used here :         for Forward-build, start-info is deduced using reverseLastVersionDate
 //  VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() -> versionDate: " << reverseLastVersionDate << "; DATASET{" << companyRecordFourthExpected.toCSV() << "}");
@@ -185,8 +189,8 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   t_companyInfo companyInfoThird = t_convertFromString::ToVal(
               "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED"    );
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource symChgNamChgMetaExp("symbolchange" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
-  TEST_WITH_METADATA(symChgNamChgMetaExp.merge(dsvo::MetaDataSource{"namechange" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD}));
+  TEST_WITH_METADATA(dsvo::MetaDataSource symChgNamChgMetaExp("symbolChange" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
+  TEST_WITH_METADATA(symChgNamChgMetaExp.merge(dsvo::MetaDataSource{"nameChange" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD}));
   t_dataSet companyRecordThirdExpected {TEST_WITH_METADATA(symChgNamChgMetaExp COMMA) companyInfoThird};
 
   t_versionObject::t_datasetLedger::const_iterator companyRecordThirdActual =
@@ -212,7 +216,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   t_companyInfo companyInfoFifth = t_convertFromString::ToVal(
     "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED"    );
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource lotChgMetaExp("marketLotchange" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
+  TEST_WITH_METADATA(dsvo::MetaDataSource lotChgMetaExp("marketLotChange" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
   t_dataSet companyRecordFifthExpected {TEST_WITH_METADATA(lotChgMetaExp COMMA) companyInfoFifth};
 
   t_versionObject::t_datasetLedger::const_iterator companyRecordFifthActual =

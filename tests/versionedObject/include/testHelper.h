@@ -63,6 +63,8 @@ using t_changesInDataSet = dsvo::ChangesInDataSet<COMPANYMETAINFO_TYPE_LIST>;
 using t_snapshotDataSet  = dsvo::SnapshotDataSet<COMPANYMETAINFO_TYPE_LIST>;
 using t_dataSet  = dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>;
 using t_convertFromString = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>;
+using t_eDataBuild = dsvo::MetaDataSource::eDataBuild;
+using t_eDataPatch = dsvo::MetaDataSource::eDataPatch;
 
 namespace unittest
 {

@@ -83,12 +83,28 @@ namespace datastructure { namespace versionedObject
     using isMetaData = std::true_type;
     enum eDataBuild { FORWARD = '+',
                       REVERSE = '-',
-                      RECORD  = '^' };
+                      RECORDb = '^' };
 
-    MetaDataSource(const std::string& source, eDataBuild prefix)
+    enum eDataPatch { DELTACHANGE = '%',
+                      SNAPSHOT    = '@',
+                      RECORDp     = '^' };
+
+    MetaDataSource(const std::string& source, eDataBuild prefixBuildType, eDataPatch dataPatch)
       : _source{source},
-        _prefix{prefix}
-    {}
+        _prefixBuildType{prefixBuildType},
+        _dataPatch{dataPatch},
+        _mergedSources{}
+    {
+      if( ( prefixBuildType == eDataBuild::RECORDb && dataPatch != eDataPatch::RECORDp ) ||
+          ( prefixBuildType != eDataBuild::RECORDb && dataPatch == eDataPatch::RECORDp ) )
+      {
+        throw std::domain_error{"MetaDataSource() : prefixBuildType and dataPatch are both of RECORD type, OR neither are of RECORD type"};
+      }
+      if( dataPatch == eDataPatch::SNAPSHOT && prefixBuildType != eDataBuild::FORWARD )
+      {
+        throw std::domain_error{"MetaDataSource() : if dataPatch==SNAPSHOT; then prefixBuildType should be FORWARD"};
+      }
+    }
 
     //MetaDataSource() = default;
     MetaDataSource(MetaDataSource const&) = default;
@@ -99,14 +115,10 @@ namespace datastructure { namespace versionedObject
     {
       if (_source.empty()) return;
 
-      std::ostringstream ostr;
-      for (const auto& sr : _source)
-        ostr << sr << '#';
+      oss << char(_prefixBuildType) << '#' << char(_dataPatch) << _source;
 
-      std::string result{ostr.str()};
-      result.pop_back(); // remove last '#'
-
-      oss << char(_prefix) << result;
+      for (const auto& sr : _mergedSources)
+        oss << '#' << sr;
     }
 
     inline std::string toCSV() const
@@ -118,22 +130,33 @@ namespace datastructure { namespace versionedObject
 
     void merge(MetaDataSource const& other)
     {
-      if(_prefix == eDataBuild::RECORD)
+      if(_prefixBuildType == eDataBuild::RECORDb)
       {
         throw std::domain_error{"MetaDataSource::merge() is not compatible for 'eDataBuild::RECORD'"};
       }
-      if(_prefix != other._prefix)
+      if( _dataPatch == eDataPatch::DELTACHANGE &&
+          other._dataPatch == eDataPatch::DELTACHANGE &&
+          _prefixBuildType != other._prefixBuildType)
       {
-        throw std::domain_error{"MetaDataSource::merge() expects same Build-type"};
+        throw std::domain_error{"MetaDataSource::merge() expects same Build-type when dataPatch == DELTACHANGE"};
       }
 
-      std::set<std::string> oSourceCopy {other._source}; // why : refer https://en.cppreference.com/w/cpp/container/set/merge
-      _source.merge(oSourceCopy);
+      std::set<std::string> oSourceCopy {other._mergedSources}; // why : refer https://en.cppreference.com/w/cpp/container/set/merge
+      std::string otherMain{char(other._dataPatch)};
+      otherMain += other._source;
+      oSourceCopy.insert(otherMain);
+      _mergedSources.merge(oSourceCopy);
+
+      std::string thisMain{char(_dataPatch)};
+      thisMain += _source;
+      _mergedSources.erase(thisMain);
     }
 
     private:
-      std::set<std::string>   _source;
-      eDataBuild              _prefix;
+      const std::string             _source;
+      const eDataBuild              _prefixBuildType;
+      const eDataPatch              _dataPatch;
+      std::set<std::string>         _mergedSources;
   };
 
 

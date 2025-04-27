@@ -30,12 +30,12 @@ ANDHRA PAPER LIMITED,IPAPPM,ANDPAPER,22-JAN-2020
 ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 */
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource symChgMeta("symbolChange" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
-  TEST_WITH_METADATA(dsvo::MetaDataSource namChgMeta("nameChange" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
+  TEST_WITH_METADATA(dsvo::MetaDataSource symChgMeta("symbolChange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::DELTACHANGE));
+  TEST_WITH_METADATA(dsvo::MetaDataSource namChgMeta("nameChange"   COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::DELTACHANGE));
 
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource symSpotMeta("symbolSpot" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
-  TEST_WITH_METADATA(dsvo::MetaDataSource namSpotMeta("nameSpot" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
+  TEST_WITH_METADATA(dsvo::MetaDataSource symSpotMeta("symbolSpot" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT));
+  TEST_WITH_METADATA(dsvo::MetaDataSource namSpotMeta("nameSpot"   COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT));
 
   const std::array <bool, std::tuple_size_v<t_companyInfo> > symbolChangeFlg = {true, false, false, false, false, false, false, false};
   const std::array <bool, std::tuple_size_v<t_companyInfo> >   nameChangeFlg = {false, true, false, false, false, false, false, false};
@@ -98,7 +98,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   t_companyInfo companyInfoStart = t_convertFromString::ToVal(
     "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED"    );
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource manualMeta("manualDeduction" COMMA dsvo::MetaDataSource::eDataBuild::RECORD));
+  TEST_WITH_METADATA(dsvo::MetaDataSource manualMeta("manualDeduction" COMMA t_eDataBuild::RECORDb COMMA t_eDataPatch::RECORDp));
   t_dataSet companyRecordStart {TEST_WITH_METADATA(manualMeta COMMA) companyInfoStart};
   VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() -> listingDate-versionDate: " << listingDate << "; DATASET{" << companyRecordStart.toCSV() << "}");
   insertResult = vo.insertVersion(listingDate, companyRecordStart);
@@ -112,7 +112,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   t_companyInfo companyInfoLatest = t_convertFromString::ToVal(
     "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED"    );
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource symChgMetaExp("symbolChange" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
+  TEST_WITH_METADATA(dsvo::MetaDataSource symChgMetaExp("symbolChange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::DELTACHANGE));
   t_dataSet companyRecordFourthExpected {TEST_WITH_METADATA(symChgMetaExp COMMA) companyInfoLatest};
 ////////////    NOT used here :         for Forward-build, start-info is deduced using reverseLastVersionDate
 //  VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() -> versionDate: " << reverseLastVersionDate << "; DATASET{" << companyRecordFourthExpected.toCSV() << "}");
@@ -189,8 +189,8 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   t_companyInfo companyInfoThird = t_convertFromString::ToVal(
               "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED"    );
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource symChgNamChgMetaExp("symbolChange" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
-  TEST_WITH_METADATA(symChgNamChgMetaExp.merge(dsvo::MetaDataSource{"nameChange" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD}));
+  TEST_WITH_METADATA(dsvo::MetaDataSource symChgNamChgMetaExp("symbolChange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::DELTACHANGE));
+  TEST_WITH_METADATA(symChgNamChgMetaExp.merge(dsvo::MetaDataSource{"nameChange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::DELTACHANGE}));
   t_dataSet companyRecordThirdExpected {TEST_WITH_METADATA(symChgNamChgMetaExp COMMA) companyInfoThird};
 
   t_versionObject::t_datasetLedger::const_iterator companyRecordThirdActual =
@@ -216,7 +216,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   t_companyInfo companyInfoFifth = t_convertFromString::ToVal(
     "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED"    );
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource lotChgMetaExp("marketLotChange" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
+  TEST_WITH_METADATA(dsvo::MetaDataSource lotChgMetaExp("marketLotChange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT));
   t_dataSet companyRecordFifthExpected {TEST_WITH_METADATA(lotChgMetaExp COMMA) companyInfoFifth};
 
   t_versionObject::t_datasetLedger::const_iterator companyRecordFifthActual =

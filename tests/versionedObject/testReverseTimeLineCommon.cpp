@@ -32,12 +32,12 @@ ANDHRA PAPER LIMITED,IPAPPM,ANDPAPER,22-JAN-2020
 ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 */
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource symChgMeta("symbolChange" COMMA dsvo::MetaDataSource::eDataBuild::REVERSE));
-  TEST_WITH_METADATA(dsvo::MetaDataSource namChgMeta("nameChange" COMMA dsvo::MetaDataSource::eDataBuild::REVERSE));
+  TEST_WITH_METADATA(dsvo::MetaDataSource symChgMeta("symbolChange" COMMA t_eDataBuild::REVERSE COMMA t_eDataPatch::DELTACHANGE));
+  TEST_WITH_METADATA(dsvo::MetaDataSource namChgMeta("nameChange"   COMMA t_eDataBuild::REVERSE COMMA t_eDataPatch::DELTACHANGE));
 
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource symSpotMeta("symbolSpot" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
-  TEST_WITH_METADATA(dsvo::MetaDataSource namSpotMeta("nameSpot" COMMA dsvo::MetaDataSource::eDataBuild::FORWARD));
+  TEST_WITH_METADATA(dsvo::MetaDataSource symSpotMeta("symbolSpot" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT));
+  TEST_WITH_METADATA(dsvo::MetaDataSource namSpotMeta("nameSpot"   COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT));
 
   const std::array <bool, std::tuple_size_v<t_companyInfo> > symbolChangeFlg = {true, false, false, false, false, false, false, false};
   const std::array <bool, std::tuple_size_v<t_companyInfo> >   nameChangeFlg = {false, true, false, false, false, false, false, false};
@@ -100,7 +100,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   t_companyInfo companyInfoStart = t_convertFromString::ToVal(
     "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED"    );
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource symChgMetaExp("symbolChange" COMMA dsvo::MetaDataSource::eDataBuild::REVERSE));
+  TEST_WITH_METADATA(dsvo::MetaDataSource symChgMetaExp("symbolChange" COMMA t_eDataBuild::REVERSE COMMA t_eDataPatch::DELTACHANGE));
   t_dataSet companyRecordStart {TEST_WITH_METADATA(symChgMetaExp COMMA) companyInfoStart};
 ////////////    NOT used here :         for Reverse-build, start-info is deduced using listing-date
 //  VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() -> versionDate: " << listingDate << "; DATASET{" << companyRecordStart.toCSV() << "}");
@@ -115,7 +115,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   t_companyInfo companyInfoLatest = t_convertFromString::ToVal(
     "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED"    );
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource latestMeta("EQUITY_L" COMMA dsvo::MetaDataSource::eDataBuild::RECORD));
+  TEST_WITH_METADATA(dsvo::MetaDataSource latestMeta("EQUITY_L" COMMA t_eDataBuild::RECORDb COMMA t_eDataPatch::RECORDp));
   t_dataSet companyRecordFourthExpected {TEST_WITH_METADATA(latestMeta COMMA) companyInfoLatest};
   VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() -> reverseLastVersionDate: " << reverseLastVersionDate << "; DATASET{" << companyRecordFourthExpected.toCSV() << "}");
   insertResult = vo.insertVersion(reverseLastVersionDate, companyRecordFourthExpected);
@@ -155,8 +155,8 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   t_companyInfo companyInfoSecond = t_convertFromString::ToVal(
              "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED"    );
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource symChgNamChgMetaExp("nameChange" COMMA dsvo::MetaDataSource::eDataBuild::REVERSE));
-  TEST_WITH_METADATA(symChgNamChgMetaExp.merge(dsvo::MetaDataSource{"symbolChange" COMMA dsvo::MetaDataSource::eDataBuild::REVERSE}));
+  TEST_WITH_METADATA(dsvo::MetaDataSource symChgNamChgMetaExp("nameChange" COMMA t_eDataBuild::REVERSE COMMA t_eDataPatch::DELTACHANGE));
+  TEST_WITH_METADATA(symChgNamChgMetaExp.merge(dsvo::MetaDataSource{"symbolChange" COMMA t_eDataBuild::REVERSE COMMA t_eDataPatch::DELTACHANGE}));
   t_dataSet companyRecordSecondExpected {TEST_WITH_METADATA(symChgNamChgMetaExp COMMA) companyInfoSecond};
 
   t_versionDate secondDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))};

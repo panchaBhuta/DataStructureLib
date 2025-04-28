@@ -72,7 +72,19 @@ namespace datastructure { namespace versionedObject
   template <typename M>
   concept c_noMetaData = !is_MetaData<M>::value;
 
-  // this is optional. A user can define their own MetaData class and pass it to "DataSet<>"
+  enum eModificationPatch {   //   ModficationType
+    DELTACHANGE = '%',    //  DELTA_CHANGE=2
+    SNAPSHOT    = '@',    //  SNAPSHOT=1
+    UseRECORD   = '^'     //  NO_MODIFICATION=0
+  };
+
+  enum eBuildDirection {
+    FORWARD   = '+',
+    REVERSE   = '-',
+    IsRECORD  = '^'
+  };
+
+    // this is optional. A user can define their own MetaData class and pass it to "DataSet<>"
   // A user defined MetaData class needs to define three components as below:
   //      1. using isMetaData = std::true_type;
   //      2. void merge(const MetaDataSource& other) { ... }
@@ -81,26 +93,19 @@ namespace datastructure { namespace versionedObject
   {
   public:
     using isMetaData = std::true_type;
-    enum eDataBuild { FORWARD = '+',
-                      REVERSE = '-',
-                      RECORDb = '^' };
 
-    enum eDataPatch { DELTACHANGE = '%',
-                      SNAPSHOT    = '@',
-                      RECORDp     = '^' };
-
-    MetaDataSource(const std::string& source, eDataBuild prefixBuildType, eDataPatch dataPatch)
+    MetaDataSource(const std::string& source, eBuildDirection prefixBuildType, eModificationPatch dataPatch)
       : _source{source},
         _prefixBuildType{prefixBuildType},
         _dataPatch{dataPatch},
         _mergedSources{}
     {
-      if( ( prefixBuildType == eDataBuild::RECORDb && dataPatch != eDataPatch::RECORDp ) ||
-          ( prefixBuildType != eDataBuild::RECORDb && dataPatch == eDataPatch::RECORDp ) )
+      if( ( prefixBuildType == eBuildDirection::IsRECORD && dataPatch != eModificationPatch::UseRECORD ) ||
+          ( prefixBuildType != eBuildDirection::IsRECORD && dataPatch == eModificationPatch::UseRECORD ) )
       {
         throw std::domain_error{"MetaDataSource() : prefixBuildType and dataPatch are both of RECORD type, OR neither are of RECORD type"};
       }
-      if( dataPatch == eDataPatch::SNAPSHOT && prefixBuildType != eDataBuild::FORWARD )
+      if( dataPatch == eModificationPatch::SNAPSHOT && prefixBuildType != eBuildDirection::FORWARD )
       {
         throw std::domain_error{"MetaDataSource() : if dataPatch==SNAPSHOT; then prefixBuildType should be FORWARD"};
       }
@@ -130,12 +135,12 @@ namespace datastructure { namespace versionedObject
 
     void merge(MetaDataSource const& other)
     {
-      if(_prefixBuildType == eDataBuild::RECORDb)
+      if(_prefixBuildType == eBuildDirection::IsRECORD)
       {
-        throw std::domain_error{"MetaDataSource::merge() is not compatible for 'eDataBuild::RECORD'"};
+        throw std::domain_error{"MetaDataSource::merge() is not compatible for 'eBuildDirection::IsRECORD'"};
       }
-      if( _dataPatch == eDataPatch::DELTACHANGE &&
-          other._dataPatch == eDataPatch::DELTACHANGE &&
+      if( _dataPatch == eModificationPatch::DELTACHANGE &&
+          other._dataPatch == eModificationPatch::DELTACHANGE &&
           _prefixBuildType != other._prefixBuildType)
       {
         throw std::domain_error{"MetaDataSource::merge() expects same Build-type when dataPatch == DELTACHANGE"};
@@ -152,10 +157,12 @@ namespace datastructure { namespace versionedObject
       _mergedSources.erase(thisMain);
     }
 
+    eBuildDirection getBuildDirection() const { return _prefixBuildType; }
+
     private:
       const std::string             _source;
-      const eDataBuild              _prefixBuildType;
-      const eDataPatch              _dataPatch;
+      const eBuildDirection         _prefixBuildType;
+      const eModificationPatch      _dataPatch;
       std::set<std::string>         _mergedSources;
   };
 

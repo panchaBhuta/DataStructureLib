@@ -34,7 +34,7 @@ namespace datastructure { namespace versionedObject
   using FirstVersion_Before_LastDeltaChange_ReverseTimeline_exception    =  VO_exception<4>;
   using GetVersionAt_isNull_exception                                    =  VO_exception<5>;
   using LastVersion_After_FirstDeltaChange_ForwardTimeline_exception     =  VO_exception<6>;
-  using Unexpected_ApplicableChangeDirection_exception                   =  VO_exception<7>;
+  using Unexpected_BuildDirection_exception                              =  VO_exception<7>;
 
   template <typename VDT, typename ... MT>
   class _VersionedObjectBuilderBase
@@ -165,14 +165,14 @@ namespace datastructure { namespace versionedObject
 
       for( auto iterDelta = comboChgEntries.begin(); iterDelta != comboChgEntries.end(); ++iterDelta )
       {
-        if(iterDelta->second.getApplicableChangeDirection() == ApplicableChangeDirection::REVERSE)
+        if(iterDelta->second.getBuildDirection() == eBuildDirection::REVERSE)
         {
           std::ostringstream eoss;
           eoss << "ERROR(2) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline() : for changeDate[";
-          eoss << iterDelta->first << "] should NOT be marked as 'ApplicableChangeDirection::REVERSE', expected FORWARD" << std::endl;
+          eoss << iterDelta->first << "] should NOT be marked as 'eBuildDirection::REVERSE', expected FORWARD" << std::endl;
           toStr(comboChgEntries, "VersionObjectBuilder :: ", eoss);
           vo.toStr("VersionObject :: ", eoss);
-          throw Unexpected_ApplicableChangeDirection_exception(eoss.str());
+          throw Unexpected_BuildDirection_exception(eoss.str());
         }
       }
 
@@ -297,14 +297,14 @@ namespace datastructure { namespace versionedObject
 
       for( auto iterDelta = comboChgEntries.begin(); iterDelta != comboChgEntries.end(); ++iterDelta )
       {
-        if(iterDelta->second.getApplicableChangeDirection() == ApplicableChangeDirection::FORWARD)
+        if(iterDelta->second.getBuildDirection() == eBuildDirection::FORWARD)
         {
           std::ostringstream eoss;
           eoss << "ERROR(2) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline() : for changeDate[";
-          eoss << iterDelta->first << "] should NOT be marked as 'ApplicableChangeDirection::FORWARD', expected REVERSE" << std::endl;
+          eoss << iterDelta->first << "] should NOT be marked as 'eBuildDirection::FORWARD', expected REVERSE" << std::endl;
           toStr(comboChgEntries, "VersionObjectBuilder :: ", eoss);
           vo.toStr("VersionObject :: ", eoss);
-          throw Unexpected_ApplicableChangeDirection_exception(eoss.str());
+          throw Unexpected_BuildDirection_exception(eoss.str());
         }
       }
 
@@ -470,7 +470,7 @@ namespace datastructure { namespace versionedObject
         changeProcessed = false;
 
         if(    iterComboChgEntries != comboChgEntries.cend()
-           &&  iterComboChgEntries->second.getApplicableChangeDirection() == ApplicableChangeDirection::REVERSE
+           &&  iterComboChgEntries->second.getBuildDirection() == eBuildDirection::REVERSE
           )   // Reverse Timeline
         {
           VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   ReverseTimeline1 initialization  START <<<<<<<<<<<<<<<<<");
@@ -501,7 +501,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
           iterComboChgEntriesLast = iterComboChgEntries;
           t_versionedObject reverseBuildVO{};
           while(    iterComboChgEntries != iterComboChgEntriesEnd
-                &&  iterComboChgEntries->second.getApplicableChangeDirection() == ApplicableChangeDirection::REVERSE
+                &&  iterComboChgEntries->second.getBuildDirection() == eBuildDirection::REVERSE
                )
           {
             tempVOB.insertDeltaVersion(iterComboChgEntries->first, iterComboChgEntries->second);
@@ -581,7 +581,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
 
 
         if(    iterComboChgEntries != comboChgEntries.cend()
-           &&  iterComboChgEntries->second.getApplicableChangeDirection() == ApplicableChangeDirection::FORWARD
+           &&  iterComboChgEntries->second.getBuildDirection() == eBuildDirection::FORWARD
           )   // Forward Timeline
         {
           VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   ForwardTimeline2 initialization   START >>>>>>>>>>>>>>>>");
@@ -601,7 +601,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
 #endif
           iterComboChgEntriesLast = iterComboChgEntries;
           while(    iterComboChgEntries != comboChgEntries.cend()
-                &&  iterComboChgEntries->second.getApplicableChangeDirection() == ApplicableChangeDirection::FORWARD
+                &&  iterComboChgEntries->second.getBuildDirection() == eBuildDirection::FORWARD
                )
           {
             tempVOB.insertDeltaVersion(iterComboChgEntries->first, iterComboChgEntries->second);
@@ -691,20 +691,20 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
         {
           const SnapshotDataSet<MT...>& snpEntry = iterSnapShot->second;
           /* this is not applicable
-          if(chgEntry.getApplicableChangeDirection() != snpEntry.getApplicableChangeDirection())
+          if(chgEntry.getBuildDirection() != snpEntry.getBuildDirection())
           {
             std::ostringstream eoss;
             eoss << "ERROR : failure in _VersionedObjectBuilderBase<VDT, MT...>::insertDeltaVersion() : versionDate=" << forDate;
-            eoss << " has ApplicableChangeDirection mismatch." << std::endl;
+            eoss << " has eBuildDirection mismatch." << std::endl;
             eoss << "ChangesInDataSet<MT...>={";
             chgEntry.toCSV(eoss);
-            eoss << "} ApplicableChangeDirection="
-                 << (chgEntry.getApplicableChangeDirection() == ApplicableChangeDirection::FORWARD ?
+            eoss << "} eBuildDirection="
+                 << (chgEntry.getBuildDirection() == eBuildDirection::FORWARD ?
                      "FORWARD" : "REVERSE") << std::endl;
             eoss << "SnapshotDataSet<MT...>={";
             snpEntry.toCSV(eoss);
-            eoss << "} ApplicableChangeDirection="
-                 << (snpEntry.getApplicableChangeDirection() == ApplicableChangeDirection::FORWARD ?
+            eoss << "} eBuildDirection="
+                 << (snpEntry.getBuildDirection() == eBuildDirection::FORWARD ?
                      "FORWARD" : "REVERSE") << std::endl;
             throw std::invalid_argument(eoss.str());
           }
@@ -783,20 +783,20 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
       {
         const ChangesInDataSet<MT...>& deltaChg = deltaChgSearch->second;
         /* this is not applicable
-        if(deltaChg.getApplicableChangeDirection() != snpEntry.getApplicableChangeDirection())
+        if(deltaChg.getBuildDirection() != snpEntry.getBuildDirection())
         {
           std::ostringstream eoss;
           eoss << "ERROR : failure in _VersionedObjectBuilderBase<VDT, MT...>::insertSnapshotVersion() : versionDate=" << forDate;
-          eoss << " has ApplicableChangeDirection mismatch." << std::endl;
+          eoss << " has eBuildDirection mismatch." << std::endl;
           eoss << "ChangesInDataSet<MT...>={";
           deltaChg.toCSV(eoss);
-          eoss << "} ApplicableChangeDirection="
-                << (deltaChg.getApplicableChangeDirection() == ApplicableChangeDirection::FORWARD ?
+          eoss << "} eBuildDirection="
+                << (deltaChg.getBuildDirection() == eBuildDirection::FORWARD ?
                     "FORWARD" : "REVERSE") << std::endl;
           eoss << "SnapshotDataSet<MT...>={";
           snpEntry.toCSV(eoss);
-          eoss << "} ApplicableChangeDirection="
-                << (snpEntry.getApplicableChangeDirection() == ApplicableChangeDirection::FORWARD ?
+          eoss << "} eBuildDirection="
+                << (snpEntry.getBuildDirection() == eBuildDirection::FORWARD ?
                     "FORWARD" : "REVERSE") << std::endl;
           throw std::invalid_argument(eoss.str());
         }
@@ -901,7 +901,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
               return;
             }
           } else {  // NOT a snapshot
-            if(iterDelta->second.getApplicableChangeDirection() == ApplicableChangeDirection::FORWARD)
+            if(iterDelta->second.getBuildDirection() == eBuildDirection::FORWARD)
             {
               typename t_datasetLedger::const_iterator iterNextDatasetLedger = iterDatasetLedger;
               ++iterNextDatasetLedger;

@@ -28,7 +28,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
 //  NOTE : the row below is manually deduced
 //  APPAPER,International Paper APPM Limited,EQ,13-MAY-2004,10,1,INE435A01028,10
-  t_companyInfo companyInfoStart = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
+  t_companyInfo companyInfoStart = t_convertFromString::ToVal(
     "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10"    );
 
   dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordStart {companyInfoStart};
@@ -64,7 +64,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   }
 
 //  ANDHRA PAPER LIMITED,APPAPER,IPAPPM,21-JAN-2014
-  t_companyInfo companyInfoSecond = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
+  t_companyInfo companyInfoSecond = t_convertFromString::ToVal(
     "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10"    );
 
   dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordSecondExpected {companyInfoSecond};
@@ -91,7 +91,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
 //  ANDHRA PAPER LIMITED,IPAPPM,ANDPAPER,22-JAN-2020
 //  ANDHRAPAP,International Paper APPM Limited,ANDHRA PAPER LIMITED,22-JAN-2020
-  t_companyInfo companyInfoThird = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
+  t_companyInfo companyInfoThird = t_convertFromString::ToVal(
     "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10"    );
 
   dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordThirdExpected {companyInfoThird};
@@ -121,7 +121,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 //  ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 //  NOTE: the row below is not a versioned information, but CROWN info from EQUITY_L.csv
 //       ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,13-MAY-2004,10,1,INE435A01028,10
-  t_companyInfo companyInfoLatest1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
+  t_companyInfo companyInfoLatest1 = t_convertFromString::ToVal(
     "ANDHRAPAP,ANDHRA PAPER LIMITED:1,EQ,10,1,INE435A01028,10"    );
 
   const t_versionDate crownDate2{std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5))};
@@ -131,7 +131,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
                                               companyRecordLatestExpected1);
   unittest::ExpectEqual(bool, true, insertResult);
 
-  t_companyInfo companyInfoLatest2 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
+  t_companyInfo companyInfoLatest2 = t_convertFromString::ToVal(
     "ANDHRAPAP,ANDHRA PAPER LIMITED:2,EQ,10,1,INE435A01028,10"    );
 
   dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordLatestExpected2 {companyInfoLatest2};

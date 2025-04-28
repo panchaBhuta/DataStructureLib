@@ -45,33 +45,39 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
   t_companyInfo symChgOldInfo1 = t_convertFromString::ToVal("APPAPER,,,0,0,,0,");
   t_companyInfo symChgNewInfo1 = t_convertFromString::ToVal("IPAPPM,,,0,0,,0,");
-  t_changesInDataSet symbolChange1 {TEST_WITH_METADATA(symChgMeta COMMA) symbolChangeFlg, symChgOldInfo1, symChgNewInfo1, dsvo::ApplicableChangeDirection::REVERSE};  // DELTA Change
+  t_changesInDataSet symbolChange1 {symbolChangeFlg, symChgOldInfo1, symChgNewInfo1,
+                                    TEST_ALTERNATE_METADATA(symChgMeta, t_eDataBuild::REVERSE)};  // DELTA Change
   insertResult = vob.insertDeltaVersion(t_versionDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))}, symbolChange1);
   unittest::ExpectEqual(bool, true, insertResult);
   // VOB model error on this t_companyInfo companyNameKeyInfo1 = t_convertFromString::ToVal(",ANDHRA PAPER LIMITED,,0,0,,0,");
   t_companyInfo companyNameKeyInfo1 = t_convertFromString::ToVal(",International Paper APPM Limited,,0,0,,0,");
-  t_snapshotDataSet companyNameKeyDataSet1 {TEST_WITH_METADATA(namSpotMeta COMMA) nameChangeFlg, companyNameKeyInfo1, dsvo::ApplicableChangeDirection::FORWARD};   // CompanyName as identifier
+  t_snapshotDataSet companyNameKeyDataSet1 {nameChangeFlg, companyNameKeyInfo1,
+                                            TEST_ALTERNATE_METADATA(namSpotMeta, t_eDataBuild::FORWARD)};   // CompanyName as identifier
   insertResult = vob.insertSnapshotVersion(t_versionDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))}, companyNameKeyDataSet1);
   unittest::ExpectEqual(bool, true, insertResult);
 
   t_companyInfo symChgOldInfo2 = t_convertFromString::ToVal("IPAPPM,,,0,0,,0,");
   t_companyInfo symChgNewInfo2 = t_convertFromString::ToVal("ANDPAPER,,,0,0,,0,");
-  t_changesInDataSet symbolChange2 {TEST_WITH_METADATA(symChgMeta COMMA) symbolChangeFlg, symChgOldInfo2, symChgNewInfo2, dsvo::ApplicableChangeDirection::REVERSE};  // DELTA Change
+  t_changesInDataSet symbolChange2 {symbolChangeFlg, symChgOldInfo2, symChgNewInfo2,
+                                    TEST_ALTERNATE_METADATA(symChgMeta, t_eDataBuild::REVERSE)};  // DELTA Change
   insertResult = vob.insertDeltaVersion(t_versionDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))}, symbolChange2);
   unittest::ExpectEqual(bool, true, insertResult);
   t_companyInfo companyNameKeyInfo2 = t_convertFromString::ToVal(",ANDHRA PAPER LIMITED,,0,0,,0,");
-  t_snapshotDataSet companyNameKeyDataSet2 {TEST_WITH_METADATA(namSpotMeta COMMA) nameChangeFlg, companyNameKeyInfo2, dsvo::ApplicableChangeDirection::FORWARD};   // CompanyName as identifier
+  t_snapshotDataSet companyNameKeyDataSet2 {nameChangeFlg, companyNameKeyInfo2,
+                                            TEST_ALTERNATE_METADATA(namSpotMeta, t_eDataBuild::FORWARD)};   // CompanyName as identifier
   insertResult = vob.insertSnapshotVersion(t_versionDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))}, companyNameKeyDataSet2);
   unittest::ExpectEqual(bool, true, insertResult);
 
   t_companyInfo symChgOldInfo3 = t_convertFromString::ToVal("ANDPAPER,,,0,0,,0,");
   t_companyInfo symChgNewInfo3 = t_convertFromString::ToVal("ANDHRAPAP,,,0,0,,0,");
-  t_changesInDataSet symbolChange3 {TEST_WITH_METADATA(symChgMeta COMMA) symbolChangeFlg, symChgOldInfo3, symChgNewInfo3, dsvo::ApplicableChangeDirection::REVERSE};  // DELTA Change
+  t_changesInDataSet symbolChange3 {symbolChangeFlg, symChgOldInfo3, symChgNewInfo3,
+                                    TEST_ALTERNATE_METADATA(symChgMeta, t_eDataBuild::REVERSE)};  // DELTA Change
   t_versionDate reverseLastVersionDate{std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5))};
   insertResult = vob.insertDeltaVersion(reverseLastVersionDate, symbolChange3);
   unittest::ExpectEqual(bool, true, insertResult);
   t_companyInfo companyNameKeyInfo3 = t_convertFromString::ToVal(",ANDHRA PAPER LIMITED,,0,0,,0,");
-  t_snapshotDataSet companyNameKeyDataSet3 {TEST_WITH_METADATA(namSpotMeta COMMA) nameChangeFlg, companyNameKeyInfo3, dsvo::ApplicableChangeDirection::FORWARD};   // CompanyName as identifier
+  t_snapshotDataSet companyNameKeyDataSet3 {nameChangeFlg, companyNameKeyInfo3,
+                                            TEST_ALTERNATE_METADATA(namSpotMeta, t_eDataBuild::FORWARD)};   // CompanyName as identifier
   insertResult = vob.insertSnapshotVersion(reverseLastVersionDate, companyNameKeyDataSet3);
   unittest::ExpectEqual(bool, true, insertResult);
 
@@ -83,11 +89,13 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 //        IMPORTANT: hence it makes sense not to add SnapshotDataSet<...> in 'dbLoader' for symbol
   t_companyInfo namChgOldInfo1 = t_convertFromString::ToVal(",International Paper APPM Limited,,0,0,,0,");
   t_companyInfo namChgNewInfo1 = t_convertFromString::ToVal(",ANDHRA PAPER LIMITED,,0,0,,0,");
-  t_changesInDataSet nameChange1 {TEST_WITH_METADATA(namChgMeta COMMA) nameChangeFlg, namChgOldInfo1, namChgNewInfo1, dsvo::ApplicableChangeDirection::REVERSE};  // DELTA Change
+  t_changesInDataSet nameChange1 {nameChangeFlg, namChgOldInfo1, namChgNewInfo1,
+                                  TEST_ALTERNATE_METADATA(namChgMeta, t_eDataBuild::REVERSE)};  // DELTA Change
   insertResult = vob.insertDeltaVersion(t_versionDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))}, nameChange1);
   unittest::ExpectEqual(bool, false, insertResult);
   t_companyInfo symbolKeyInfo1 = t_convertFromString::ToVal("ANDPAPER,,,0,0,,0,");
-  t_snapshotDataSet symbolKeyDataSet1 {TEST_WITH_METADATA(symSpotMeta COMMA) symbolChangeFlg, symbolKeyInfo1, dsvo::ApplicableChangeDirection::FORWARD};   // Symbol as identifier
+  t_snapshotDataSet symbolKeyDataSet1 {symbolChangeFlg, symbolKeyInfo1,
+                                       TEST_ALTERNATE_METADATA(symSpotMeta, t_eDataBuild::FORWARD)};   // Symbol as identifier
   insertResult = vob.insertSnapshotVersion(t_versionDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))}, symbolKeyDataSet1);
   unittest::ExpectEqual(bool, false, insertResult);
 
@@ -115,7 +123,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   t_companyInfo companyInfoLatest = t_convertFromString::ToVal(
     "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED"    );
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource latestMeta("EQUITY_L" COMMA t_eDataBuild::RECORDb COMMA t_eDataPatch::RECORDp));
+  TEST_WITH_METADATA(dsvo::MetaDataSource latestMeta("EQUITY_L" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::UseRECORD));
   t_dataSet companyRecordFourthExpected {TEST_WITH_METADATA(latestMeta COMMA) companyInfoLatest};
   VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() -> reverseLastVersionDate: " << reverseLastVersionDate << "; DATASET{" << companyRecordFourthExpected.toCSV() << "}");
   insertResult = vo.insertVersion(reverseLastVersionDate, companyRecordFourthExpected);

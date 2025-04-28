@@ -17,8 +17,12 @@
 
 #if TEST_ENABLE_METADATA == 1
   #define TEST_WITH_METADATA(X)  X
+  #define TEST_WITH_NOMETADATA(X)
+  #define TEST_ALTERNATE_METADATA(METADATA_ON, METADATA_OFF) METADATA_ON
 #else
   #define TEST_WITH_METADATA(X)
+  #define TEST_WITH_NOMETADATA(X)  X
+  #define TEST_ALTERNATE_METADATA(METADATA_ON, METADATA_OFF) METADATA_OFF
 #endif
 
 using t_fmtdbY = converter::format_year_month_day<converter::dbY_fmt, converter::FailureS2Tprocess::THROW_ERROR>;
@@ -63,8 +67,8 @@ using t_changesInDataSet = dsvo::ChangesInDataSet<COMPANYMETAINFO_TYPE_LIST>;
 using t_snapshotDataSet  = dsvo::SnapshotDataSet<COMPANYMETAINFO_TYPE_LIST>;
 using t_dataSet  = dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>;
 using t_convertFromString = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>;
-using t_eDataBuild = dsvo::MetaDataSource::eDataBuild;
-using t_eDataPatch = dsvo::MetaDataSource::eDataPatch;
+using t_eDataBuild = dsvo::eBuildDirection;
+using t_eDataPatch = dsvo::eModificationPatch;
 
 namespace unittest
 {

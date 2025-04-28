@@ -5,15 +5,15 @@
 
 void interimReverseTest(t_versionObject& vo,
                         [[maybe_unused]] bool insertResultExpected,
-                        dsvo::VersionedObjectBuilder<t_versionDate, COMPANYINFO_TYPE_LIST>& vob,
+                        t_versionObjectBuilder& vob,
                         [[maybe_unused]] const t_versionDate&  listingDate)
 {
   {
     ////   SNAPSHOT change test  : applicable for 'buildForwardTimeline'  ( NOT for buildReverseTimeline )
     const std::array <bool, std::tuple_size_v<t_companyInfo> > lotChangeFlg = {false, false, false, false, true, false, false, false};
 
-    t_companyInfo lotChgInfo = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",,,0,2,,0,");
-    dsvo::SnapshotDataSet<COMPANYINFO_TYPE_LIST> lotChange {lotChangeFlg, lotChgInfo, dsvo::ApplicableChangeDirection::FORWARD};   // SNAPSHOT Change
+    t_companyInfo lotChgInfo = t_convertFromString::ToVal(",,,0,2,,0,");
+    dsvo::SnapshotDataSet<COMPANYINFO_TYPE_LIST> lotChange {lotChangeFlg, lotChgInfo, t_eDataBuild::FORWARD};   // SNAPSHOT Change
     bool insertResult = vob.insertSnapshotVersion(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))}, lotChange);
     unittest::ExpectEqual(bool, true, insertResult);
   }
@@ -22,8 +22,8 @@ void interimReverseTest(t_versionObject& vo,
     ////////////////////////              DELISTED change test
     const std::array <bool, std::tuple_size_v<t_companyInfo> > delistedChangeFlg = {false, false, false, false, false, false, false, true};
 
-    t_companyInfo delistedChgInfo = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(",,,0,0,,0,DELISTED");
-    dsvo::SnapshotDataSet<COMPANYINFO_TYPE_LIST> delistedChange {delistedChangeFlg, delistedChgInfo, dsvo::ApplicableChangeDirection::FORWARD};   // DELISTED Change
+    t_companyInfo delistedChgInfo = t_convertFromString::ToVal(",,,0,0,,0,DELISTED");
+    dsvo::SnapshotDataSet<COMPANYINFO_TYPE_LIST> delistedChange {delistedChangeFlg, delistedChgInfo, t_eDataBuild::FORWARD};   // DELISTED Change
     bool insertResult = vob.insertSnapshotVersion(t_versionDate{std::chrono::year(int(2021)), std::chrono::December, std::chrono::day(unsigned(17))}, delistedChange);
     unittest::ExpectEqual(bool, true, insertResult);
   }
@@ -53,13 +53,13 @@ void interimReverseTest(t_versionObject& vo,
 
 void endReverseTest(                 t_versionObject& vo,
                     [[maybe_unused]] bool insertResultExpected,
-                    [[maybe_unused]] dsvo::VersionedObjectBuilder<t_versionDate, COMPANYINFO_TYPE_LIST>& vob,
+                    [[maybe_unused]] t_versionObjectBuilder& vob,
                     [[maybe_unused]] const t_versionDate&  listingDate)
 {
 
 //  ",,,0,2,,0,"
 //  ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10
-  t_companyInfo companyInfoFifth = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
+  t_companyInfo companyInfoFifth = t_convertFromString::ToVal(
     "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED"    );
 
   dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordFifthExpected {companyInfoFifth};
@@ -75,7 +75,7 @@ void endReverseTest(                 t_versionObject& vo,
 
 //  ,,,0,0,,0,DELISTED
 //  17-Dec-2021,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,DELISTED
-  t_companyInfo companyInfoSixth = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
+  t_companyInfo companyInfoSixth = t_convertFromString::ToVal(
     "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,DELISTED"    );
 
   dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordSixthExpected {companyInfoSixth};

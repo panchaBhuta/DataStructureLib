@@ -6,8 +6,8 @@
  *
  * Copyright (C) 2023-2024 Gautam Dhar
  * All rights reserved.
- * 
- * dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details. 
+ *
+ * dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details.
  *
  */
 
@@ -44,8 +44,8 @@ namespace datastructure { namespace versionedObject
     bool operator==(_ChangesInDataSetBase const&) const = default;
 
     // elements that has changed is indicated by 'true'
-    inline const std::array<ModficationType, sizeof...(T)>& getModifiedIndexes() const { return _modifiedElements; }
-    inline ApplicableChangeDirection getApplicableChangeDirection() const { return _applicableChangeDirection; }
+    inline const std::array<eModificationPatch, sizeof...(T)>& getModifiedIndexes() const { return _modifiedElements; }
+    inline eBuildDirection getBuildDirection() const { return _buildDirection; }
     inline const t_record& getNewRecord() const { return _newValues; }
 
 
@@ -125,15 +125,16 @@ namespace datastructure { namespace versionedObject
     _ChangesInDataSetBase( const std::array<bool, sizeof...(T)>& modifiedElements,
                            const t_record& oldValues,
                            const t_record& newValues,
-                                 ApplicableChangeDirection applicableChangeDirection)
+                           eBuildDirection buildDirection)
       : _modifiedElements(),
         _oldValues(oldValues),
         _newValues(newValues),
-        _applicableChangeDirection(applicableChangeDirection)
+        _buildDirection(buildDirection)
     {
       for(size_t iii = 0; iii < sizeof...(T); ++iii)
       {
-        _modifiedElements.at(iii) = (modifiedElements.at(iii) ? DELTA_CHANGE : NO_MODIFICATION);
+        _modifiedElements.at(iii) = (modifiedElements.at(iii) ? eModificationPatch::DELTACHANGE
+                                                              : eModificationPatch::UseRECORD);
       }
     }
 
@@ -141,7 +142,7 @@ namespace datastructure { namespace versionedObject
       : _modifiedElements(snapOther.getModifiedIndexes()),
         _oldValues(),
         _newValues(snapOther.getNewRecord()),
-        _applicableChangeDirection(snapOther.getApplicableChangeDirection())
+        _buildDirection(snapOther.getBuildDirection())
     {}
 
     template<size_t IDX>
@@ -149,21 +150,23 @@ namespace datastructure { namespace versionedObject
     {
       if constexpr( IDX == 0 )
       {
-        if(_applicableChangeDirection == ApplicableChangeDirection::FORWARD)
+        if(_buildDirection == eBuildDirection::FORWARD)
         {
           oss << "[FORWARD]:";
-        } else  {
+        } else if(_buildDirection == eBuildDirection::REVERSE) {
           oss << "[REVERSE]:";
+        } else {
+          oss << "[IsRECORD]:";
         }
       } else {
         oss << ",";
       }
 
-      if( _modifiedElements.at(IDX) == DELTA_CHANGE ) // check if element is marked for change
+      if( _modifiedElements.at(IDX) == eModificationPatch::DELTACHANGE ) // check if element is marked for change
       {
         // NOTE :: will fail for types that donot support "operator<<"
         oss << std::get<IDX>(_oldValues) << "->" << std::get<IDX>(_newValues);
-      } else if( _modifiedElements.at(IDX) == SNAPSHOT ) // check if element is marked for change
+      } else if( _modifiedElements.at(IDX) == eModificationPatch::SNAPSHOT ) // check if element is marked for change
       {
         // NOTE :: will fail for types that donot support "operator<<"
         oss << "...->" << std::get<IDX>(_newValues);
@@ -178,7 +181,7 @@ namespace datastructure { namespace versionedObject
     template<size_t IDX>
     inline bool _isNextChgValueEqual(const t_record& matchRecord) const
     {
-      if( _modifiedElements.at(IDX) != NO_MODIFICATION && 
+      if( _modifiedElements.at(IDX) != eModificationPatch::UseRECORD &&
           ( std::get<IDX>(matchRecord) != std::get<IDX>(_newValues) ) )
       {
         return false;
@@ -197,7 +200,7 @@ namespace datastructure { namespace versionedObject
     template<size_t IDX>
     inline bool _isPreviousChgValueEqual(const t_record& matchRecord) const
     {
-      if( _modifiedElements.at(IDX) == DELTA_CHANGE && 
+      if( _modifiedElements.at(IDX) == eModificationPatch::DELTACHANGE &&
           ( std::get<IDX>(matchRecord) != std::get<IDX>(_oldValues) ) )
       {
         return false;
@@ -217,7 +220,7 @@ namespace datastructure { namespace versionedObject
     inline void _getLatestValue(t_record& updateRecord,
                                 std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
     {
-      if( _modifiedElements.at(IDX) != NO_MODIFICATION ) // check if element is marked for change
+      if( _modifiedElements.at(IDX) != eModificationPatch::UseRECORD ) // check if element is marked for change
       {
         if constexpr(VALIDATE)
         {
@@ -231,7 +234,7 @@ namespace datastructure { namespace versionedObject
           }
           hitheroProcessedElements[IDX] = true;
 
-          if( _modifiedElements.at(IDX) == DELTA_CHANGE )
+          if( _modifiedElements.at(IDX) == eModificationPatch::DELTACHANGE )
           {
             if( std::get<IDX>(updateRecord) != std::get<IDX>(_oldValues) )
             {
@@ -259,7 +262,7 @@ namespace datastructure { namespace versionedObject
     inline void _getPreviousValue(t_record& updateRecord,
                                   std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
     {
-      if( _modifiedElements.at(IDX) != NO_MODIFICATION ) // check if element is marked for change
+      if( _modifiedElements.at(IDX) != eModificationPatch::UseRECORD ) // check if element is marked for change
       {
         if constexpr(VALIDATE)
         {
@@ -283,7 +286,7 @@ namespace datastructure { namespace versionedObject
           }
         }
 
-        if( _modifiedElements.at(IDX) == DELTA_CHANGE )
+        if( _modifiedElements.at(IDX) == eModificationPatch::DELTACHANGE )
           std::get<IDX>(updateRecord) = std::get<IDX>(_oldValues);
       }
 
@@ -300,7 +303,7 @@ namespace datastructure { namespace versionedObject
     {
       //static_assert(std::is_same_v<decltype(other), const  _SnapshotDataSetBase<T...>& > == true ||
       //              std::is_same_v<decltype(other), const _ChangesInDataSetBase<T...>& > == true );
-  
+
       std::array <int, sizeof...(T)> mergeableElements;
       mergeableElements.fill(0);
       _isMergeable<sizeof...(T) -1, OT>(other, mergeableElements);
@@ -337,11 +340,11 @@ namespace datastructure { namespace versionedObject
         if constexpr(std::is_same_v<OT, _ChangesInDataSetBase<T...> > == true)
         {
           std::get<IDX>(_oldValues) = std::get<IDX>(other._oldValues);
-          _modifiedElements.at(IDX) = DELTA_CHANGE;
+          _modifiedElements.at(IDX) = eModificationPatch::DELTACHANGE;
         } else
         if constexpr(std::is_same_v<OT, _SnapshotDataSetBase<T...> > == true)
         {
-          _modifiedElements.at(IDX) = SNAPSHOT;
+          _modifiedElements.at(IDX) = eModificationPatch::SNAPSHOT;
         } else {
           static_assert(false);
         }
@@ -362,18 +365,18 @@ namespace datastructure { namespace versionedObject
       //static_assert(std::is_same_v<decltype(other), const  _SnapshotDataSetBase<T...>& > == true ||
       //              std::is_same_v<decltype(other), const _ChangesInDataSetBase<T...>& > == true );
 
-      if( _modifiedElements.at(IDX) != NO_MODIFICATION ) // check if element is marked for change
+      if( _modifiedElements.at(IDX) != eModificationPatch::UseRECORD ) // check if element is marked for change
       {
-        if( other.getModifiedIndexes().at(IDX) != NO_MODIFICATION )
+        if( other.getModifiedIndexes().at(IDX) != eModificationPatch::UseRECORD )
         {
           if constexpr((sizeof...(T) -1) == IDX)
           {
-            if(other.getApplicableChangeDirection() != _applicableChangeDirection)
+            if(other.getBuildDirection() != _buildDirection)
             {
               std::ostringstream eoss;
               eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::_isMergeable(const auto&) : ";
-              eoss << " other._applicableChangeDirection{" << (other.getApplicableChangeDirection()==FORWARD?"FORWARD":"REVERSE");
-              eoss << "} doesn't match with expected this._applicableChangeDirection{" << (_applicableChangeDirection==FORWARD?"FORWARD":"REVERSE") << "}" << std::endl;
+              eoss << " other._buildDirection{" << (other.getBuildDirection()==eBuildDirection::FORWARD?"FORWARD":"REVERSE");
+              eoss << "} doesn't match with expected this._buildDirection{" << (_buildDirection==eBuildDirection::FORWARD?"FORWARD":"REVERSE") << "}" << std::endl;
               throw std::invalid_argument(eoss.str());
             }
           }
@@ -404,7 +407,7 @@ namespace datastructure { namespace versionedObject
         // } else { do nothing
         }
       } else {
-        if( other.getModifiedIndexes().at(IDX) != NO_MODIFICATION )
+        if( other.getModifiedIndexes().at(IDX) != eModificationPatch::UseRECORD )
         {
           mergeableElements.at(IDX) = 2;  // element of other-tuple exists and is copyable to this-tuple.
         // } else { do nothing
@@ -419,10 +422,10 @@ namespace datastructure { namespace versionedObject
       }
     }
 
-    std::array <ModficationType, sizeof...(T)> _modifiedElements;        // elements that has changed is indicated by 'true'
-    t_record _oldValues;                                      // value(s) of elements before change
-    t_record _newValues;                                      // value(s) of elements after  change
-    const ApplicableChangeDirection _applicableChangeDirection;
+    std::array <eModificationPatch, sizeof...(T)> _modifiedElements;        // elements that has changed is indicated by 'DELTACHANGE'
+    t_record _oldValues;                                                    // value(s) of elements before change
+    t_record _newValues;                                                    // value(s) of elements after  change
+    const eBuildDirection _buildDirection;
   };
 
 
@@ -436,12 +439,11 @@ namespace datastructure { namespace versionedObject
   public:
     using t_record  = typename std::tuple<T ...>;
 
-    ChangesInDataSet( const M& metaData,
-                      const std::array<bool, sizeof...(T)>& modifiedElements,
+    ChangesInDataSet( const std::array<bool, sizeof...(T)>& modifiedElements,
                       const t_record& oldValues,
                       const t_record& newValues,
-                      ApplicableChangeDirection applicableChangeDirection)
-      : _ChangesInDataSetBase<T...>(modifiedElements, oldValues, newValues, applicableChangeDirection),
+                      const M& metaData)
+      : _ChangesInDataSetBase<T...>(modifiedElements, oldValues, newValues, metaData.getBuildDirection()),
         _metaData(metaData)
     {}
 
@@ -511,8 +513,8 @@ namespace datastructure { namespace versionedObject
     ChangesInDataSet( const std::array<bool, std::tuple_size_v<t_record>>& modifiedElements,
                       const t_record& oldValues,
                       const t_record& newValues,
-                      ApplicableChangeDirection applicableChangeDirection)
-      : _ChangesInDataSetBase<T1, TR...>(modifiedElements, oldValues, newValues, applicableChangeDirection)
+                      eBuildDirection buildDirection)
+      : _ChangesInDataSetBase<T1, TR...>(modifiedElements, oldValues, newValues, buildDirection)
     {}
 
     explicit ChangesInDataSet( const SnapshotDataSet<T1, TR...>& otherSnapDataset)

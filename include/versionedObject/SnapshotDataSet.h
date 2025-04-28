@@ -6,8 +6,8 @@
  *
  * Copyright (C) 2023-2024 Gautam Dhar
  * All rights reserved.
- * 
- * dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details. 
+ *
+ * dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details.
  *
  */
 
@@ -21,18 +21,6 @@
 
 namespace datastructure { namespace versionedObject
 {
-  enum ModficationType {
-    NO_MODIFICATION=0,
-    SNAPSHOT=1,
-    DELTA_CHANGE=2
-  };
-
-
-  enum ApplicableChangeDirection {
-    FORWARD,
-    REVERSE
-  };
-
   template <typename ... T>
   class _SnapshotDataSetBase
   {
@@ -45,8 +33,8 @@ namespace datastructure { namespace versionedObject
     bool operator==(_SnapshotDataSetBase const&) const = default;
 
     // elements that has changed is indicated by 'true'
-    inline const std::array<ModficationType, sizeof...(T)>& getModifiedIndexes() const { return _modifiedElements; }
-    inline ApplicableChangeDirection getApplicableChangeDirection() const { return _applicableChangeDirection; }
+    inline const std::array<eModificationPatch, sizeof...(T)>& getModifiedIndexes() const { return _modifiedElements; }
+    inline eBuildDirection getBuildDirection() const { return _buildDirection; }
     inline const t_record& getNewRecord() const { return _newValues; }
 
 
@@ -105,15 +93,23 @@ namespace datastructure { namespace versionedObject
 
   protected:
     _SnapshotDataSetBase( const std::array<bool, sizeof...(T)>& modifiedElements,
-                           const t_record& snapshotValues,
-                                 ApplicableChangeDirection applicableChangeDirection = ApplicableChangeDirection::FORWARD)
+                          const t_record& snapshotValues,
+                                 eBuildDirection buildDirection = eBuildDirection::FORWARD)
       : _modifiedElements(),
         _newValues(snapshotValues),
-        _applicableChangeDirection(applicableChangeDirection)
+        _buildDirection(buildDirection)
     {
+      if(buildDirection != eBuildDirection::FORWARD)
+      {
+        std::ostringstream eoss;
+        eoss << "ERROR : in constructor _SnapshotDataSetBase<T ...>() : parameter 'buildDirection' is expected 'eBuildDirection::FORWARD'";
+        throw std::invalid_argument(eoss.str());
+      }
+
       for(size_t iii = 0; iii < sizeof...(T); ++iii)
       {
-        _modifiedElements.at(iii) = (modifiedElements.at(iii) ? SNAPSHOT : NO_MODIFICATION);
+        _modifiedElements.at(iii) = (modifiedElements.at(iii) ? eModificationPatch::SNAPSHOT :
+                                                                eModificationPatch::UseRECORD);
       }
     }
 
@@ -122,11 +118,13 @@ namespace datastructure { namespace versionedObject
     {
       if constexpr( IDX == 0 )
       {
-        if(_applicableChangeDirection == ApplicableChangeDirection::FORWARD)
+        if(_buildDirection == eBuildDirection::FORWARD)
         {
           oss << "[FORWARD]:";
-        } else  {
+        } else if(_buildDirection == eBuildDirection::REVERSE) {
           oss << "[REVERSE]:";
+        } else {
+          oss << "[IsRECORD]:";
         }
       } else {
         oss << ",";
@@ -147,7 +145,7 @@ namespace datastructure { namespace versionedObject
     template<size_t IDX>
     inline bool _isNextChgValueEqual(const t_record& matchRecord) const
     {
-      if( _modifiedElements.at(IDX) != NO_MODIFICATION && 
+      if( _modifiedElements.at(IDX) != eModificationPatch::UseRECORD &&
           ( std::get<IDX>(matchRecord) != std::get<IDX>(_newValues) ) )
       {
         return false;
@@ -167,7 +165,7 @@ namespace datastructure { namespace versionedObject
     inline void _getLatestValue(t_record& updateRecord,
                                 std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
     {
-      if( _modifiedElements.at(IDX) != NO_MODIFICATION ) // check if element is marked for change
+      if( _modifiedElements.at(IDX) != eModificationPatch::UseRECORD ) // check if element is marked for change
       {
         if constexpr(VALIDATE)
         {
@@ -225,7 +223,7 @@ namespace datastructure { namespace versionedObject
       if(mergeableElements.at(IDX) == 2)  // copy where applicable
       {
         std::get<IDX>(_newValues) = std::get<IDX>(other._newValues);
-        _modifiedElements.at(IDX) = SNAPSHOT;
+        _modifiedElements.at(IDX) = eModificationPatch::SNAPSHOT;
       }
 
       if constexpr( IDX > 0 )
@@ -240,18 +238,18 @@ namespace datastructure { namespace versionedObject
     template<size_t IDX>
     void _isMergeable(const _SnapshotDataSetBase<T...>& other, std::array <int, sizeof...(T)>& mergeableElements) const
     {
-      if( _modifiedElements.at(IDX) != NO_MODIFICATION ) // check if element is marked for change
+      if( _modifiedElements.at(IDX) != eModificationPatch::UseRECORD ) // check if element is marked for change
       {
-        if( other._modifiedElements.at(IDX) != NO_MODIFICATION )
+        if( other._modifiedElements.at(IDX) != eModificationPatch::UseRECORD )
         {
           if constexpr((sizeof...(T) -1) == IDX)
           {
-            if(other._applicableChangeDirection != _applicableChangeDirection)
+            if(other._buildDirection != _buildDirection)
             {
               std::ostringstream eoss;
               eoss << "ERROR : in function _SnapshotDataSetBase<T ...>::_isMergeable(const _SnapshotDataSetBase<T...>&) : ";
-              eoss << " other._applicableChangeDirection{" << (other._applicableChangeDirection==FORWARD?"FORWARD":"REVERSE");
-              eoss << "} doesn't match with expected this._applicableChangeDirection{" << (_applicableChangeDirection==FORWARD?"FORWARD":"REVERSE") << "}" << std::endl;
+              eoss << " other._buildDirection{" << (other._buildDirection==eBuildDirection::FORWARD?"FORWARD":"REVERSE");
+              eoss << "} doesn't match with expected this._buildDirection{" << (_buildDirection==eBuildDirection::FORWARD?"FORWARD":"REVERSE") << "}" << std::endl;
               throw std::invalid_argument(eoss.str());
             }
           }
@@ -268,7 +266,7 @@ namespace datastructure { namespace versionedObject
         // } else { do nothing
         }
       } else {
-        if( other._modifiedElements.at(IDX) != NO_MODIFICATION )
+        if( other._modifiedElements.at(IDX) != eModificationPatch::UseRECORD )
         {
           mergeableElements.at(IDX) = 2;  // element of other-tuple exists and is copyable to this-tuple.
         // } else { do nothing
@@ -283,9 +281,9 @@ namespace datastructure { namespace versionedObject
       }
     }
 
-    std::array <ModficationType, sizeof...(T)> _modifiedElements;        // elements that has changed is indicated by 'true'
-    t_record _newValues;                                      // value(s) of elements after  change
-    const ApplicableChangeDirection _applicableChangeDirection;
+    std::array <eModificationPatch, sizeof...(T)> _modifiedElements;     // elements that has changed is indicated by 'SNAPSHOT'
+    t_record _newValues;                                                 // value(s) of elements after  change
+    const eBuildDirection _buildDirection;
   };
 
 
@@ -299,11 +297,9 @@ namespace datastructure { namespace versionedObject
   public:
     using t_record  = typename std::tuple<T ...>;
 
-    SnapshotDataSet(const M& metaData,
-                    const std::array<bool, sizeof...(T)>& modifiedElements,
-                    const t_record& snapshotValues,
-                    ApplicableChangeDirection applicableChangeDirection = ApplicableChangeDirection::FORWARD)
-      : _SnapshotDataSetBase<T...>(modifiedElements, snapshotValues, applicableChangeDirection),
+    SnapshotDataSet(const std::array<bool, sizeof...(T)>& modifiedElements,
+                    const t_record& snapshotValues, const M& metaData)
+      : _SnapshotDataSetBase<T...>(modifiedElements, snapshotValues, metaData.getBuildDirection()),
         _metaData(metaData)
     {}
 
@@ -349,8 +345,8 @@ namespace datastructure { namespace versionedObject
 
     SnapshotDataSet(const std::array<bool, std::tuple_size_v<t_record>>& modifiedElements,
                     const t_record& snapshotValues,
-                    ApplicableChangeDirection applicableChangeDirection = ApplicableChangeDirection::FORWARD)
-      : _SnapshotDataSetBase<T1, TR...>(modifiedElements, snapshotValues, applicableChangeDirection)
+                    eBuildDirection buildDirection = eBuildDirection::FORWARD)
+      : _SnapshotDataSetBase<T1, TR...>(modifiedElements, snapshotValues, buildDirection)
     {}
 
     int merge(const SnapshotDataSet<T1, TR...>& other)

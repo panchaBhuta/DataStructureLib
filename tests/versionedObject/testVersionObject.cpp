@@ -15,7 +15,7 @@ void loadVO(t_versionObject& vo,
     "07-Apr-2021,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED\n";
 
 //  APPAPER,International Paper APPM Limited,EQ,13-MAY-2004,10,1,INE435A01028,10
-  t_companyInfo companyInfo1 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
+  t_companyInfo companyInfo1 = t_convertFromString::ToVal(
         "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED"    );
   dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecord1 {companyInfo1};
   t_versionDate date1{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))};
@@ -25,7 +25,7 @@ void loadVO(t_versionObject& vo,
   unittest::ExpectEqual(bool, insertResultExpected, insertResult);
 
 
-  t_companyInfo companyInfo2 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
+  t_companyInfo companyInfo2 = t_convertFromString::ToVal(
         "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED"    );
   dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecord2 {companyInfo2};
   t_versionDate date2{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))};
@@ -35,7 +35,7 @@ void loadVO(t_versionObject& vo,
   unittest::ExpectEqual(bool, insertResultExpected, insertResult);
 
 
-  t_companyInfo companyInfo3 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
+  t_companyInfo companyInfo3 = t_convertFromString::ToVal(
         "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED"    );
   dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecord3 {companyInfo3};
   t_versionDate date3{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))};
@@ -45,7 +45,7 @@ void loadVO(t_versionObject& vo,
   unittest::ExpectEqual(bool, insertResultExpected, insertResult);
 
 
-  t_companyInfo companyInfo4 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
+  t_companyInfo companyInfo4 = t_convertFromString::ToVal(
         "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED"    );
   dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecord4 {companyInfo4};
   t_versionDate date4{std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(05))};
@@ -54,7 +54,7 @@ void loadVO(t_versionObject& vo,
   VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: vo.insertVersion() insertResult=" << insertResult);
   unittest::ExpectEqual(bool, insertResultExpected, insertResult);
 
-  t_companyInfo companyInfo5 = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>::ToVal(
+  t_companyInfo companyInfo5 = t_convertFromString::ToVal(
         "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED"    );
   dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecord5 {companyInfo5};
   t_versionDate date5{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))};

@@ -30,7 +30,8 @@ void interimForwardTest(t_versionObject& vo,
 
     t_companyInfo lotChgInfo = t_convertFromString::ToVal(",,,0,2,,0,");
     TEST_WITH_METADATA(dsvo::MetaDataSource lotChgMeta("marketLotSpot" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT));
-    t_snapshotDataSet lotChange {TEST_WITH_METADATA(lotChgMeta COMMA) lotChangeFlg, lotChgInfo, dsvo::ApplicableChangeDirection::FORWARD};   // SNAPSHOT Change
+    t_snapshotDataSet lotChange {lotChangeFlg, lotChgInfo,
+                                 TEST_ALTERNATE_METADATA(lotChgMeta, t_eDataBuild::FORWARD)};   // SNAPSHOT Change
     bool insertResult2 = vob.insertSnapshotVersion(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))}, lotChange);
     unittest::ExpectEqual(bool, true, insertResult2);
   }

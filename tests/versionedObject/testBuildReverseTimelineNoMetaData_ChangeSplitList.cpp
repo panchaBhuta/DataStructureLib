@@ -9,15 +9,15 @@ void interimReverseTest(t_versionObject& vo,
   vob.buildReverseTimeline( listingDate, vo);
 
   std::string voStrReverse =
-    "13-May-2004,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"              // listingDate-of-reverse
-    "21-Jan-2014,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"               // REVERSE
-    "22-Jan-2020,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n"                         // REVERSE
-    "05-Mar-2020,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n";                       // REVERSE + vo.insertVersion(...)
+    "13-May-2004," TEST_WITH_METADATA("-#%symbolChange#@nameSpot,") "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"   // listingDate-of-reverse
+    "21-Jan-2014," TEST_WITH_METADATA("-#%symbolChange#%nameChange,") "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"  // REVERSE
+    "22-Jan-2020," TEST_WITH_METADATA("-#%symbolChange#@nameSpot,") "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n"              // REVERSE
+    "05-Mar-2020," TEST_WITH_METADATA("^#^EQUITY_L,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n";                          // REVERSE + vo.insertVersion(...)
 
   if(!insertResultExpected)
   {
     // on second run
-    voStrReverse += "07-Apr-2021,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED\n";       // FORWARD
+    voStrReverse += "07-Apr-2021," TEST_WITH_METADATA("+#@marketLotSpot,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED\n";       // FORWARD
   }
 
   unittest::ExpectEqual(std::string, voStrReverse, vo.toCSV());
@@ -42,7 +42,7 @@ void interimReverseTest(t_versionObject& vo,
 
   //std::cout << "#### vo start ######\n" << vo.toCSV() << "#### vo end ######\n";
   std::string voStrForward = voStrReverse +
-    (insertResultExpected?"07-Apr-2021,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED\n":"");
+    (insertResultExpected?"07-Apr-2021," TEST_WITH_METADATA("+#@marketLotSpot,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED\n":"");
 
   unittest::ExpectEqual(std::string, voStrForward, vo.toCSV());
 }
@@ -58,7 +58,8 @@ void endReverseTest(                 t_versionObject& vo,
   t_companyInfo companyInfoFifth = t_convertFromString::ToVal(
     "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED"    );
 
-  t_dataSet companyRecordFifthExpected {companyInfoFifth};
+  TEST_WITH_METADATA(dsvo::MetaDataSource lotChgMetaExp("marketLotChange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT));
+  t_dataSet companyRecordFifthExpected {TEST_WITH_METADATA(lotChgMetaExp COMMA) companyInfoFifth};
 
   t_versionObject::t_datasetLedger::const_iterator companyRecordFifthActual =
     vo.getVersionAt(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))});

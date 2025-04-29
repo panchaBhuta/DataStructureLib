@@ -88,6 +88,8 @@ add_unit_test(testBuildForwardTimelineMetaData_ChangeSplitList               1  
 add_unit_test(testBuildReverseTimelineMetaData_ChangeFullList                1  testReverseTimeLineCommon.cpp)
 add_unit_test(testBuildReverseTimelineMetaData_ChangeSplitList               1  testReverseTimeLineCommon.cpp)
 
+add_unit_test(testBuildBidirectionTimelineMetaData_changeFullList_Forward    1  testForwardTimeLineCommon.cpp)
+
 #[=====[
 add_unit_test(testBuildReverseTimelineMetaData)
 add_unit_test(testBuildBidirectionTimelineMetaData_forward)  # on test failure cross check with testBuildForwardTimelineMetaData

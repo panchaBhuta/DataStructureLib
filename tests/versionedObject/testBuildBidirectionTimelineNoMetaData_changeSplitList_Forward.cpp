@@ -1,4 +1,4 @@
-
+// compare with testBuildForwardTimelineNoMetaData_ChangeSplitList.cpp
 #include <testHelper.h>
 
 void interimForwardTest(t_versionObject& vo,

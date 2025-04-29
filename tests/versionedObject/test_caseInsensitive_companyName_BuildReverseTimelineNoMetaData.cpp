@@ -16,7 +16,7 @@ A2Z Infra Engineering Limited,A2ZMES,A2ZINFRA,31-DEC-2014
 
   t_companyInfo symChgOldInfo1 = t_convertFromString::ToVal("A2ZMES,,,0,0,,0");
   t_companyInfo symChgNewInfo1 = t_convertFromString::ToVal("A2ZINFRA,,,0,0,,0");
-  dsvo::ChangesInDataSet<COMPANYINFO_TYPE_LIST> symbolChange1 {symbolChangeFlg, symChgOldInfo1, symChgNewInfo1, t_eDataBuild::REVERSE};
+  t_changesInDataSet symbolChange1 {symbolChangeFlg, symChgOldInfo1, symChgNewInfo1, t_eDataBuild::REVERSE};
   insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2014)), std::chrono::December, std::chrono::day(unsigned(31))), symbolChange1);
   unittest::ExpectEqual(bool, true, insertResult);
 
@@ -28,7 +28,7 @@ A2Z Infra Engineering Limited,A2ZMES,A2ZINFRA,31-DEC-2014
 //  A2ZINFRA,A2Z Maintenance & Engineering Services Limited,A2Z INFRA ENGINEERING LIMITED,31-DEC-2014
   t_companyInfo namChgOldInfo1 = t_convertFromString::ToVal(",A2Z Maintenance & Engineering Services Limited,,0,0,,0");
   t_companyInfo namChgNewInfo1 = t_convertFromString::ToVal(",A2Z INFRA ENGINEERING LIMITED,,0,0,,0");  //  TEST-NOTE : Company-name in upper-case
-  dsvo::ChangesInDataSet<COMPANYINFO_TYPE_LIST> nameChange1 {nameChangeFlg, namChgOldInfo1, namChgNewInfo1, t_eDataBuild::REVERSE};
+  t_changesInDataSet nameChange1 {nameChangeFlg, namChgOldInfo1, namChgNewInfo1, t_eDataBuild::REVERSE};
   insertResult = vob.insertDeltaVersion(t_listingDate(std::chrono::year(int(2014)), std::chrono::December, std::chrono::day(unsigned(31))), nameChange1);
   unittest::ExpectEqual(bool, false, insertResult);
 
@@ -39,7 +39,7 @@ A2Z Infra Engineering Limited,A2ZMES,A2ZINFRA,31-DEC-2014
   t_companyInfo companyInfoLatest = t_convertFromString::ToVal(
     "A2ZINFRA,A2Z Infra Engineering Limited,BE,10,1,INE619I01012,10"    );  //  TEST-NOTE : Company-name in lower-case
 
-  dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordLatestExpected {companyInfoLatest};
+  t_dataSet companyRecordLatestExpected {companyInfoLatest};
 
   insertResult = vo.insertVersion(t_listingDate(std::chrono::year(int(2014)), std::chrono::December, std::chrono::day(unsigned(31))),
                                   companyRecordLatestExpected);
@@ -58,15 +58,15 @@ A2Z Infra Engineering Limited,A2ZMES,A2ZINFRA,31-DEC-2014
   t_companyInfo companyInfoStart = t_convertFromString::ToVal(
     "A2ZMES,A2Z Maintenance & Engineering Services Limited,BE,10,1,INE619I01012,10"    );
 
-  dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordStart {companyInfoStart};
+  t_dataSet companyRecordStart {companyInfoStart};
 
   t_versionObject::t_datasetLedger::const_iterator companyRecordFirstActual =
     vo.getVersionAt(t_listingDate(std::chrono::year(int(2010)), std::chrono::December, std::chrono::day(unsigned(23))));
 
-  unittest::ExpectEqual(bool, true, companyRecordFirstActual != vo.getDatasetLedger().cend()); // has dsvo::DataSet<COMPANYINFO_TYPE_LIST>
+  unittest::ExpectEqual(bool, true, companyRecordFirstActual != vo.getDatasetLedger().cend()); // has t_dataSet
 
-  unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecordStart,
-                                                              companyRecordFirstActual->second);
+  unittest::ExpectEqual(t_dataSet, companyRecordStart,
+                                   companyRecordFirstActual->second);
 
 
 
@@ -75,9 +75,9 @@ A2Z Infra Engineering Limited,A2ZMES,A2ZINFRA,31-DEC-2014
   t_versionObject::t_datasetLedger::const_iterator companyRecordLatestActual =
     vo.getVersionAt(t_listingDate(std::chrono::year(int(2014)), std::chrono::December, std::chrono::day(unsigned(31))));
 
-  unittest::ExpectEqual(bool, true, companyRecordLatestActual != vo.getDatasetLedger().cend()); // has dsvo::DataSet<COMPANYINFO_TYPE_LIST>
+  unittest::ExpectEqual(bool, true, companyRecordLatestActual != vo.getDatasetLedger().cend()); // has t_dataSet
 
-  unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecordLatestExpected,
-                                                              companyRecordLatestActual->second);
+  unittest::ExpectEqual(t_dataSet, companyRecordLatestExpected,
+                                   companyRecordLatestActual->second);
 
 }

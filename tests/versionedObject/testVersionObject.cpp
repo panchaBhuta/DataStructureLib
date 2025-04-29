@@ -17,7 +17,7 @@ void loadVO(t_versionObject& vo,
 //  APPAPER,International Paper APPM Limited,EQ,13-MAY-2004,10,1,INE435A01028,10
   t_companyInfo companyInfo1 = t_convertFromString::ToVal(
         "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED"    );
-  dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecord1 {companyInfo1};
+  t_dataSet companyRecord1 {companyInfo1};
   t_versionDate date1{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))};
   VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: vo.insertVersion() -> versionDate: " << date1 << "; DATASET{" << companyRecord1.toCSV() << "}");
   insertResult = vo.insertVersion( date1, companyRecord1);
@@ -27,7 +27,7 @@ void loadVO(t_versionObject& vo,
 
   t_companyInfo companyInfo2 = t_convertFromString::ToVal(
         "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED"    );
-  dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecord2 {companyInfo2};
+  t_dataSet companyRecord2 {companyInfo2};
   t_versionDate date2{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))};
   VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: vo.insertVersion() -> versionDate: " << date2 << "; DATASET{" << companyRecord2.toCSV() << "}");
   insertResult = vo.insertVersion( date2, companyRecord2);
@@ -37,7 +37,7 @@ void loadVO(t_versionObject& vo,
 
   t_companyInfo companyInfo3 = t_convertFromString::ToVal(
         "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED"    );
-  dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecord3 {companyInfo3};
+  t_dataSet companyRecord3 {companyInfo3};
   t_versionDate date3{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))};
   VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: vo.insertVersion() -> versionDate: " << date3 << "; DATASET{" << companyRecord3.toCSV() << "}");
   insertResult = vo.insertVersion( date3, companyRecord3);
@@ -47,7 +47,7 @@ void loadVO(t_versionObject& vo,
 
   t_companyInfo companyInfo4 = t_convertFromString::ToVal(
         "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED"    );
-  dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecord4 {companyInfo4};
+  t_dataSet companyRecord4 {companyInfo4};
   t_versionDate date4{std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(05))};
   VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: vo.insertVersion() -> versionDate: " << date4 << "; DATASET{" << companyRecord4.toCSV() << "}");
   insertResult = vo.insertVersion( date4, companyRecord4);
@@ -56,7 +56,7 @@ void loadVO(t_versionObject& vo,
 
   t_companyInfo companyInfo5 = t_convertFromString::ToVal(
         "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED"    );
-  dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecord5 {companyInfo5};
+  t_dataSet companyRecord5 {companyInfo5};
   t_versionDate date5{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))};
   VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: vo.insertVersion() -> versionDate: " << date5 << "; DATASET{" << companyRecord5.toCSV() << "}");
   insertResult = vo.insertVersion( date5, companyRecord5);
@@ -72,47 +72,47 @@ void loadVO(t_versionObject& vo,
 
   companyRecordSearch =
     vo.getVersionAt(t_versionDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))});
-  unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecord1,
-                                                              companyRecordSearch->second);
+  unittest::ExpectEqual(t_dataSet, companyRecord1,
+                                   companyRecordSearch->second);
 
   companyRecordSearch =
     vo.getVersionAt(t_versionDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(14))});
-  unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecord1,
-                                                              companyRecordSearch->second);
+  unittest::ExpectEqual(t_dataSet, companyRecord1,
+                                   companyRecordSearch->second);
 
 
 
   companyRecordSearch =
     vo.getVersionAt(t_versionDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(21))});
-  unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecord2,
-                                                              companyRecordSearch->second);
+  unittest::ExpectEqual(t_dataSet, companyRecord2,
+                                   companyRecordSearch->second);
 
   companyRecordSearch =
     vo.getVersionAt(t_versionDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))});
-  unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecord3,
-                                                              companyRecordSearch->second);
+  unittest::ExpectEqual(t_dataSet, companyRecord3,
+                                   companyRecordSearch->second);
 
   companyRecordSearch =
     vo.getVersionAt(t_versionDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(23))});
-  unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecord3,
-                                                              companyRecordSearch->second);
+  unittest::ExpectEqual(t_dataSet, companyRecord3,
+                                   companyRecordSearch->second);
 
 
 
   companyRecordSearch =
     vo.getVersionAt(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(6))});
-  unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecord4,
-                                                              companyRecordSearch->second);
+  unittest::ExpectEqual(t_dataSet, companyRecord4,
+                                   companyRecordSearch->second);
 
   companyRecordSearch =
     vo.getVersionAt(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(7))});
-  unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecord5,
-                                                              companyRecordSearch->second);
+  unittest::ExpectEqual(t_dataSet, companyRecord5,
+                                   companyRecordSearch->second);
 
   companyRecordSearch =
     vo.getVersionAt(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(8))});
-  unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecord5,
-                                                              companyRecordSearch->second);
+  unittest::ExpectEqual(t_dataSet, companyRecord5,
+                                   companyRecordSearch->second);
 
 
 /////////  getVersionBefore()  ///////////
@@ -127,40 +127,40 @@ void loadVO(t_versionObject& vo,
 
   companyRecordSearch =
     vo.getVersionBefore(t_versionDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(14))});
-  unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecord1,
-                                                              companyRecordSearch->second);
+  unittest::ExpectEqual(t_dataSet, companyRecord1,
+                                   companyRecordSearch->second);
 
 
 
   companyRecordSearch =
     vo.getVersionBefore(t_versionDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(21))});
-  unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecord2,
-                                                              companyRecordSearch->second);
+  unittest::ExpectEqual(t_dataSet, companyRecord2,
+                                   companyRecordSearch->second);
 
   companyRecordSearch =
     vo.getVersionBefore(t_versionDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))});
-  unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecord2,
-                                                              companyRecordSearch->second);
+  unittest::ExpectEqual(t_dataSet, companyRecord2,
+                                   companyRecordSearch->second);
 
   companyRecordSearch =
     vo.getVersionBefore(t_versionDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(23))});
-  unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecord3,
-                                                              companyRecordSearch->second);
+  unittest::ExpectEqual(t_dataSet, companyRecord3,
+                                   companyRecordSearch->second);
 
 
 
   companyRecordSearch =
     vo.getVersionBefore(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(6))});
-  unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecord4,
-                                                              companyRecordSearch->second);
+  unittest::ExpectEqual(t_dataSet, companyRecord4,
+                                   companyRecordSearch->second);
 
   companyRecordSearch =
     vo.getVersionBefore(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(7))});
-  unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecord4,
-                                                              companyRecordSearch->second);
+  unittest::ExpectEqual(t_dataSet, companyRecord4,
+                                   companyRecordSearch->second);
 
   companyRecordSearch =
     vo.getVersionBefore(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(8))});
-  unittest::ExpectEqual(dsvo::DataSet<COMPANYINFO_TYPE_LIST>, companyRecord5,
-                                                              companyRecordSearch->second);
+  unittest::ExpectEqual(t_dataSet, companyRecord5,
+                                   companyRecordSearch->second);
 }

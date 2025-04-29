@@ -31,7 +31,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   t_companyInfo companyInfoStart = t_convertFromString::ToVal(
     "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10"    );
 
-  dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordStart {companyInfoStart};
+  t_dataSet companyRecordStart {companyInfoStart};
 
   const t_versionDate crownDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))};
   t_versionObject voHighPriority;
@@ -67,7 +67,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   t_companyInfo companyInfoSecond = t_convertFromString::ToVal(
     "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10"    );
 
-  dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordSecondExpected {companyInfoSecond};
+  t_dataSet companyRecordSecondExpected {companyInfoSecond};
 
   const t_versionDate symChgDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))};
   insertResult = voHighPriority.insertVersion(symChgDate,
@@ -94,7 +94,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   t_companyInfo companyInfoThird = t_convertFromString::ToVal(
     "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10"    );
 
-  dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordThirdExpected {companyInfoThird};
+  t_dataSet companyRecordThirdExpected {companyInfoThird};
 
   const t_versionDate symChgNameChgDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))};
   insertResult = voLowrPriority.insertVersion(symChgNameChgDate,
@@ -125,7 +125,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     "ANDHRAPAP,ANDHRA PAPER LIMITED:1,EQ,10,1,INE435A01028,10"    );
 
   const t_versionDate crownDate2{std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5))};
-  dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordLatestExpected1 {companyInfoLatest1};
+  t_dataSet companyRecordLatestExpected1 {companyInfoLatest1};
 
   insertResult = voLowrPriority.insertVersion(crownDate2,
                                               companyRecordLatestExpected1);
@@ -134,7 +134,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   t_companyInfo companyInfoLatest2 = t_convertFromString::ToVal(
     "ANDHRAPAP,ANDHRA PAPER LIMITED:2,EQ,10,1,INE435A01028,10"    );
 
-  dsvo::DataSet<COMPANYINFO_TYPE_LIST> companyRecordLatestExpected2 {companyInfoLatest2};
+  t_dataSet companyRecordLatestExpected2 {companyInfoLatest2};
 
   insertResult = voHighPriority.insertVersion(crownDate2,
                                               companyRecordLatestExpected2);

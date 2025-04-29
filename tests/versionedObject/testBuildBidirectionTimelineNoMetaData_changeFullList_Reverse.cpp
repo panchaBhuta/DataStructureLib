@@ -1,4 +1,4 @@
-
+// compare with testBuildReverseTimelineNoMetaData_ChangeFullList.cpp
 #include <testHelper.h>
 
 void interimReverseTest(t_versionObject& vo,

@@ -60,7 +60,7 @@ void endForwardTest([[maybe_unused]] t_versionObject& vo,
   TEST_WITH_METADATA(dsvo::MetaDataSource lotChgMetaExp("marketLotChange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT));
   t_dataSet companyRecordFifthExpected {TEST_WITH_METADATA(lotChgMetaExp COMMA) companyInfoFifth};
 
-  t_versionObject::t_datasetLedger::const_iterator companyRecordFifthActual =
+  typename t_versionObject::t_datasetLedger::const_iterator companyRecordFifthActual =
     vo.getVersionAt(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))});
 
   unittest::ExpectEqual(bool, true, companyRecordFifthActual != vo.getDatasetLedger().cend()); // has t_dataSet

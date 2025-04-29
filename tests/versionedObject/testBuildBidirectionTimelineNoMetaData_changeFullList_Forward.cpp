@@ -1,4 +1,3 @@
-#include <type_traits>
 
 #include <testHelper.h>
 
@@ -18,12 +17,11 @@ void interimForwardTest(t_versionObject& vo,
     unittest::ExpectEqual(bool, true, insertResult2);
   }
 
-  using t_vob = typename std::remove_reference<decltype(vob)>::type;
-  std::vector<typename t_vob::t_versionDate> startDates{};  // in pure forward build, 'startDates' is not used, hence we pass it as empty vector.
+  std::vector<typename t_versionObjectBuilder::t_versionDate> startDates{};  // in pure forward build, 'startDates' is not used, hence we pass it as empty vector.
 
   auto buildResult = vob.buildBiDirectionalTimeline( startDates, vo);
-  unittest::ExpectEqual(typename t_vob::t_deltaEntriesMap_iter_diff_type, 4, buildResult.first); // 4 calls to combo-insertDeltaVersion()/vob.insertSnapshotVersion()
-  unittest::ExpectEqual(typename t_vob::t_deltaEntriesMap_iter_diff_type, 0, buildResult.second);
+  unittest::ExpectEqual(typename t_versionObjectBuilder::t_deltaEntriesMap_iter_diff_type, 4, buildResult.first); // 4 calls to combo-insertDeltaVersion()/vob.insertSnapshotVersion()
+  unittest::ExpectEqual(typename t_versionObjectBuilder::t_deltaEntriesMap_iter_diff_type, 0, buildResult.second);
 
 
   //std::cout << "#### vo start ######\n" << vo.toCSV() << "#### vo end ######\n";

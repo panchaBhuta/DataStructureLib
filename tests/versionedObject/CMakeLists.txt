@@ -96,7 +96,7 @@ add_unit_test(testBuildBidirectionTimelineMetaData_changeSplitList_Reverse   1  
 
 add_unit_test(testBuildBidirectionTimelineMetaData_multiForward              1  testForwardTimeLineCommon.cpp)
 add_unit_test(testBuildBidirectionTimelineMetaData_multiReverse_v1           1  testReverseTimeLineCommon.cpp)
-#add_unit_test(testBuildBidirectionTimelineMetaData_multiReverse_v2           1  testReverseTimeLineCommon.cpp)
+add_unit_test(testBuildBidirectionTimelineMetaData_multiReverse_v2           1  testReverseTimeLineCommon.cpp)
 
 
 

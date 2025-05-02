@@ -104,16 +104,8 @@ add_unit_test(testBuildBidirectionTimelineMetaData_bidirection_RELISTED_v1   1  
 add_unit_test(testBuildBidirectionTimelineMetaData_bidirection_RELISTED_v2   1  testReverseTimeLineCommon.cpp)
 
 
+#add_unit_test(testPriorityMergeMetaData  1)
 
-#[=====[
-add_unit_test(testBuildReverseTimelineMetaData)
-add_unit_test(testBuildBidirectionTimelineMetaData_forward)  # on test failure cross check with testBuildForwardTimelineMetaData
-add_unit_test(testBuildBidirectionTimelineMetaData_reverse)  # on test failure cross check with testBuildReverseTimelineMetaData
-add_unit_test(testBuildBidirectionTimelineMetaData_bidirection_DELISTED)  # on test failure cross check with testBuildReverseTimelineMetaData
-add_unit_test(testBuildBidirectionTimelineMetaData_bidirection_RELISTED_1)
-add_unit_test(testBuildBidirectionTimelineMetaData_bidirection_RELISTED_2)
-add_unit_test(testPriorityMergeMetaData)
-#]=====]
 
 
 

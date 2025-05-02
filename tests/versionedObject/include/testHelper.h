@@ -79,6 +79,22 @@ namespace unittest
       return val.toCSV();
     }
   };
+
+  template<>
+  struct SScompatible<t_versionObject> {
+    inline static std::string getVal(const t_versionObject& val)
+    {
+      return val.toCSV();
+    }
+  };
+
+  template<>
+  struct SScompatible<dsvo::MetaDataSource> {
+    inline static std::string getVal(const dsvo::MetaDataSource& val)
+    {
+      return val.toCSV();
+    }
+  };
 }
 
 void loadVO(t_versionObject& vo,

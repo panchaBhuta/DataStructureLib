@@ -4,16 +4,7 @@
 #include <versionedObject/VersionedObjectPriorityMerge.h>
 
 
-namespace unittest
-{
-  template<>
-  struct SScompatible<t_versionObject> {
-    inline static std::string getVal(const t_versionObject& val)
-    {
-      return val.toCSV();
-    }
-  };
-}
+
 
 void loadVO(t_versionObject& vo,
             bool firstRun)

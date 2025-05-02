@@ -1,5 +1,5 @@
 // test Snapshot changes : marketlot + Delisted
-#include <type_traits>
+// compare with testBuildReverseTimelineNoMetaData_ChangeSplitList.cpp
 
 #include <testHelper.h>
 
@@ -81,7 +81,7 @@ void endReverseTest(                 t_versionObject& vo,
   t_companyInfo companyInfoSixth = t_convertFromString::ToVal(
     "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,DELISTED"    );
 
-    TEST_WITH_METADATA(dsvo::MetaDataSource delistedChgMeta("delistedSpot" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT));
+  TEST_WITH_METADATA(dsvo::MetaDataSource delistedChgMeta("delistedSpot" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT));
   t_dataSet companyRecordSixthExpected {TEST_WITH_METADATA(delistedChgMeta COMMA) companyInfoSixth};
 
   t_versionObject::t_datasetLedger::const_iterator companyRecordSixthActual =

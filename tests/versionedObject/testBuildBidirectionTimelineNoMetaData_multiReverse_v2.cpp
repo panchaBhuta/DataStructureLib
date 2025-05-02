@@ -9,13 +9,13 @@ void interimReverseTest(t_versionObject& vo,
                         const t_versionDate&  listingDate)
 {
   {
-    //  NOTE: TESTING of redundant change-data being added, which matches the vo.insertVersion(...)  05-Mar-2020.
-    //        The metaData for vo.insertVersion(...) should take precedence over the Delta-Change-Data.
+    //  NOTE: TESTING of redundant change-data being added, which matches the vo.insertVersion(...EQUITY_L)  05-Mar-2020.
+    //        The metaData for vo.insertVersion(...EQUITY_L) should take precedence over the Delta-Change-Data(lotChange).
 
     //startDates.push_back(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))});
     const std::array <bool, std::tuple_size_v<t_companyInfo> > lotChangeFlg = {false, false, false, false, true, false, false, false};
 
-    TEST_WITH_METADATA(dsvo::MetaDataSource lotSizeChgMeta("delistedChange" COMMA t_eDataBuild::REVERSE COMMA t_eDataPatch::DELTACHANGE));
+    TEST_WITH_METADATA(dsvo::MetaDataSource lotSizeChgMeta("lotChange" COMMA t_eDataBuild::REVERSE COMMA t_eDataPatch::DELTACHANGE));
     t_companyInfo lotChgOldInfo = t_convertFromString::ToVal(",,,0,1,,0,");
     t_companyInfo lotChgNewInfo = t_convertFromString::ToVal(",,,0,2,,0,");
     t_changesInDataSet lotChange {lotChangeFlg, lotChgOldInfo, lotChgNewInfo,

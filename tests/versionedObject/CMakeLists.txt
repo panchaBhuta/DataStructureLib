@@ -104,7 +104,7 @@ add_unit_test(testBuildBidirectionTimelineMetaData_bidirection_RELISTED_v1   1  
 add_unit_test(testBuildBidirectionTimelineMetaData_bidirection_RELISTED_v2   1  testReverseTimeLineCommon.cpp)
 
 
-#add_unit_test(testPriorityMergeMetaData  1)
+add_unit_test(testPriorityMergeMetaData  1)
 
 
 

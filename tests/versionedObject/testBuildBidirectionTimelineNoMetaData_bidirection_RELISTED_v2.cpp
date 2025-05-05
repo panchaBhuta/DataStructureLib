@@ -13,7 +13,7 @@ void interimReverseTest(t_versionObject& vo,
     const std::array <bool, std::tuple_size_v<t_companyInfo> > lotChangeFlg = {false, false, false, false, true, false, false, false};
 
     t_companyInfo lotChgInfo = t_convertFromString::ToVal(",,,0,2,,0,");
-    TEST_WITH_METADATA(dsvo::MetaDataSource lotChgMeta("marketLotSpot" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT));
+    TEST_WITH_METADATA(dsvo::MetaDataSource lotChgMeta{"marketLotSpot" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT});
     t_snapshotDataSet lotChange {lotChangeFlg, lotChgInfo,
                                  TEST_ALTERNATE_METADATA(lotChgMeta, t_eDataBuild::FORWARD)};   // SNAPSHOT Change
     bool insertResult2 = vob.insertSnapshotVersion(t_versionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))}, lotChange);
@@ -25,7 +25,7 @@ void interimReverseTest(t_versionObject& vo,
     const std::array <bool, std::tuple_size_v<t_companyInfo> > delistedChangeFlg = {false, false, false, false, false, false, false, true};
 
     t_companyInfo delistedChgInfo = t_convertFromString::ToVal(",,,0,0,,0,DELISTED");
-    TEST_WITH_METADATA(dsvo::MetaDataSource delistedChgMeta("delistedSpot" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT));
+    TEST_WITH_METADATA(dsvo::MetaDataSource delistedChgMeta{"delistedSpot" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT});
     t_snapshotDataSet delistedChange {delistedChangeFlg, delistedChgInfo,
                                       TEST_ALTERNATE_METADATA(delistedChgMeta, t_eDataBuild::FORWARD)};   // DELISTED Change
     bool insertResult = vob.insertSnapshotVersion(t_versionDate{std::chrono::year(int(2021)), std::chrono::December, std::chrono::day(unsigned(17))}, delistedChange);
@@ -39,7 +39,7 @@ void interimReverseTest(t_versionObject& vo,
 
     t_companyInfo symChgOldInfo4 = t_convertFromString::ToVal("ANDHRAPAPER,,,0,0,,0,");
     t_companyInfo symChgNewInfo4 = t_convertFromString::ToVal("ANDHRAPAPLTD,,,0,0,,0,");
-    TEST_WITH_METADATA(dsvo::MetaDataSource relistedChgMeta("relistedChange" COMMA t_eDataBuild::REVERSE COMMA t_eDataPatch::DELTACHANGE));
+    TEST_WITH_METADATA(dsvo::MetaDataSource relistedChgMeta{"relistedChange" COMMA t_eDataBuild::REVERSE COMMA t_eDataPatch::DELTACHANGE});
     t_changesInDataSet symbolChange4 {symbolChangeFlg, symChgOldInfo4, symChgNewInfo4,
                                       TEST_ALTERNATE_METADATA(relistedChgMeta, t_eDataBuild::REVERSE)};  // DELTA Change
     bool insertResult = vob.insertDeltaVersion(t_versionDate{std::chrono::year(int(2022)), std::chrono::September, std::chrono::day(unsigned(19))}, symbolChange4);
@@ -50,7 +50,7 @@ void interimReverseTest(t_versionObject& vo,
     t_companyInfo companyInfoAfterRelisting = t_convertFromString::ToVal(
       "ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED"    );
 
-    TEST_WITH_METADATA(dsvo::MetaDataSource latestMeta2("EQUITY_L" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::UseRECORD));
+    TEST_WITH_METADATA(dsvo::MetaDataSource latestMeta2{"EQUITY_L" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::UseRECORD});
     t_dataSet companyRecordAfterRelistedExpected {TEST_WITH_METADATA(latestMeta2 COMMA) companyInfoAfterRelisting};
     t_versionDate afterRelistedVersionDate{std::chrono::year(int(2022)), std::chrono::September, std::chrono::day(unsigned(19))};
     VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() -> afterRelisted-next-versionDate: " << afterRelistedVersionDate << "; DATASET{" << companyRecordAfterRelistedExpected.toCSV() << "}");
@@ -64,7 +64,7 @@ void interimReverseTest(t_versionObject& vo,
 
     ////////////////////////              SNAPSHOT change test
     t_companyInfo lotChgInfo2 = t_convertFromString::ToVal(",,,0,5,,0,");
-    TEST_WITH_METADATA(dsvo::MetaDataSource lotChgMeta("marketLotSpot" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT));
+    TEST_WITH_METADATA(dsvo::MetaDataSource lotChgMeta{"marketLotSpot" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT});
     t_snapshotDataSet lotChange2 {lotChangeFlg, lotChgInfo2,
                                   TEST_ALTERNATE_METADATA(lotChgMeta, t_eDataBuild::FORWARD)};   // SNAPSHOT Change
     bool insertResult = vob.insertSnapshotVersion(t_versionDate{std::chrono::year(int(2023)), std::chrono::October, std::chrono::day(unsigned(28))}, lotChange2);
@@ -106,7 +106,7 @@ void endReverseTest(                 t_versionObject& vo,
   t_companyInfo companyInfoFifth = t_convertFromString::ToVal(
     "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED"    );
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource lotChgMetaExp("marketLotChange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT));
+  TEST_WITH_METADATA(dsvo::MetaDataSource lotChgMetaExp{"marketLotChange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT});
   t_dataSet companyRecordFifthExpected {TEST_WITH_METADATA(lotChgMetaExp COMMA) companyInfoFifth};
 
   t_versionObject::t_datasetLedger::const_iterator companyRecordFifthActual =
@@ -123,7 +123,7 @@ void endReverseTest(                 t_versionObject& vo,
   t_companyInfo companyInfoSixth = t_convertFromString::ToVal(
     "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,DELISTED"    );
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource delistedChgMeta("delistedSpot" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT));
+  TEST_WITH_METADATA(dsvo::MetaDataSource delistedChgMeta{"delistedSpot" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT});
   t_dataSet companyRecordSixthExpected {TEST_WITH_METADATA(delistedChgMeta COMMA) companyInfoSixth};
 
   t_versionObject::t_datasetLedger::const_iterator companyRecordSixthActual =
@@ -141,7 +141,7 @@ void endReverseTest(                 t_versionObject& vo,
   t_companyInfo companyInfoRelisted = t_convertFromString::ToVal(
     "ANDHRAPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED"    );
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource relistedChgMeta("relistedChange" COMMA t_eDataBuild::REVERSE COMMA t_eDataPatch::DELTACHANGE));
+  TEST_WITH_METADATA(dsvo::MetaDataSource relistedChgMeta{"relistedChange" COMMA t_eDataBuild::REVERSE COMMA t_eDataPatch::DELTACHANGE});
   t_dataSet companyRecordRelistedExpected {TEST_WITH_METADATA(relistedChgMeta COMMA) companyInfoRelisted};
 
   t_versionObject::t_datasetLedger::const_iterator companyRecordRelistedActual =
@@ -159,7 +159,7 @@ void endReverseTest(                 t_versionObject& vo,
   t_companyInfo companyInfoAfterRelisting = t_convertFromString::ToVal(
     "ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED"    );
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource latestMeta2("EQUITY_L" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::UseRECORD));
+  TEST_WITH_METADATA(dsvo::MetaDataSource latestMeta2{"EQUITY_L" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::UseRECORD});
   t_dataSet companyRecordAfterRelistedExpected {TEST_WITH_METADATA(latestMeta2 COMMA) companyInfoAfterRelisting};
 
   t_versionObject::t_datasetLedger::const_iterator companyRecordCrown2Actual =
@@ -176,7 +176,7 @@ void endReverseTest(                 t_versionObject& vo,
   t_companyInfo companyInfoNine = t_convertFromString::ToVal(
     "ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,5,INE546B12139,10,LISTED"    );
 
-//TEST_WITH_METADATA(dsvo::MetaDataSource lotChgMetaExp("marketLotChange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT));
+//TEST_WITH_METADATA(dsvo::MetaDataSource lotChgMetaExp{"marketLotChange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT});
   t_dataSet companyRecordNineExpected {TEST_WITH_METADATA(lotChgMetaExp COMMA) companyInfoNine};
 
   t_versionObject::t_datasetLedger::const_iterator companyRecordNineActual =

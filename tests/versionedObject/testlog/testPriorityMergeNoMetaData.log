@@ -1,9 +1,30 @@
 TEST_LOG : FIRST VO load , no initial data. fresh start.
+debug_LOG: voReload(start of test run) ={}
+
+
+debug_LOG: voReload(end of test run) ={13-May-2004,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,
+21-Jan-2014,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,
+22-Jan-2020,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,
+}
+
+
 ERROR : failure in VersionedObjectPriorityMerge<VDT, MT...>::getMergeResult() : different 'record' exits between 2 merge-candidates of VersionedObject : forDate=05-Mar-2020 : highPriorityDataset={ ANDHRAPAP,ANDHRA PAPER LIMITED:2,EQ,10,1,INE435A01028,10, } : lowrPriorityDataset={ ANDHRAPAP,ANDHRA PAPER LIMITED:1,EQ,10,1,INE435A01028,10, } :: file:include/versionedObject/VersionedObjectPriorityMerge.h:line-number
 failure_test_end_1
 ERROR : failure in VersionedObjectPriorityMerge<VDT, MT...>::getMergeResult() : different 'record' exits between 2 merge-candidates of VersionedObject : forDate=05-Mar-2020 : highPriorityDataset={ ANDHRAPAP,ANDHRA PAPER LIMITED:2,EQ,10,1,INE435A01028,10, } : lowrPriorityDataset={ ANDHRAPAP,ANDHRA PAPER LIMITED:1,EQ,10,1,INE435A01028,10, } :: file:include/versionedObject/VersionedObjectPriorityMerge.h:line-number
 failure_test_end_2
 TEST_LOG : SECOND VO load , with existing data reloaded again. scenario after first load.
+debug_LOG: voReload(start of test run) ={13-May-2004,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,
+21-Jan-2014,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,
+22-Jan-2020,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,
+}
+
+
+debug_LOG: voReload(end of test run) ={13-May-2004,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,
+21-Jan-2014,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,
+22-Jan-2020,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,
+}
+
+
 ERROR : failure in VersionedObjectPriorityMerge<VDT, MT...>::getMergeResult() : different 'record' exits between 2 merge-candidates of VersionedObject : forDate=05-Mar-2020 : highPriorityDataset={ ANDHRAPAP,ANDHRA PAPER LIMITED:2,EQ,10,1,INE435A01028,10, } : lowrPriorityDataset={ ANDHRAPAP,ANDHRA PAPER LIMITED:1,EQ,10,1,INE435A01028,10, } :: file:include/versionedObject/VersionedObjectPriorityMerge.h:line-number
 failure_test_end_1
 ERROR : failure in VersionedObjectPriorityMerge<VDT, MT...>::getMergeResult() : different 'record' exits between 2 merge-candidates of VersionedObject : forDate=05-Mar-2020 : highPriorityDataset={ ANDHRAPAP,ANDHRA PAPER LIMITED:2,EQ,10,1,INE435A01028,10, } : lowrPriorityDataset={ ANDHRAPAP,ANDHRA PAPER LIMITED:1,EQ,10,1,INE435A01028,10, } :: file:include/versionedObject/VersionedObjectPriorityMerge.h:line-number

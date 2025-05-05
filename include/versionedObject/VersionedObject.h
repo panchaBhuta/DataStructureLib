@@ -135,10 +135,6 @@ namespace datastructure { namespace versionedObject
 
     void merge(MetaDataSource const& other)
     {
-      if(_prefixBuildType == eBuildDirection::IsRECORD)
-      {
-        throw std::domain_error{"MetaDataSource::merge() is not compatible for 'eBuildDirection::IsRECORD'"};
-      }
       if( _dataPatch == eModificationPatch::DELTACHANGE &&
           other._dataPatch == eModificationPatch::DELTACHANGE &&
           _prefixBuildType != other._prefixBuildType)

@@ -2,7 +2,7 @@
  * versionedObject.h
  *
  * URL:      https://github.com/panchaBhuta/dataStructure
- * Version:  v2.1.3
+ * Version:  v2.3.13
  *
  * Copyright (C) 2023-2023 Gautam Dhar
  * All rights reserved.
@@ -24,6 +24,7 @@
 #include <optional>
 #include <iterator>
 #include <stdexcept>
+#include <type_traits>
 
 #include <converter/converter.h>
 
@@ -116,20 +117,20 @@ namespace datastructure { namespace versionedObject
     MetaDataSource& operator=(MetaDataSource const&) = default;
     bool operator==(MetaDataSource const& other) const = default;
 
-    inline void toCSV(std::ostream& oss) const
+    inline void toCSV(std::ostream& oss, const char delimiter = '#') const
     {
       if (_source.empty()) return;
 
-      oss << char(_prefixBuildType) << '#' << char(_dataPatch) << _source;
+      oss << char(_prefixBuildType) << delimiter << char(_dataPatch) << _source;
 
       for (const auto& sr : _mergedSources)
-        oss << '#' << sr;
+        oss << delimiter << sr;
     }
 
-    inline std::string toCSV() const
+    inline std::string toCSV(const char delimiter = '#') const
     {
       std::ostringstream oss;
-      toCSV(oss);
+      toCSV(oss, delimiter);
       return oss.str();
     }
 
@@ -203,22 +204,22 @@ namespace datastructure { namespace versionedObject
     inline const M&           getMetaData() const { return _metaData; }
     inline const t_record&    getRecord()   const { return _record; }
 
-    inline void toCSV(std::ostream& oss) const
+    inline void toCSV(std::ostream& oss, const char delimiterMetaData = '#') const
     {
-      oss << _metaData.toCSV() << "," << converter::ConvertFromTuple<T...>::ToStr(_record);
+      oss << _metaData.toCSV(delimiterMetaData) << "," << converter::ConvertFromTuple<T...>::ToStr(_record);
     }
 
-    inline std::string toCSV() const
+    inline std::string toCSV(const char delimiterMetaData = '#') const
     {
       std::ostringstream oss;
-      toCSV(oss);
+      toCSV(oss, delimiterMetaData);
       return oss.str();
     }
 
-    inline std::string toLog() const
+    inline std::string toLog(const char delimiterMetaData = '#') const
     {
       std::ostringstream oss;
-      oss << " metaData=[" << _metaData.toCSV()
+      oss << " metaData=[" << _metaData.toCSV(delimiterMetaData)
           << "] ; record=[" << converter::ConvertFromTuple<T...>::ToStr(_record) << "]";
       return oss.str();
     }
@@ -298,6 +299,8 @@ namespace datastructure { namespace versionedObject
   using VO_Record_Mismatch_exception = VO_exception<0>;
 
 
+
+
   template <typename VDT, typename ... MT>
   class VersionedObject
   {
@@ -306,11 +309,6 @@ namespace datastructure { namespace versionedObject
     using t_dataset        = DataSet<MT ...>;
     using t_datasetLedger  = std::map< t_versionDate, t_dataset >;
     using t_record         = typename t_dataset::t_record;
-
-  private:
-    t_datasetLedger  _datasetLedger;
-
-  public:
 
     VersionedObject() : _datasetLedger() {}
     virtual ~VersionedObject()
@@ -395,73 +393,9 @@ namespace datastructure { namespace versionedObject
       return _datasetLedger;
     }
 
-    inline void toCSV(const std::string& prefix, std::ostream& oss) const
-    {
-      for(auto iter : _datasetLedger)
-      {
-        const t_versionDate& versionDate = iter.first;
-        const t_dataset& dataset = iter.second;
-        oss << prefix << versionDate << ",";
-        dataset.toCSV(oss);
-        oss << std::endl;
-      }
-    }
+  private:
+    t_datasetLedger  _datasetLedger;
 
-    inline void toCSV(std::ostream& oss) const
-    {
-      for(auto iter : _datasetLedger)
-      {
-        const t_versionDate& versionDate = iter.first;
-        oss << versionDate << ",";
-        const t_dataset& dataset = iter.second;
-        dataset.toCSV(oss);
-        oss << std::endl;
-      }
-    }
-
-    inline std::string toStr() const
-    {
-      std::ostringstream oss;
-      toCSV(oss);
-      return oss.str();
-    }
-
-    inline void toStr(const std::string& prefix, std::ostream& oss) const
-    {
-      for(auto iter : _datasetLedger)
-      {
-        const t_versionDate& versionDate = iter.first;
-        const t_dataset& dataset = iter.second;
-        oss << prefix << "versionDate=" << versionDate << ", dataSet={";
-        dataset.toCSV(oss);
-        oss << "}" << std::endl;
-      }
-    }
-
-    inline void toStr(std::ostream& oss) const
-    {
-      for(auto iter : _datasetLedger)
-      {
-        const t_versionDate& versionDate = iter.first;
-        oss << "versionDate=" << versionDate << ", dataSet={";
-        const t_dataset& dataset = iter.second;
-        dataset.toCSV(oss);
-        oss << "}" << std::endl;
-      }
-    }
-
-    inline std::string toCSV() const
-    {
-      std::ostringstream oss;
-      toCSV(oss);
-      return oss.str();
-    }
-/*
-    inline typename t_datasetLedger::const_iterator find( const t_versionDate& forDate ) const
-    {
-      return _datasetLedger.find(forDate);
-    }
-*/
   };
 
 } }   //  namespace datastructure::versionedObject

@@ -22,7 +22,7 @@ void interimReverseTest(t_versionObject& vo,
     voStrReverse += "07-Apr-2021," TEST_WITH_METADATA("+#@marketLotSpot,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED\n";       // FORWARD
   }
 
-  unittest::ExpectEqual(std::string, voStrReverse, vo.toCSV());
+  unittest::ExpectEqual(std::string, voStrReverse, t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA('#')));
 
   vob.clear();
 
@@ -43,12 +43,12 @@ void interimReverseTest(t_versionObject& vo,
   vob.buildForwardTimeline(vo);
 
 
-  //std::cout << "#### vo start ######\n" << vo.toCSV() << "#### vo end ######\n";
+  //std::cout << "#### vo start ######\n" << t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA('#')) << "#### vo end ######\n";
   std::string voStrForward = voStrReverse +
     (insertResultExpected?"07-Apr-2021," TEST_WITH_METADATA("+#@marketLotSpot,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED\n":"");  // FORWARD
 */
 
-  unittest::ExpectEqual(std::string, voStrReverse, vo.toCSV());
+  unittest::ExpectEqual(std::string, voStrReverse, t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA('#')));
 }
 
 

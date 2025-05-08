@@ -111,7 +111,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   TEST_WITH_METADATA(dsvo::MetaDataSource symChgMetaExp("symbolChange" COMMA t_eDataBuild::REVERSE COMMA t_eDataPatch::DELTACHANGE));
   t_dataSet companyRecordStart {TEST_WITH_METADATA(symChgMetaExp COMMA) companyInfoStart};
 ////////////    NOT used here :         for Reverse-build, start-info is deduced using listing-date
-//  VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() -> versionDate: " << listingDate << "; DATASET{" << companyRecordStart.toCSV() << "}");
+//  VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() -> listingDate-versionDate: " << listingDate << "; DATASET{" << companyRecordStart.toCSV() << "}");
 //  insertResult = vo.insertVersion(listingDate, companyRecordStart);
 //  VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() insertResult=" << insertResult);
 //  unittest::ExpectEqual(bool, insertResultExpected, insertResult);

@@ -50,6 +50,8 @@ endmacro(add_perf_test)
 
 # Unit tests
 add_unit_test(testVersionObject  0)
+add_unit_test(test_caseInsensitive_companyName_BuildReverseTimelineNoMetaData  0)
+
 
 add_unit_test(testBuildForwardTimelineNoMetaData_ChangeFullList                0  testForwardTimeLineCommon.cpp)
 add_unit_test(testBuildForwardTimelineNoMetaData_ChangeSplitList               0  testForwardTimeLineCommon.cpp)
@@ -74,7 +76,6 @@ add_unit_test(testBuildBidirectionTimelineNoMetaData_bidirection_RELISTED_v2   0
 
 
 add_unit_test(testPriorityMergeNoMetaData  0)
-add_unit_test(test_caseInsensitive_companyName_BuildReverseTimelineNoMetaData  0)
 
 
 #[=====[

@@ -10,6 +10,7 @@
 
 #include <versionedObject/VersionedObject.h>
 #include <versionedObject/VersionedObjectBuilder.h>
+#include <versionedObject/VersionedObjectStream.h>
 
 #include <unittest.h>
 
@@ -66,6 +67,7 @@ using t_versionObjectBuilder = dsvo::VersionedObjectBuilder<t_versionDate, COMPA
 using t_changesInDataSet = dsvo::ChangesInDataSet<COMPANYMETAINFO_TYPE_LIST>;
 using t_snapshotDataSet  = dsvo::SnapshotDataSet<COMPANYMETAINFO_TYPE_LIST>;
 using t_dataSet  = dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>;
+using t_versionObjectStream = dsvo::VersionedObjectStream<t_dataSet::hasMetaData(), t_versionDate, COMPANYMETAINFO_TYPE_LIST>;
 using t_convertFromString = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>;
 using t_eDataBuild = dsvo::eBuildDirection;
 using t_eDataPatch = dsvo::eModificationPatch;
@@ -76,7 +78,7 @@ namespace unittest
   struct SScompatible<t_dataSet> {
     inline static std::string getVal(const t_dataSet& val)
     {
-      return val.toCSV();
+      return val.toCSV(TEST_WITH_METADATA('#'));
     }
   };
 
@@ -84,7 +86,7 @@ namespace unittest
   struct SScompatible<t_versionObject> {
     inline static std::string getVal(const t_versionObject& val)
     {
-      return val.toCSV();
+      return t_versionObjectStream::createVOstreamer(val).toCSV(TEST_WITH_METADATA('#'));
     }
   };
 
@@ -92,7 +94,7 @@ namespace unittest
   struct SScompatible<dsvo::MetaDataSource> {
     inline static std::string getVal(const dsvo::MetaDataSource& val)
     {
-      return val.toCSV();
+      return val.toCSV('#');
     }
   };
 }

@@ -19,7 +19,7 @@ void interimForwardTest(t_versionObject& vo,
     voStrFirst += "07-Apr-2021," TEST_WITH_METADATA("+#@marketLotSpot,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED\n";      // FORWARD
   }
 
-  unittest::ExpectEqual(std::string, voStrFirst, vo.toCSV());
+  unittest::ExpectEqual(std::string, voStrFirst, t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA('#')));
 
   vob.clear();
 
@@ -40,11 +40,11 @@ void interimForwardTest(t_versionObject& vo,
   vob.buildForwardTimeline(vo);
 
 
-  //std::cout << "#### vo start ######\n" << vo.toCSV() << "#### vo end ######\n";
+  //std::cout << "#### vo start ######\n" << t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA('#')) << "#### vo end ######\n";
   std::string voStrForward = voStrFirst +
     (insertResultExpected?"07-Apr-2021," TEST_WITH_METADATA("+#@marketLotSpot,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED\n":"");  // FORWARD
 
-  unittest::ExpectEqual(std::string, voStrForward, vo.toCSV());
+  unittest::ExpectEqual(std::string, voStrForward, t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA('#')));
 }
 
 
@@ -57,7 +57,7 @@ void endForwardTest([[maybe_unused]] t_versionObject& vo,
   t_companyInfo companyInfoFifth = t_convertFromString::ToVal(
     "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED"    );
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource lotChgMetaExp("marketLotChange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT));
+  TEST_WITH_METADATA(dsvo::MetaDataSource lotChgMetaExp{"marketLotChange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::SNAPSHOT});
   t_dataSet companyRecordFifthExpected {TEST_WITH_METADATA(lotChgMetaExp COMMA) companyInfoFifth};
 
   typename t_versionObject::t_datasetLedger::const_iterator companyRecordFifthActual =

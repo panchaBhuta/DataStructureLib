@@ -21,7 +21,7 @@ void interimForwardTest(t_versionObject& vo,
   vob.buildForwardTimeline(vo);
 
 
-  //std::cout << "#### vo start ######\n" << vo.toCSV() << "#### vo end ######\n";
+  //std::cout << "#### vo start ######\n" << t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA('#')) << "#### vo end ######\n";
   std::string voStrForward =
     "13-May-2004," TEST_WITH_METADATA("^#^manualDeduction,") "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"        // vo.insertVersion(...)
     "21-Jan-2014," TEST_WITH_METADATA("+#%symbolChange#@nameSpot,") "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"  // FORWARD
@@ -29,7 +29,7 @@ void interimForwardTest(t_versionObject& vo,
     "05-Mar-2020," TEST_WITH_METADATA("+#%symbolChange#@nameSpot,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n"           // FORWARD
     "07-Apr-2021," TEST_WITH_METADATA("+#@marketLotSpot,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED\n";                   // FORWARD
 
-  unittest::ExpectEqual(std::string, voStrForward, vo.toCSV());
+  unittest::ExpectEqual(std::string, voStrForward, t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA('#')));
 }
 
 

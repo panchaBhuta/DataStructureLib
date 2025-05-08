@@ -10,7 +10,7 @@ using t_versionObjectPriorityMerge = dsvo::VersionedObjectPriorityMerge<t_versio
 void loadVO(t_versionObject& voReload,
             bool firstRun)
 {
-  VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: voReload(start of test run) ={" << voReload.toCSV() << "}" << std::endl << std::endl);
+  VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: voReload(start of test run) ={" << t_versionObjectStream::createVOstreamer(voReload).toCSV(TEST_WITH_METADATA('#')) << "}" << std::endl << std::endl);
   bool insertResult;
 
 /* these rows are from symbolchange.csv
@@ -152,7 +152,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 #endif
   }
 
-  VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: voReload(end of test run) ={" << voReload.toCSV() << "}" << std::endl << std::endl);
+  VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: voReload(end of test run) ={" << t_versionObjectStream::createVOstreamer(voReload).toCSV(TEST_WITH_METADATA('#')) << "}" << std::endl << std::endl);
 
 
 //  ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020

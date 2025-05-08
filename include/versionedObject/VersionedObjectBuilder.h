@@ -24,6 +24,7 @@
 #include <versionedObject/VersionedObject.h>
 #include <versionedObject/SnapshotDataSet.h>
 #include <versionedObject/ChangesInDataSet.h>
+#include <versionedObject/VersionedObjectStream.h>
 
 
 namespace datastructure { namespace versionedObject
@@ -51,6 +52,7 @@ namespace datastructure { namespace versionedObject
     using t_versionDate      = VDT;
     using t_versionedObject  = VersionedObject<VDT, MT...>;
     using t_dataset          = DataSet<MT...>;
+    using t_versionObjectStream = VersionedObjectStream<t_dataset::hasMetaData(), t_versionDate, MT...>;
     using t_record           = typename t_dataset::t_record;
     using t_metaData         = typename t_dataset::t_metaData;
     using t_datasetLedger    = typename t_versionedObject::t_datasetLedger;
@@ -132,7 +134,7 @@ namespace datastructure { namespace versionedObject
     {
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline(START)");
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
-      vo.toStr("DEBUG_LOG:    prebuild-VO: ", std::cout);
+      t_versionObjectStream::createVOstreamer(vo).toStr("DEBUG_LOG:    prebuild-VO: ", std::cout);
 #endif
 
       /*
@@ -171,7 +173,7 @@ namespace datastructure { namespace versionedObject
           eoss << "ERROR(2) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline() : for changeDate[";
           eoss << iterDelta->first << "] should NOT be marked as 'eBuildDirection::REVERSE', expected FORWARD" << std::endl;
           toStr(comboChgEntries, "VersionObjectBuilder :: ", eoss);
-          vo.toStr("VersionObject :: ", eoss);
+          t_versionObjectStream::createVOstreamer(vo).toStr("VersionObject :: ", eoss);
           throw Unexpected_BuildDirection_exception(eoss.str());
         }
       }
@@ -187,7 +189,7 @@ namespace datastructure { namespace versionedObject
           std::ostringstream eoss;
           eoss << "ERROR(3) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline() : first-deltaChangeDate[";
           eoss << firstDeltaChangeDate << "] should be more than last-VersionDate[" << lastVersionDate << "]" << std::endl;
-          vo.toStr("VersionObject :: ", eoss);
+          t_versionObjectStream::createVOstreamer(vo).toStr("VersionObject :: ", eoss);
           toStr(comboChgEntries, "VersionObjectBuilder :: ", eoss);
           throw LastVersion_After_FirstDeltaChange_ForwardTimeline_exception(eoss.str());
         }
@@ -222,7 +224,7 @@ namespace datastructure { namespace versionedObject
           eoss << "ERROR(4) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline() : ";
           eoss << "Call to vo.getVersionAt(presentDeltaChangeDate=";
           eoss << presentDeltaChangeDate << ") has no version available in VersionObject." << std::endl;
-          vo.toStr("VersionObject :: ", eoss);
+          t_versionObjectStream::createVOstreamer(vo).toStr("VersionObject :: ", eoss);
           toStr(comboChgEntries, "VersionObjectBuilder :: ", eoss);
           throw GetVersionAt_isNull_exception(eoss.str());
         }
@@ -251,7 +253,7 @@ namespace datastructure { namespace versionedObject
       }
 
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
-      vo.toStr("DEBUG_LOG:    postbuild-VO: ", std::cout);
+      t_versionObjectStream::createVOstreamer(vo).toStr("DEBUG_LOG:    postbuild-VO: ", std::cout);
 #endif
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline(END)");
     }
@@ -264,7 +266,7 @@ namespace datastructure { namespace versionedObject
     {
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline(START) : startDate=" << startDate);
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
-      vo.toStr("DEBUG_LOG:    prebuild-VO: ", std::cout);
+      t_versionObjectStream::createVOstreamer(vo).toStr("DEBUG_LOG:    prebuild-VO: ", std::cout);
 #endif
 
       /*
@@ -303,7 +305,7 @@ namespace datastructure { namespace versionedObject
           eoss << "ERROR(2) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline() : for changeDate[";
           eoss << iterDelta->first << "] should NOT be marked as 'eBuildDirection::FORWARD', expected REVERSE" << std::endl;
           toStr(comboChgEntries, "VersionObjectBuilder :: ", eoss);
-          vo.toStr("VersionObject :: ", eoss);
+          t_versionObjectStream::createVOstreamer(vo).toStr("VersionObject :: ", eoss);
           throw Unexpected_BuildDirection_exception(eoss.str());
         }
       }
@@ -370,7 +372,7 @@ namespace datastructure { namespace versionedObject
           eoss << "ERROR(5) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline() : ";
           eoss << "Call to vo.getVersionAt(presentDeltaChangeDate=";
           eoss << presentDeltaChangeDate << ") has no version available in VersionObject." << std::endl;
-          vo.toStr("VersionObject :: ", eoss);
+          t_versionObjectStream::createVOstreamer(vo).toStr("VersionObject :: ", eoss);
           toStr(comboChgEntries, "VersionObjectBuilder :: ", eoss);
           throw GetVersionAt_isNull_exception(eoss.str());
         }
@@ -403,7 +405,7 @@ namespace datastructure { namespace versionedObject
       }
 
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
-      vo.toStr("DEBUG_LOG:    postbuild-VO: ", std::cout);
+      t_versionObjectStream::createVOstreamer(vo).toStr("DEBUG_LOG:    postbuild-VO: ", std::cout);
 #endif
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline(END)");
     }
@@ -433,7 +435,7 @@ namespace datastructure { namespace versionedObject
       std::cout << "DEBUG_LOG:    list of startDates[";
       for(auto sd : startDates) std::cout << sd << ",";
       std::cout << "]" << std::endl;
-      vo.toStr("DEBUG_LOG:    prebuild-VO: ", std::cout);
+      t_versionObjectStream::createVOstreamer(vo).toStr("DEBUG_LOG:    prebuild-VO: ", std::cout);
 #endif
 
       t_versionedObject initialStateVOcopy{vo};
@@ -455,7 +457,7 @@ namespace datastructure { namespace versionedObject
             for(auto sd : startDates) eoss << sd << ",";
             eoss << "]. For startDate[" << j << "]=" << startDates[j] << " should be less than startDate[";
             eoss << i << "]=" << startDates[i] << std::endl;
-            vo.toStr("VersionObject :: ", eoss);
+            t_versionObjectStream::createVOstreamer(vo).toStr("VersionObject :: ", eoss);
             toStr(comboChgEntries, "VersionObjectBuilder :: ", eoss);
             throw std::out_of_range(eoss.str());
           }
@@ -557,7 +559,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
             eoss << "ERROR(3) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildBiDirectionalTimeline() : list of startDates[";
             for(auto sd : startDates) eoss << sd << ",";
             eoss << "] has insufficient dates." << std::endl;
-            vo.toStr("VersionObject :: ", eoss);
+            t_versionObjectStream::createVOstreamer(vo).toStr("VersionObject :: ", eoss);
             toStr(tmpComboChgEntries, "VersionObjectBuilder :: ", eoss);
             tmpComboChgEntries.clear();
             throw std::out_of_range(eoss.str());
@@ -653,7 +655,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
 
 
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
-      vo.toStr("DEBUG_LOG:    postbuild-VO: ", std::cout);
+      t_versionObjectStream::createVOstreamer(vo).toStr("DEBUG_LOG:    postbuild-VO: ", std::cout);
 #endif
 
       if(iterComboChgEntries != comboChgEntries.cend())
@@ -1032,6 +1034,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
     using t_versionDate      = VDT;
     using t_versionedObject  = VersionedObject<VDT, M, T...>;
     using t_dataset          = DataSet<M, T...>;
+    using t_versionObjectStream = VersionedObjectStream<t_dataset::hasMetaData(), t_versionDate, M, T...>;
     using t_record           = typename t_dataset::t_record;
     using t_metaData         = typename t_dataset::t_metaData;
     using t_deltaEntriesMap  =
@@ -1090,6 +1093,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
     using t_versionDate      = VDT;
     using t_versionedObject  = VersionedObject<T1, TR...>;
     using t_dataset          = DataSet<T1, TR...>;
+    using t_versionObjectStream = VersionedObjectStream<t_dataset::hasMetaData(), t_versionDate, T1, TR...>;
     using t_record           = typename t_dataset::t_record;
     using t_metaData         = typename t_dataset::t_metaData;
     using t_deltaEntriesMap  =

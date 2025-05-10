@@ -2,7 +2,7 @@
  * dataStructure.h
  *
  * URL:      https://github.com/panchaBhuta/dataStructure
- * Version:  v2.3.9
+ * Version:  v3.4.13
  *
  * Copyright (C) 2023-2024 Gautam Dhar
  * All rights reserved.
@@ -15,7 +15,7 @@
 
 #define DATASTRUCTURE_VERSION_MAJOR 3
 #define DATASTRUCTURE_VERSION_MINOR 4
-#define DATASTRUCTURE_VERSION_PATCH 12
+#define DATASTRUCTURE_VERSION_PATCH 13
 
 #include <filesystem>
 

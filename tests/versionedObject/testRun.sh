@@ -17,6 +17,8 @@ TODAY="$(date +"%d-%b-%Y")"
 
 
 TESTLOG="${SCRIPTDIR}/testlog/${TESTNAME}.log"
+
+echo "#### testRun.sh : starting test ${TESTNAME}"
 ${TESTEXE}  2>&1 | tee "${TESTLOG}"
 
 #retVal=$?   # as tee got added

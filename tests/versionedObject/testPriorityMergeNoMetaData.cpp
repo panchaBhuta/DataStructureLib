@@ -10,7 +10,6 @@ using t_versionObjectPriorityMerge = dsvo::VersionedObjectPriorityMerge<t_versio
 void loadVO(t_versionObject& voReload,
             bool firstRun)
 {
-  VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: voReload(start of test run) ={" << t_versionObjectStream::createVOstreamer(voReload).toCSV(TEST_WITH_METADATA('#')) << "}" << std::endl << std::endl);
   bool insertResult;
 
 /* these rows are from symbolchange.csv
@@ -19,12 +18,24 @@ ANDHRA PAPER LIMITED,IPAPPM,ANDPAPER,22-JAN-2020
 ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 */
 
+  std::string voStr =
+    "13-May-2004," TEST_WITH_METADATA("*#*crown#*manualDeduction,") "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"
+    "21-Jan-2014," TEST_WITH_METADATA("+#%symbolchange,") "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"
+    "22-Jan-2020," TEST_WITH_METADATA("+#%symbolchange#%namechange,") "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n";
+
+
+  if(firstRun) {
+    unittest::ExpectEqual(std::string, std::string(""), t_versionObjectStream::createVOstreamer(voReload).toCSV(TEST_WITH_METADATA('#')));
+  } else {
+    unittest::ExpectEqual(std::string, voStr, t_versionObjectStream::createVOstreamer(voReload).toCSV(TEST_WITH_METADATA('#')));
+  }
+
 //  NOTE : the row below is manually deduced
 //  APPAPER,International Paper APPM Limited,EQ,13-MAY-2004,10,1,INE435A01028,10
   t_companyInfo companyInfoStart = t_convertFromString::ToVal(
-    "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10"    );
+    "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED"    );
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource crownMeta{"crown" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::UseRECORD});
+  TEST_WITH_METADATA(dsvo::MetaDataSource crownMeta{"crown" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::FullRECORD});
   t_dataSet companyRecordStartCrown {TEST_WITH_METADATA(crownMeta COMMA) companyInfoStart};
 
   const t_versionDate crownDate{std::chrono::year(int(2004)), std::chrono::May, std::chrono::day(unsigned(13))};
@@ -33,7 +44,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
                                               companyRecordStartCrown);
   unittest::ExpectEqual(bool, true, insertResult);
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource manualMeta{"manualDeduction" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::UseRECORD});
+  TEST_WITH_METADATA(dsvo::MetaDataSource manualMeta{"manualDeduction" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::FullRECORD});
   t_dataSet companyRecordStartManual {TEST_WITH_METADATA(manualMeta COMMA) companyInfoStart};
 
   t_versionObject voLowrPriority;
@@ -42,8 +53,8 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   unittest::ExpectEqual(bool, true, insertResult);
 
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource expectedStartMergeMeta{"crown" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::UseRECORD});
-  TEST_WITH_METADATA(expectedStartMergeMeta.merge(dsvo::MetaDataSource{"manualDeduction" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::UseRECORD}));
+  TEST_WITH_METADATA(dsvo::MetaDataSource expectedStartMergeMeta{"crown" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::FullRECORD});
+  TEST_WITH_METADATA(expectedStartMergeMeta.merge(dsvo::MetaDataSource{"manualDeduction" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::FullRECORD}));
   t_dataSet companyStartRecordExpected { TEST_WITH_METADATA(expectedStartMergeMeta COMMA) companyInfoStart};
 
   t_versionObject voExpected;
@@ -77,7 +88,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
 //  ANDHRA PAPER LIMITED,APPAPER,IPAPPM,21-JAN-2014
   t_companyInfo companyInfoSecond = t_convertFromString::ToVal(
-    "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10"    );
+    "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED"    );
 
   TEST_WITH_METADATA(dsvo::MetaDataSource symChgMetaExp{"symbolchange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::DELTACHANGE});
   t_dataSet companyRecordSecondExpected { TEST_WITH_METADATA(symChgMetaExp COMMA) companyInfoSecond};
@@ -115,7 +126,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 //  ANDHRA PAPER LIMITED,IPAPPM,ANDPAPER,22-JAN-2020
 //  ANDHRAPAP,International Paper APPM Limited,ANDHRA PAPER LIMITED,22-JAN-2020
   t_companyInfo companyInfoThird = t_convertFromString::ToVal(
-    "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10"    );
+    "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED"    );
 
   TEST_WITH_METADATA(dsvo::MetaDataSource symChgNamChgMetaExp{"symbolchange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::DELTACHANGE});
   TEST_WITH_METADATA(symChgNamChgMetaExp.merge(dsvo::MetaDataSource{"namechange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::DELTACHANGE}));
@@ -152,14 +163,13 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 #endif
   }
 
-  VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: voReload(end of test run) ={" << t_versionObjectStream::createVOstreamer(voReload).toCSV(TEST_WITH_METADATA('#')) << "}" << std::endl << std::endl);
-
+  unittest::ExpectEqual(std::string, voStr, t_versionObjectStream::createVOstreamer(voReload).toCSV(TEST_WITH_METADATA('#')));
 
 //  ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 //  NOTE: the row below is not a versioned information, but CROWN info from EQUITY_L.csv
 //       ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,13-MAY-2004,10,1,INE435A01028,10
   t_companyInfo companyInfoLatest1 = t_convertFromString::ToVal(
-    "ANDHRAPAP,ANDHRA PAPER LIMITED:1,EQ,10,1,INE435A01028,10"    );
+    "ANDHRAPAP,ANDHRA PAPER LIMITED:1,EQ,10,1,INE435A01028,10,LISTED"    );
 
   const t_versionDate crownDate2{std::chrono::year(int(2020)), std::chrono::March, std::chrono::day(unsigned(5))};
   t_dataSet companyRecordLatestExpected1 { TEST_WITH_METADATA(symChgMetaExp COMMA) companyInfoLatest1};
@@ -169,7 +179,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   unittest::ExpectEqual(bool, true, insertResult);
 
   t_companyInfo companyInfoLatest2 = t_convertFromString::ToVal(
-    "ANDHRAPAP,ANDHRA PAPER LIMITED:2,EQ,10,1,INE435A01028,10"    );
+    "ANDHRAPAP,ANDHRA PAPER LIMITED:2,EQ,10,1,INE435A01028,10,LISTED"    );
 
   t_dataSet companyRecordLatestExpected2 {TEST_WITH_METADATA(symChgMetaExp COMMA) companyInfoLatest2};
 

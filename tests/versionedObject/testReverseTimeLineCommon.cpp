@@ -123,7 +123,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   t_companyInfo companyInfoLatest = t_convertFromString::ToVal(
     "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED"    );
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource latestMeta("EQUITY_L" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::UseRECORD));
+  TEST_WITH_METADATA(dsvo::MetaDataSource latestMeta("EQUITY_L" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::FullRECORD));
   t_dataSet companyRecordFourthExpected {TEST_WITH_METADATA(latestMeta COMMA) companyInfoLatest};
   VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() -> reverseLastVersionDate: " << reverseLastVersionDate << "; DATASET{" << companyRecordFourthExpected.toCSV() << "}");
   insertResult = vo.insertVersion(reverseLastVersionDate, companyRecordFourthExpected);

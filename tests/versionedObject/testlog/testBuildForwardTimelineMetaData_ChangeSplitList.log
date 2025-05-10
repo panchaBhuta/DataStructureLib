@@ -11,7 +11,7 @@ DEBUG_LOG:    merged-existingChgDataSet={+#%symbolChange#%nameChange,[FORWARD]:I
 DEBUG_LOG:    removing matching data SnapShotDataSet<MT...> : versionDate=22-Jan-2020 : dataset={+#@nameSpot,[FORWARD]:,ANDHRA PAPER LIMITED,,,,,,}
 DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=22-Jan-2020 : dataset={+#@symbolSpot,[FORWARD]:ANDPAPER,,,,,,,} skipped as it's a subset of ...
 DEBUG_LOG:    ChangesInDataSet<MT...>={+#%symbolChange#%nameChange,[FORWARD]:IPAPPM->ANDPAPER,International Paper APPM Limited->ANDHRA PAPER LIMITED,,,,,,}
-debug_LOG: vo.insertVersion() -> listingDate-versionDate: 13-May-2004; DATASET{^#^manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
+debug_LOG: vo.insertVersion() -> listingDate-versionDate: 13-May-2004; DATASET{*#*manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 debug_LOG: vo.insertVersion() insertResult=1
 DEBUG_LOG:##VersionedObjectBuilder<VDT, M, T...>::buildForwardTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)
@@ -36,8 +36,8 @@ DEBUG_LOG:    _logDeltaEntriesMap(END)
 DEBUG_LOG:  -----after combo-------
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(END)
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
-DEBUG_LOG:    prebuild-VO: versionDate=13-May-2004, dataSet={^#^manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
-DEBUG_LOG:    ** deltaEntryDate[21-Jan-2014] >> versionObjectDate[13-May-2004]:data{^#^manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED} << deltaChange{+#%symbolChange#@nameSpot,[FORWARD]:APPAPER->IPAPPM,...->International Paper APPM Limited,,,,,,}
+DEBUG_LOG:    prebuild-VO: versionDate=13-May-2004, dataSet={*#*manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
+DEBUG_LOG:    ** deltaEntryDate[21-Jan-2014] >> versionObjectDate[13-May-2004]:data{*#*manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED} << deltaChange{+#%symbolChange#@nameSpot,[FORWARD]:APPAPER->IPAPPM,...->International Paper APPM Limited,,,,,,}
 DEBUG_LOG: vo.insertVersion() -> versionDate: 21-Jan-2014; DATASET{+#%symbolChange#@nameSpot,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG: vo.insertVersion() insertResult=1
 DEBUG_LOG:    ** deltaEntryDate[22-Jan-2020] >> versionObjectDate[21-Jan-2014]:data{+#%symbolChange#@nameSpot,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED} << deltaChange{+#%symbolChange#%nameChange,[FORWARD]:IPAPPM->ANDPAPER,International Paper APPM Limited->ANDHRA PAPER LIMITED,,,,,,}
@@ -46,7 +46,7 @@ DEBUG_LOG: vo.insertVersion() insertResult=1
 DEBUG_LOG:    ** deltaEntryDate[05-Mar-2020] >> versionObjectDate[22-Jan-2020]:data{+#%symbolChange#%nameChange,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED} << deltaChange{+#%symbolChange#@nameSpot,[FORWARD]:ANDPAPER->ANDHRAPAP,...->ANDHRA PAPER LIMITED,,,,,,}
 DEBUG_LOG: vo.insertVersion() -> versionDate: 05-Mar-2020; DATASET{+#%symbolChange#@nameSpot,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG: vo.insertVersion() insertResult=1
-DEBUG_LOG:    postbuild-VO: versionDate=13-May-2004, dataSet={^#^manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
+DEBUG_LOG:    postbuild-VO: versionDate=13-May-2004, dataSet={*#*manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    postbuild-VO: versionDate=21-Jan-2014, dataSet={+#%symbolChange#@nameSpot,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    postbuild-VO: versionDate=22-Jan-2020, dataSet={+#%symbolChange#%nameChange,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    postbuild-VO: versionDate=05-Mar-2020, dataSet={+#%symbolChange#@nameSpot,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}
@@ -70,14 +70,14 @@ DEBUG_LOG:    _logDeltaEntriesMap(END)
 DEBUG_LOG:  -----after combo-------
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(END)
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
-DEBUG_LOG:    prebuild-VO: versionDate=13-May-2004, dataSet={^#^manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
+DEBUG_LOG:    prebuild-VO: versionDate=13-May-2004, dataSet={*#*manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    prebuild-VO: versionDate=21-Jan-2014, dataSet={+#%symbolChange#@nameSpot,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    prebuild-VO: versionDate=22-Jan-2020, dataSet={+#%symbolChange#%nameChange,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    prebuild-VO: versionDate=05-Mar-2020, dataSet={+#%symbolChange#@nameSpot,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    ** deltaEntryDate[07-Apr-2021] >> versionObjectDate[05-Mar-2020]:data{+#%symbolChange#@nameSpot,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED} << deltaChange{+#@marketLotSpot,[FORWARD]:,,,,...->2,,,}
 DEBUG_LOG: vo.insertVersion() -> versionDate: 07-Apr-2021; DATASET{+#@marketLotSpot,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED}
 DEBUG_LOG: vo.insertVersion() insertResult=1
-DEBUG_LOG:    postbuild-VO: versionDate=13-May-2004, dataSet={^#^manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
+DEBUG_LOG:    postbuild-VO: versionDate=13-May-2004, dataSet={*#*manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    postbuild-VO: versionDate=21-Jan-2014, dataSet={+#%symbolChange#@nameSpot,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    postbuild-VO: versionDate=22-Jan-2020, dataSet={+#%symbolChange#%nameChange,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    postbuild-VO: versionDate=05-Mar-2020, dataSet={+#%symbolChange#@nameSpot,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}
@@ -97,7 +97,7 @@ DEBUG_LOG:    merged-existingChgDataSet={+#%symbolChange#%nameChange,[FORWARD]:I
 DEBUG_LOG:    removing matching data SnapShotDataSet<MT...> : versionDate=22-Jan-2020 : dataset={+#@nameSpot,[FORWARD]:,ANDHRA PAPER LIMITED,,,,,,}
 DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=22-Jan-2020 : dataset={+#@symbolSpot,[FORWARD]:ANDPAPER,,,,,,,} skipped as it's a subset of ...
 DEBUG_LOG:    ChangesInDataSet<MT...>={+#%symbolChange#%nameChange,[FORWARD]:IPAPPM->ANDPAPER,International Paper APPM Limited->ANDHRA PAPER LIMITED,,,,,,}
-debug_LOG: vo.insertVersion() -> listingDate-versionDate: 13-May-2004; DATASET{^#^manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
+debug_LOG: vo.insertVersion() -> listingDate-versionDate: 13-May-2004; DATASET{*#*manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 debug_LOG: vo.insertVersion() insertResult=0
 DEBUG_LOG:##VersionedObjectBuilder<VDT, M, T...>::buildForwardTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)
@@ -122,12 +122,12 @@ DEBUG_LOG:    _logDeltaEntriesMap(END)
 DEBUG_LOG:  -----after combo-------
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(END)
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
-DEBUG_LOG:    prebuild-VO: versionDate=13-May-2004, dataSet={^#^manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
+DEBUG_LOG:    prebuild-VO: versionDate=13-May-2004, dataSet={*#*manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    prebuild-VO: versionDate=21-Jan-2014, dataSet={+#%symbolChange#@nameSpot,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    prebuild-VO: versionDate=22-Jan-2020, dataSet={+#%symbolChange#%nameChange,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    prebuild-VO: versionDate=05-Mar-2020, dataSet={+#%symbolChange#@nameSpot,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    prebuild-VO: versionDate=07-Apr-2021, dataSet={+#@marketLotSpot,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED}
-DEBUG_LOG:    ** deltaEntryDate[21-Jan-2014] >> versionObjectDate[13-May-2004]:data{^#^manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED} << deltaChange{+#%symbolChange#@nameSpot,[FORWARD]:APPAPER->IPAPPM,...->International Paper APPM Limited,,,,,,}
+DEBUG_LOG:    ** deltaEntryDate[21-Jan-2014] >> versionObjectDate[13-May-2004]:data{*#*manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED} << deltaChange{+#%symbolChange#@nameSpot,[FORWARD]:APPAPER->IPAPPM,...->International Paper APPM Limited,,,,,,}
 DEBUG_LOG: vo.insertVersion() -> versionDate: 21-Jan-2014; DATASET{+#%symbolChange#@nameSpot,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG: vo.insertVersion() insertResult=0
 DEBUG_LOG:    ** deltaEntryDate[22-Jan-2020] >> versionObjectDate[21-Jan-2014]:data{+#%symbolChange#@nameSpot,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED} << deltaChange{+#%symbolChange#%nameChange,[FORWARD]:IPAPPM->ANDPAPER,International Paper APPM Limited->ANDHRA PAPER LIMITED,,,,,,}
@@ -136,7 +136,7 @@ DEBUG_LOG: vo.insertVersion() insertResult=0
 DEBUG_LOG:    ** deltaEntryDate[05-Mar-2020] >> versionObjectDate[22-Jan-2020]:data{+#%symbolChange#%nameChange,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED} << deltaChange{+#%symbolChange#@nameSpot,[FORWARD]:ANDPAPER->ANDHRAPAP,...->ANDHRA PAPER LIMITED,,,,,,}
 DEBUG_LOG: vo.insertVersion() -> versionDate: 05-Mar-2020; DATASET{+#%symbolChange#@nameSpot,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG: vo.insertVersion() insertResult=0
-DEBUG_LOG:    postbuild-VO: versionDate=13-May-2004, dataSet={^#^manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
+DEBUG_LOG:    postbuild-VO: versionDate=13-May-2004, dataSet={*#*manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    postbuild-VO: versionDate=21-Jan-2014, dataSet={+#%symbolChange#@nameSpot,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    postbuild-VO: versionDate=22-Jan-2020, dataSet={+#%symbolChange#%nameChange,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    postbuild-VO: versionDate=05-Mar-2020, dataSet={+#%symbolChange#@nameSpot,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}
@@ -161,7 +161,7 @@ DEBUG_LOG:    _logDeltaEntriesMap(END)
 DEBUG_LOG:  -----after combo-------
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(END)
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
-DEBUG_LOG:    prebuild-VO: versionDate=13-May-2004, dataSet={^#^manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
+DEBUG_LOG:    prebuild-VO: versionDate=13-May-2004, dataSet={*#*manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    prebuild-VO: versionDate=21-Jan-2014, dataSet={+#%symbolChange#@nameSpot,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    prebuild-VO: versionDate=22-Jan-2020, dataSet={+#%symbolChange#%nameChange,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    prebuild-VO: versionDate=05-Mar-2020, dataSet={+#%symbolChange#@nameSpot,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}
@@ -169,7 +169,7 @@ DEBUG_LOG:    prebuild-VO: versionDate=07-Apr-2021, dataSet={+#@marketLotSpot,AN
 DEBUG_LOG:    ** deltaEntryDate[07-Apr-2021] >> versionObjectDate[05-Mar-2020]:data{+#%symbolChange#@nameSpot,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED} << deltaChange{+#@marketLotSpot,[FORWARD]:,,,,...->2,,,}
 DEBUG_LOG: vo.insertVersion() -> versionDate: 07-Apr-2021; DATASET{+#@marketLotSpot,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED}
 DEBUG_LOG: vo.insertVersion() insertResult=0
-DEBUG_LOG:    postbuild-VO: versionDate=13-May-2004, dataSet={^#^manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
+DEBUG_LOG:    postbuild-VO: versionDate=13-May-2004, dataSet={*#*manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    postbuild-VO: versionDate=21-Jan-2014, dataSet={+#%symbolChange#@nameSpot,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    postbuild-VO: versionDate=22-Jan-2020, dataSet={+#%symbolChange#%nameChange,ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    postbuild-VO: versionDate=05-Mar-2020, dataSet={+#%symbolChange#@nameSpot,ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED}

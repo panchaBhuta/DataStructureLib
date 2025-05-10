@@ -106,7 +106,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
   t_companyInfo companyInfoStart = t_convertFromString::ToVal(
     "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED"    );
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource manualMeta("manualDeduction" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::UseRECORD));
+  TEST_WITH_METADATA(dsvo::MetaDataSource manualMeta("manualDeduction" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::FullRECORD));
   t_dataSet companyRecordStart {TEST_WITH_METADATA(manualMeta COMMA) companyInfoStart};
   VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() -> listingDate-versionDate: " << listingDate << "; DATASET{" << companyRecordStart.toCSV() << "}");
   insertResult = vo.insertVersion(listingDate, companyRecordStart);

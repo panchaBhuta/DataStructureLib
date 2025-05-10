@@ -134,7 +134,7 @@ namespace datastructure { namespace versionedObject
       for(size_t iii = 0; iii < sizeof...(T); ++iii)
       {
         _modifiedElements.at(iii) = (modifiedElements.at(iii) ? eModificationPatch::DELTACHANGE
-                                                              : eModificationPatch::UseRECORD);
+                                                              : eModificationPatch::FullRECORD);
       }
     }
 
@@ -181,7 +181,7 @@ namespace datastructure { namespace versionedObject
     template<size_t IDX>
     inline bool _isNextChgValueEqual(const t_record& matchRecord) const
     {
-      if( _modifiedElements.at(IDX) != eModificationPatch::UseRECORD &&
+      if( _modifiedElements.at(IDX) != eModificationPatch::FullRECORD &&
           ( std::get<IDX>(matchRecord) != std::get<IDX>(_newValues) ) )
       {
         return false;
@@ -220,7 +220,7 @@ namespace datastructure { namespace versionedObject
     inline void _getLatestValue(t_record& updateRecord,
                                 std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
     {
-      if( _modifiedElements.at(IDX) != eModificationPatch::UseRECORD ) // check if element is marked for change
+      if( _modifiedElements.at(IDX) != eModificationPatch::FullRECORD ) // check if element is marked for change
       {
         if constexpr(VALIDATE)
         {
@@ -262,7 +262,7 @@ namespace datastructure { namespace versionedObject
     inline void _getPreviousValue(t_record& updateRecord,
                                   std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
     {
-      if( _modifiedElements.at(IDX) != eModificationPatch::UseRECORD ) // check if element is marked for change
+      if( _modifiedElements.at(IDX) != eModificationPatch::FullRECORD ) // check if element is marked for change
       {
         if constexpr(VALIDATE)
         {
@@ -365,9 +365,9 @@ namespace datastructure { namespace versionedObject
       //static_assert(std::is_same_v<decltype(other), const  _SnapshotDataSetBase<T...>& > == true ||
       //              std::is_same_v<decltype(other), const _ChangesInDataSetBase<T...>& > == true );
 
-      if( _modifiedElements.at(IDX) != eModificationPatch::UseRECORD ) // check if element is marked for change
+      if( _modifiedElements.at(IDX) != eModificationPatch::FullRECORD ) // check if element is marked for change
       {
-        if( other.getModifiedIndexes().at(IDX) != eModificationPatch::UseRECORD )
+        if( other.getModifiedIndexes().at(IDX) != eModificationPatch::FullRECORD )
         {
           if constexpr((sizeof...(T) -1) == IDX)
           {
@@ -407,7 +407,7 @@ namespace datastructure { namespace versionedObject
         // } else { do nothing
         }
       } else {
-        if( other.getModifiedIndexes().at(IDX) != eModificationPatch::UseRECORD )
+        if( other.getModifiedIndexes().at(IDX) != eModificationPatch::FullRECORD )
         {
           mergeableElements.at(IDX) = 2;  // element of other-tuple exists and is copyable to this-tuple.
         // } else { do nothing

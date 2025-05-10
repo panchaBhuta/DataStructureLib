@@ -8,7 +8,7 @@ void interimForwardTest(t_versionObject& vo,
   vob.buildForwardTimeline(vo);
 
   std::string voStrFirst =
-    "13-May-2004," TEST_WITH_METADATA("^#^manualDeduction,") "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"         // vo.insertVersion(...)
+    "13-May-2004," TEST_WITH_METADATA("*#*manualDeduction,") "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"         // vo.insertVersion(...)
     "21-Jan-2014," TEST_WITH_METADATA("+#%symbolChange#@nameSpot,") "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"   // FORWARD
     "22-Jan-2020," TEST_WITH_METADATA("+#%symbolChange#%nameChange,") "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n"           // FORWARD
     "05-Mar-2020," TEST_WITH_METADATA("+#%symbolChange#@nameSpot,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n";           // FORWARD

@@ -109,7 +109,7 @@ namespace datastructure { namespace versionedObject
       for(size_t iii = 0; iii < sizeof...(T); ++iii)
       {
         _modifiedElements.at(iii) = (modifiedElements.at(iii) ? eModificationPatch::SNAPSHOT :
-                                                                eModificationPatch::UseRECORD);
+                                                                eModificationPatch::FullRECORD);
       }
     }
 
@@ -130,7 +130,7 @@ namespace datastructure { namespace versionedObject
         oss << ",";
       }
 
-      if( _modifiedElements.at(IDX) == SNAPSHOT ) // check if element is marked for change
+      if( _modifiedElements.at(IDX) == eModificationPatch::SNAPSHOT ) // check if element is marked for change
       {
         // NOTE :: will fail for types that donot support "operator<<"
         oss << std::get<IDX>(_newValues);
@@ -145,7 +145,7 @@ namespace datastructure { namespace versionedObject
     template<size_t IDX>
     inline bool _isNextChgValueEqual(const t_record& matchRecord) const
     {
-      if( _modifiedElements.at(IDX) != eModificationPatch::UseRECORD &&
+      if( _modifiedElements.at(IDX) != eModificationPatch::FullRECORD &&
           ( std::get<IDX>(matchRecord) != std::get<IDX>(_newValues) ) )
       {
         return false;
@@ -165,7 +165,7 @@ namespace datastructure { namespace versionedObject
     inline void _getLatestValue(t_record& updateRecord,
                                 std::array <bool, sizeof...(T)>& hitheroProcessedElements) const
     {
-      if( _modifiedElements.at(IDX) != eModificationPatch::UseRECORD ) // check if element is marked for change
+      if( _modifiedElements.at(IDX) != eModificationPatch::FullRECORD ) // check if element is marked for change
       {
         if constexpr(VALIDATE)
         {
@@ -238,9 +238,9 @@ namespace datastructure { namespace versionedObject
     template<size_t IDX>
     void _isMergeable(const _SnapshotDataSetBase<T...>& other, std::array <int, sizeof...(T)>& mergeableElements) const
     {
-      if( _modifiedElements.at(IDX) != eModificationPatch::UseRECORD ) // check if element is marked for change
+      if( _modifiedElements.at(IDX) != eModificationPatch::FullRECORD ) // check if element is marked for change
       {
-        if( other._modifiedElements.at(IDX) != eModificationPatch::UseRECORD )
+        if( other._modifiedElements.at(IDX) != eModificationPatch::FullRECORD )
         {
           if constexpr((sizeof...(T) -1) == IDX)
           {
@@ -266,7 +266,7 @@ namespace datastructure { namespace versionedObject
         // } else { do nothing
         }
       } else {
-        if( other._modifiedElements.at(IDX) != eModificationPatch::UseRECORD )
+        if( other._modifiedElements.at(IDX) != eModificationPatch::FullRECORD )
         {
           mergeableElements.at(IDX) = 2;  // element of other-tuple exists and is copyable to this-tuple.
         // } else { do nothing

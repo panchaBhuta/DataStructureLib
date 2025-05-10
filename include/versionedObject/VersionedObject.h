@@ -7,7 +7,7 @@
  * Copyright (C) 2023-2023 Gautam Dhar
  * All rights reserved.
  *
- * dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details. 
+ * dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details.
  *
  */
 
@@ -76,13 +76,13 @@ namespace datastructure { namespace versionedObject
   enum eModificationPatch {   //   ModficationType
     DELTACHANGE = '%',    //  DELTA_CHANGE=2
     SNAPSHOT    = '@',    //  SNAPSHOT=1
-    UseRECORD   = '^'     //  NO_MODIFICATION=0
+    FullRECORD  = '*'     //  NO_MODIFICATION=0
   };
 
   enum eBuildDirection {
     FORWARD   = '+',
     REVERSE   = '-',
-    IsRECORD  = '^'
+    IsRECORD  = '*'
   };
 
     // this is optional. A user can define their own MetaData class and pass it to "DataSet<>"
@@ -101,8 +101,8 @@ namespace datastructure { namespace versionedObject
         _dataPatch{dataPatch},
         _mergedSources{}
     {
-      if( ( prefixBuildType == eBuildDirection::IsRECORD && dataPatch != eModificationPatch::UseRECORD ) ||
-          ( prefixBuildType != eBuildDirection::IsRECORD && dataPatch == eModificationPatch::UseRECORD ) )
+      if( ( prefixBuildType == eBuildDirection::IsRECORD && dataPatch != eModificationPatch::FullRECORD ) ||
+          ( prefixBuildType != eBuildDirection::IsRECORD && dataPatch == eModificationPatch::FullRECORD ) )
       {
         throw std::domain_error{"MetaDataSource() : prefixBuildType and dataPatch are both of RECORD type, OR neither are of RECORD type"};
       }

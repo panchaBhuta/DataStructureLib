@@ -50,7 +50,7 @@ void interimReverseTest(t_versionObject& vo,
     t_companyInfo companyInfoAfterRelisting = t_convertFromString::ToVal(
       "ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED"    );
 
-    TEST_WITH_METADATA(dsvo::MetaDataSource latestMeta2{"EQUITY_L" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::UseRECORD});
+    TEST_WITH_METADATA(dsvo::MetaDataSource latestMeta2{"EQUITY_L" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::FullRECORD});
     t_dataSet companyRecordAfterRelistedExpected {TEST_WITH_METADATA(latestMeta2 COMMA) companyInfoAfterRelisting};
     t_versionDate afterRelistedVersionDate{std::chrono::year(int(2022)), std::chrono::September, std::chrono::day(unsigned(19))};
     VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() -> afterRelisted-next-versionDate: " << afterRelistedVersionDate << "; DATASET{" << companyRecordAfterRelistedExpected.toCSV(TEST_WITH_METADATA('#')) << "}");
@@ -85,11 +85,11 @@ void interimReverseTest(t_versionObject& vo,
     "13-May-2004," TEST_WITH_METADATA("-#%symbolChange#@nameSpot,") "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"   // listingDate-of-reverse
     "21-Jan-2014," TEST_WITH_METADATA("-#%symbolChange#%nameChange,") "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"  // REVERSE
     "22-Jan-2020," TEST_WITH_METADATA("-#%symbolChange#@nameSpot,") "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n"              // REVERSE
-    "05-Mar-2020," TEST_WITH_METADATA("^#^EQUITY_L,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n"                           // REVERSE + vo.insertVersion(...)
+    "05-Mar-2020," TEST_WITH_METADATA("*#*EQUITY_L,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n"                           // REVERSE + vo.insertVersion(...)
     "07-Apr-2021," TEST_WITH_METADATA("+#@marketLotSpot,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED\n"                      // FORWARD
     "17-Dec-2021," TEST_WITH_METADATA("+#@delistedSpot,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,DELISTED\n"                     // FORWARD
     "12-Jan-2022," TEST_WITH_METADATA("-#%relistedChange,") "ANDHRAPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED\n"                   // listingDate-2-of-reverse
-    "19-Sep-2022," TEST_WITH_METADATA("^#^EQUITY_L,") "ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED\n"                        // REVERSE + vo.insertVersion(...)
+    "19-Sep-2022," TEST_WITH_METADATA("*#*EQUITY_L,") "ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED\n"                        // REVERSE + vo.insertVersion(...)
     "28-Oct-2023," TEST_WITH_METADATA("+#@marketLotSpot,") "ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,5,INE546B12139,10,LISTED\n";                  // FORWARD
 
   unittest::ExpectEqual(std::string, voStrBidirection, t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA('#')));
@@ -159,7 +159,7 @@ void endReverseTest(                 t_versionObject& vo,
   t_companyInfo companyInfoAfterRelisting = t_convertFromString::ToVal(
     "ANDHRAPAPLTD,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED"    );
 
-  TEST_WITH_METADATA(dsvo::MetaDataSource latestMeta2{"EQUITY_L" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::UseRECORD});
+  TEST_WITH_METADATA(dsvo::MetaDataSource latestMeta2{"EQUITY_L" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::FullRECORD});
   t_dataSet companyRecordAfterRelistedExpected {TEST_WITH_METADATA(latestMeta2 COMMA) companyInfoAfterRelisting};
 
   t_versionObject::t_datasetLedger::const_iterator companyRecordCrown2Actual =

@@ -19,15 +19,15 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 */
 
   std::string voStr =
-    "13-May-2004," TEST_WITH_METADATA("*#*crown#*manualDeduction,") "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"
-    "21-Jan-2014," TEST_WITH_METADATA("+#%symbolchange,") "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"
-    "22-Jan-2020," TEST_WITH_METADATA("+#%symbolchange#%namechange,") "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n";
+    "13-May-2004," TEST_WITH_METADATA("*|*crown|*manualDeduction,") "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"
+    "21-Jan-2014," TEST_WITH_METADATA("+|%symbolchange,") "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"
+    "22-Jan-2020," TEST_WITH_METADATA("+|%symbolchange|%namechange,") "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n";
 
 
   if(firstRun) {
-    unittest::ExpectEqual(std::string, std::string(""), t_versionObjectStream::createVOstreamer(voReload).toCSV(TEST_WITH_METADATA('#')));
+    unittest::ExpectEqual(std::string, std::string(""), t_versionObjectStream::createVOstreamer(voReload).toCSV(TEST_WITH_METADATA(dsvo::MetaDataSource::delimiter)));
   } else {
-    unittest::ExpectEqual(std::string, voStr, t_versionObjectStream::createVOstreamer(voReload).toCSV(TEST_WITH_METADATA('#')));
+    unittest::ExpectEqual(std::string, voStr, t_versionObjectStream::createVOstreamer(voReload).toCSV(TEST_WITH_METADATA(dsvo::MetaDataSource::delimiter)));
   }
 
 //  NOTE : the row below is manually deduced
@@ -163,7 +163,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 #endif
   }
 
-  unittest::ExpectEqual(std::string, voStr, t_versionObjectStream::createVOstreamer(voReload).toCSV(TEST_WITH_METADATA('#')));
+  unittest::ExpectEqual(std::string, voStr, t_versionObjectStream::createVOstreamer(voReload).toCSV(TEST_WITH_METADATA(dsvo::MetaDataSource::delimiter)));
 
 //  ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 //  NOTE: the row below is not a versioned information, but CROWN info from EQUITY_L.csv

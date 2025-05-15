@@ -40,7 +40,7 @@ void interimReverseTest(t_versionObject& vo,
     TEST_WITH_METADATA(dsvo::MetaDataSource relistedMeta{"relisted" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::FullRECORD});
     t_dataSet companyRecordRelistedExpected {TEST_WITH_METADATA(relistedMeta COMMA) companyInfoLatest};
     t_versionDate relistedVersionDate{std::chrono::year(int(2022)), std::chrono::January, std::chrono::day(unsigned(12))};
-    VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() -> relisted-versionDate: " << relistedVersionDate << "; DATASET{" << companyRecordRelistedExpected.toCSV(TEST_WITH_METADATA('#')) << "}");
+    VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() -> relisted-versionDate: " << relistedVersionDate << "; DATASET{" << companyRecordRelistedExpected.toCSV(TEST_WITH_METADATA(dsvo::MetaDataSource::delimiter)) << "}");
     bool insertResult = vo.insertVersion(relistedVersionDate, companyRecordRelistedExpected);
     VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() relisted-insertResult=" << insertResult);
     unittest::ExpectEqual(bool, insertResultExpected, insertResult);
@@ -66,18 +66,18 @@ void interimReverseTest(t_versionObject& vo,
   unittest::ExpectEqual(typename t_versionObjectBuilder::t_deltaEntriesMap_iter_diff_type, 0, buildResult.second);
 
 
-  //std::cout << "#### vo start ######\n" << t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA('#')) << "#### vo end ######\n";
+  //std::cout << "#### vo start ######\n" << t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA(dsvo::MetaDataSource::delimiter)) << "#### vo end ######\n";
   std::string voStrBidirection =
-    "13-May-2004," TEST_WITH_METADATA("-#%symbolChange#@nameSpot,") "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"   // listingDate-of-reverse
-    "21-Jan-2014," TEST_WITH_METADATA("-#%symbolChange#%nameChange,") "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"  // REVERSE
-    "22-Jan-2020," TEST_WITH_METADATA("-#%symbolChange#@nameSpot,") "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n"              // REVERSE
-    "05-Mar-2020," TEST_WITH_METADATA("*#*EQUITY_L,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n"                           // REVERSE + vo.insertVersion(...)
-    "07-Apr-2021," TEST_WITH_METADATA("+#@marketLotSpot,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED\n"                      // FORWARD
-    "17-Dec-2021," TEST_WITH_METADATA("+#@delistedSpot,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,DELISTED\n"                     // FORWARD
-    "12-Jan-2022," TEST_WITH_METADATA("*#*relisted,") "ANDHRAPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED\n"                         // vo.insertVersion(...)
-    "28-Oct-2023," TEST_WITH_METADATA("+#@marketLotSpot,") "ANDHRAPAPER,ANDHRA PAPER LIMITED,EQ,10,5,INE546B12139,10,LISTED\n";                   // FORWARD
+    "13-May-2004," TEST_WITH_METADATA("-|%symbolChange|@nameSpot,") "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"   // listingDate-of-reverse
+    "21-Jan-2014," TEST_WITH_METADATA("-|%symbolChange|%nameChange,") "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"  // REVERSE
+    "22-Jan-2020," TEST_WITH_METADATA("-|%symbolChange|@nameSpot,") "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n"              // REVERSE
+    "05-Mar-2020," TEST_WITH_METADATA("*|*EQUITY_L,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n"                           // REVERSE + vo.insertVersion(...)
+    "07-Apr-2021," TEST_WITH_METADATA("+|@marketLotSpot,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED\n"                      // FORWARD
+    "17-Dec-2021," TEST_WITH_METADATA("+|@delistedSpot,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,DELISTED\n"                     // FORWARD
+    "12-Jan-2022," TEST_WITH_METADATA("*|*relisted,") "ANDHRAPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED\n"                         // vo.insertVersion(...)
+    "28-Oct-2023," TEST_WITH_METADATA("+|@marketLotSpot,") "ANDHRAPAPER,ANDHRA PAPER LIMITED,EQ,10,5,INE546B12139,10,LISTED\n";                   // FORWARD
 
-  unittest::ExpectEqual(std::string, voStrBidirection, t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA('#')));
+  unittest::ExpectEqual(std::string, voStrBidirection, t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA(dsvo::MetaDataSource::delimiter)));
 }
 
 

@@ -2,7 +2,7 @@
  * versionedObject.h
  *
  * URL:      https://github.com/panchaBhuta/dataStructure
- * Version:  v2.3.13
+ * Version:  v3.4.14
  *
  * Copyright (C) 2023-2023 Gautam Dhar
  * All rights reserved.
@@ -85,6 +85,24 @@ namespace datastructure { namespace versionedObject
     IsRECORD  = '*'
   };
 
+  using t_DataType = std::string;
+
+
+
+  template<size_t expIdx>
+  class VO_exception : public std::invalid_argument
+  {
+  public :
+    VO_exception(const std::string& msg) : std::invalid_argument(msg) {}
+    VO_exception(const char*        msg) : std::invalid_argument(msg) {}
+    virtual ~VO_exception() {}
+  };
+
+  using VO_Record_Mismatch_exception = VO_exception<0>;
+  using EnumMismatch_MetaDataSource_exception   =  VO_exception<8>;
+  using InvalidEnum_MetaDataSource_exception    =  VO_exception<9>;
+  using MergeError_MetaDataSource_exception     =  VO_exception<10>;
+
     // this is optional. A user can define their own MetaData class and pass it to "DataSet<>"
   // A user defined MetaData class needs to define three components as below:
   //      1. using isMetaData = std::true_type;
@@ -94,21 +112,22 @@ namespace datastructure { namespace versionedObject
   {
   public:
     using isMetaData = std::true_type;
+    inline static const char delimiter = '|';
 
-    MetaDataSource(const std::string& source, eBuildDirection prefixBuildType, eModificationPatch dataPatch)
-      : _source{source},
+    MetaDataSource(const t_DataType& dataType, eBuildDirection prefixBuildType, eModificationPatch dataPatch)
+      : _dataType{dataType},
         _prefixBuildType{prefixBuildType},
         _dataPatch{dataPatch},
-        _mergedSources{}
+        _mergedDataTypes{}
     {
       if( ( prefixBuildType == eBuildDirection::IsRECORD && dataPatch != eModificationPatch::FullRECORD ) ||
           ( prefixBuildType != eBuildDirection::IsRECORD && dataPatch == eModificationPatch::FullRECORD ) )
       {
-        throw std::domain_error{"MetaDataSource() : prefixBuildType and dataPatch are both of RECORD type, OR neither are of RECORD type"};
+        throw EnumMismatch_MetaDataSource_exception{"MetaDataSource() : prefixBuildType and dataPatch are both of RECORD type, OR neither are of RECORD type"};
       }
       if( dataPatch == eModificationPatch::SNAPSHOT && prefixBuildType != eBuildDirection::FORWARD )
       {
-        throw std::domain_error{"MetaDataSource() : if dataPatch==SNAPSHOT; then prefixBuildType should be FORWARD"};
+        throw InvalidEnum_MetaDataSource_exception{"MetaDataSource() : if dataPatch==SNAPSHOT; then prefixBuildType should be FORWARD"};
       }
     }
 
@@ -117,50 +136,50 @@ namespace datastructure { namespace versionedObject
     MetaDataSource& operator=(MetaDataSource const&) = default;
     bool operator==(MetaDataSource const& other) const = default;
 
-    inline void toCSV(std::ostream& oss, const char delimiter = '#') const
-    {
-      if (_source.empty()) return;
-
-      oss << char(_prefixBuildType) << delimiter << char(_dataPatch) << _source;
-
-      for (const auto& sr : _mergedSources)
-        oss << delimiter << sr;
-    }
-
-    inline std::string toCSV(const char delimiter = '#') const
-    {
-      std::ostringstream oss;
-      toCSV(oss, delimiter);
-      return oss.str();
-    }
-
     void merge(MetaDataSource const& other)
     {
       if( _dataPatch == eModificationPatch::DELTACHANGE &&
           other._dataPatch == eModificationPatch::DELTACHANGE &&
           _prefixBuildType != other._prefixBuildType)
       {
-        throw std::domain_error{"MetaDataSource::merge() expects same Build-type when dataPatch == DELTACHANGE"};
+        throw MergeError_MetaDataSource_exception{"MetaDataSource::merge() expects same Build-type when dataPatch == DELTACHANGE"};
       }
 
-      std::set<std::string> oSourceCopy {other._mergedSources}; // why : refer https://en.cppreference.com/w/cpp/container/set/merge
-      std::string otherMain{char(other._dataPatch)};
-      otherMain += other._source;
+      std::set<t_DataType> oSourceCopy {other._mergedDataTypes}; // why : refer https://en.cppreference.com/w/cpp/container/set/merge
+      t_DataType otherMain{char(other._dataPatch)};
+      otherMain += other._dataType;
       oSourceCopy.insert(otherMain);
-      _mergedSources.merge(oSourceCopy);
+      _mergedDataTypes.merge(oSourceCopy);
 
-      std::string thisMain{char(_dataPatch)};
-      thisMain += _source;
-      _mergedSources.erase(thisMain);
+      t_DataType thisMain{char(_dataPatch)};
+      thisMain += _dataType;
+      _mergedDataTypes.erase(thisMain);
     }
 
     eBuildDirection getBuildDirection() const { return _prefixBuildType; }
 
-    private:
-      const std::string             _source;
-      const eBuildDirection         _prefixBuildType;
-      const eModificationPatch      _dataPatch;
-      std::set<std::string>         _mergedSources;
+    inline void toCSV(std::ostream& oss, const char delimitr = MetaDataSource::delimiter) const
+    {
+      if (_dataType.empty()) return;
+
+      oss << char(_prefixBuildType) << delimitr << char(_dataPatch) << _dataType;
+
+      for (const auto& sr : _mergedDataTypes)
+        oss << delimitr << sr;
+    }
+
+    inline std::string toCSV(const char delimitr = MetaDataSource::delimiter) const
+    {
+      std::ostringstream oss;
+      toCSV(oss, delimitr);
+      return oss.str();
+    }
+
+    protected:
+      const t_DataType            _dataType;
+      const eBuildDirection       _prefixBuildType;
+      const eModificationPatch    _dataPatch;
+      std::set<t_DataType>        _mergedDataTypes;
   };
 
 
@@ -204,19 +223,19 @@ namespace datastructure { namespace versionedObject
     inline const M&           getMetaData() const { return _metaData; }
     inline const t_record&    getRecord()   const { return _record; }
 
-    inline void toCSV(std::ostream& oss, const char delimiterMetaData = '#') const
+    inline void toCSV(std::ostream& oss, const char delimiterMetaData = M::delimiter) const
     {
       oss << _metaData.toCSV(delimiterMetaData) << "," << converter::ConvertFromTuple<T...>::ToStr(_record);
     }
 
-    inline std::string toCSV(const char delimiterMetaData = '#') const
+    inline std::string toCSV(const char delimiterMetaData = M::delimiter) const
     {
       std::ostringstream oss;
       toCSV(oss, delimiterMetaData);
       return oss.str();
     }
 
-    inline std::string toLog(const char delimiterMetaData = '#') const
+    inline std::string toLog(const char delimiterMetaData = M::delimiter) const
     {
       std::ostringstream oss;
       oss << " metaData=[" << _metaData.toCSV(delimiterMetaData)
@@ -284,19 +303,6 @@ namespace datastructure { namespace versionedObject
   private:
     const t_record    _record;       // value(s) of elements after change
   };
-
-
-
-  template<size_t expIdx>
-  class VO_exception : public std::invalid_argument
-  {
-  public :
-    VO_exception(const std::string& msg) : std::invalid_argument(msg) {}
-    VO_exception(const char*        msg) : std::invalid_argument(msg) {}
-    virtual ~VO_exception() {}
-  };
-
-  using VO_Record_Mismatch_exception = VO_exception<0>;
 
 
 

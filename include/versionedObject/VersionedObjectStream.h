@@ -139,75 +139,75 @@ namespace datastructure { namespace versionedObject
   };
 
 
-  template <bool hasMetaData, typename VDT, typename ... MT>
+  template <bool hasMetaData, typename VDT, typename M, typename ... T>
   class VersionedObjectStream;
 
-  template <typename VDT, typename ... MT>
-  class VersionedObjectStream<true, VDT, MT...> :
-        protected _VersionedObjectStream<VDT, MT...>
+  template <typename VDT, c_MetaData M, typename ... T>
+  class VersionedObjectStream<true, VDT, M, T...> :
+        protected _VersionedObjectStream<VDT, M, T...>
   {
   public:
     using t_versionDate    = VDT;
-    using t_dataset        = DataSet<MT ...>;
+    using t_dataset        = DataSet<M, T ...>;
     using t_datasetLedger  = std::map< t_versionDate, t_dataset >;
     using t_record         = typename t_dataset::t_record;
-    using t_versionedObjectStreamBase = _VersionedObjectStream<VDT, MT...>;
+    using t_versionedObjectStreamBase = _VersionedObjectStream<VDT, M, T...>;
 
-    VersionedObjectStream(const VersionedObject<VDT, MT...>& vo) :
-          _VersionedObjectStream<VDT, MT...>(vo.getDatasetLedger()) {}
+    VersionedObjectStream(const VersionedObject<VDT, M, T...>& vo) :
+          _VersionedObjectStream<VDT, M, T...>(vo.getDatasetLedger()) {}
 
-    static VersionedObjectStream createVOstreamer(const VersionedObject<VDT, MT...>& vo)
+    static VersionedObjectStream createVOstreamer(const VersionedObject<VDT, M, T...>& vo)
     {
       return VersionedObjectStream(vo);
     }
 
     inline void toCSV(const std::string& prefix, std::ostream& oss,
-                      const char delimiterMetaData = '#') const
+                      const char delimiterMetaData = M::delimiter) const
     {
       t_versionedObjectStreamBase::_toCSV(prefix, oss, delimiterMetaData);
     }
 
-    inline void toCSV(std::ostream& oss, const char delimiterMetaData = '#') const
+    inline void toCSV(std::ostream& oss, const char delimiterMetaData = M::delimiter) const
     {
       t_versionedObjectStreamBase::_toCSV(oss, delimiterMetaData);
     }
 
-    inline std::string toCSV(const char delimiterMetaData = '#') const
+    inline std::string toCSV(const char delimiterMetaData = M::delimiter) const
     {
       return t_versionedObjectStreamBase::_toCSV(delimiterMetaData);
     }
 
-    inline void toStr(const std::string& prefix, std::ostream& oss, const char delimiterMetaData = '#') const
+    inline void toStr(const std::string& prefix, std::ostream& oss, const char delimiterMetaData = M::delimiter) const
     {
       return t_versionedObjectStreamBase::_toStr(prefix, oss, delimiterMetaData);
     }
 
-    inline void toStr(std::ostream& oss, const char delimiterMetaData = '#') const
+    inline void toStr(std::ostream& oss, const char delimiterMetaData = M::delimiter) const
     {
       return t_versionedObjectStreamBase::_toStr(oss, delimiterMetaData);
     }
 
-    inline std::string toStr(const char delimiterMetaData = '#') const
+    inline std::string toStr(const char delimiterMetaData = M::delimiter) const
     {
       return t_versionedObjectStreamBase::_toStr(delimiterMetaData);
     }
   };
 
-  template <typename VDT, typename ... MT>
-  class VersionedObjectStream<false, VDT, MT...> :
-        protected _VersionedObjectStream<VDT, MT...>
+  template <typename VDT, c_noMetaData T1, typename ... TR>
+  class VersionedObjectStream<false, VDT, T1, TR...> :
+        protected _VersionedObjectStream<VDT, T1, TR...>
   {
   public:
     using t_versionDate    = VDT;
-    using t_dataset        = DataSet<MT ...>;
+    using t_dataset        = DataSet<T1, TR...>;
     using t_datasetLedger  = std::map< t_versionDate, t_dataset >;
     using t_record         = typename t_dataset::t_record;
-    using t_versionedObjectStreamBase = _VersionedObjectStream<VDT, MT...>;
+    using t_versionedObjectStreamBase = _VersionedObjectStream<VDT, T1, TR...>;
 
-    VersionedObjectStream(const VersionedObject<VDT, MT...>& vo) :
-          _VersionedObjectStream<VDT, MT...>(vo.getDatasetLedger()) {}
+    VersionedObjectStream(const VersionedObject<VDT, T1, TR...>& vo) :
+          _VersionedObjectStream<VDT, T1, TR...>(vo.getDatasetLedger()) {}
 
-    static VersionedObjectStream createVOstreamer(const VersionedObject<VDT, MT...>& vo)
+    static VersionedObjectStream createVOstreamer(const VersionedObject<VDT, T1, TR...>& vo)
     {
       return VersionedObjectStream(vo);
     }

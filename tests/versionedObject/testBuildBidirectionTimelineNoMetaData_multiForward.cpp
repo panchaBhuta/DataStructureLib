@@ -5,6 +5,7 @@ void interimForwardTest(t_versionObject& vo,
                         [[maybe_unused]] bool insertResultExpected,
                         t_versionObjectBuilder& vob)
 {
+  const dsvo::StreamerHelper sh{};
   {
     ////////////////////////              LOT change test
     t_companyInfo companyInfoLatest = t_convertFromString::ToVal(
@@ -13,7 +14,7 @@ void interimForwardTest(t_versionObject& vo,
     TEST_WITH_METADATA(dsvo::MetaDataSource manualMeta("manualMarketLotChange" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::FullRECORD));
     t_dataSet companyRecordLotChangeExpected {TEST_WITH_METADATA(manualMeta COMMA) companyInfoLatest};
     t_versionDate lotChangeVersionDate{std::chrono::year(int(2021)), std::chrono::April, std::chrono::day(unsigned(07))};
-    VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() -> lotChange-versionDate: " << lotChangeVersionDate << "; DATASET{" << companyRecordLotChangeExpected.toCSV(TEST_WITH_METADATA(dsvo::MetaDataSource::delimiter)) << "}");
+    VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() -> lotChange-versionDate: " << lotChangeVersionDate << "; DATASET{" << companyRecordLotChangeExpected.toCSV(TEST_WITH_METADATA(sh)) << "}");
     bool insertResult = vo.insertVersion(lotChangeVersionDate, companyRecordLotChangeExpected);
     VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() lotChange-insertResult=" << insertResult);
     unittest::ExpectEqual(bool, insertResultExpected, insertResult);
@@ -39,7 +40,7 @@ void interimForwardTest(t_versionObject& vo,
     TEST_WITH_METADATA(dsvo::MetaDataSource relistedMeta("relisted" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::FullRECORD));
     t_dataSet companyRecordRelistedExpected {TEST_WITH_METADATA(relistedMeta COMMA) companyInfoLatest};
     t_versionDate relistedVersionDate{std::chrono::year(int(2022)), std::chrono::January, std::chrono::day(unsigned(12))};
-    VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() -> relisted-versionDate: " << relistedVersionDate << "; DATASET{" << companyRecordRelistedExpected.toCSV(TEST_WITH_METADATA(dsvo::MetaDataSource::delimiter)) << "}");
+    VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() -> relisted-versionDate: " << relistedVersionDate << "; DATASET{" << companyRecordRelistedExpected.toCSV(TEST_WITH_METADATA(sh)) << "}");
     bool insertResult = vo.insertVersion(relistedVersionDate, companyRecordRelistedExpected);
     VERSIONEDOBJECT_DEBUG_MSG( "debug_LOG: vo.insertVersion() relisted-insertResult=" << insertResult);
     unittest::ExpectEqual(bool, insertResultExpected, insertResult);
@@ -64,7 +65,7 @@ void interimForwardTest(t_versionObject& vo,
   unittest::ExpectEqual(typename t_versionObjectBuilder::t_deltaEntriesMap_iter_diff_type, 0, buildResult.second);
 
 
-  //std::cout << "#### vo start ######\n" << t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA(dsvo::MetaDataSource::delimiter)) << "#### vo end ######\n";
+  //std::cout << "#### vo start ######\n" << t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA(sh)) << "#### vo end ######\n";
   std::string voStrForward =
     "13-May-2004," TEST_WITH_METADATA("*|*manualDeduction,") "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"        // vo.insertVersion(...)
     "21-Jan-2014," TEST_WITH_METADATA("+|%symbolChange|@nameSpot,") "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"  // FORWARD
@@ -75,7 +76,7 @@ void interimForwardTest(t_versionObject& vo,
     "12-Jan-2022," TEST_WITH_METADATA("*|*relisted,") "ANDHRAPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE546B12139,10,LISTED\n"                       // vo.insertVersion(...)
     "28-Oct-2023," TEST_WITH_METADATA("+|@marketLotSpot,") "ANDHRAPAPER,ANDHRA PAPER LIMITED,EQ,10,5,INE546B12139,10,LISTED\n";                 // FORWARD
 
-  unittest::ExpectEqual(std::string, voStrForward, t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA(dsvo::MetaDataSource::delimiter)));
+  unittest::ExpectEqual(std::string, voStrForward, t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA(sh)));
 }
 
 

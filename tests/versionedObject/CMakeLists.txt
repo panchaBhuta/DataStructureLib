@@ -10,19 +10,38 @@
 
 # https://stackoverflow.com/questions/14446495/cmake-project-structure-with-unit-tests
 
+function(add_test_lib filename ENABLE_METADATA)
+  SET(testLibName "${filename}_${ENABLE_METADATA}")
+  add_library(${testLibName} OBJECT ${filename}.cpp)
+  target_include_directories(${testLibName} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+  target_compile_definitions(${testLibName} PUBLIC TEST_ENABLE_METADATA=${ENABLE_METADATA}
+        $<$<CONFIG:Debug>:DEBUG_BUILD>
+        $<$<CONFIG:Release>:RELEASE_BUILD>
+        FLAG_VERSIONEDOBJECT_debug_log=$<BOOL:${OPTION_VERSIONEDOBJECT_debug_log}>)
+  target_link_libraries(${testLibName} dataStructure) # donot specify PUBLIC here,
+endfunction(add_test_lib)
+
+add_test_lib(main 0)
+add_test_lib(main 1)
+add_test_lib(testForwardTimeLineCommon 0)
+add_test_lib(testForwardTimeLineCommon 1)
+add_test_lib(testReverseTimeLineCommon 0)
+add_test_lib(testReverseTimeLineCommon 1)
 
 # Test function add_unit_test
 function(add_unit_test testname OPTION_ENABLE_METADATA)
   if(CMAKE_BUILD_TYPE MATCHES "Debug")
   #if(BUILD_TESTING)
-    message(STATUS "### TEST ${testname}")
-    FILE(GLOB sources ${testname}.cpp main.cpp  ${ARGN})
-    add_executable(${testname} ${sources})
+    FILE(GLOB sourcesExe ${testname}.cpp)
+    SET(sourcesFile main.cpp ${ARGN})
+    LIST(TRANSFORM sourcesFile REPLACE [[\.cpp]] "_${OPTION_ENABLE_METADATA}"   OUTPUT_VARIABLE binaryLibs)
+    message(STATUS "### TEST ${testname} :: sourcesFile[${sourcesFile}] -> libs[${binaryLibs}]")
+    add_executable(${testname} ${sourcesExe})
     #add_test(NAME ${testname} COMMAND "${PROJECT_BINARY_DIR}/tests/versionedObject/${testname}")
     add_test(NAME ${testname} COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/testRun.sh"   "${PROJECT_BINARY_DIR}/tests/versionedObject/${testname}")
     target_include_directories(${testname} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
-    target_link_libraries(${testname} dataStructure) # donot specify PUBLIC here,
-    target_compile_definitions(${testname} PRIVATE TEST_ENABLE_METADATA=$<BOOL:${OPTION_ENABLE_METADATA}>)
+    target_link_libraries(${testname} dataStructure ${binaryLibs}) # donot specify PUBLIC here,
+    target_compile_definitions(${testname}    PRIVATE TEST_ENABLE_METADATA=$<BOOL:${OPTION_ENABLE_METADATA}>)
     # executable ${testname} has to have transitive association to all its dependencies(aka library chain)
     # refer   https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html#target-usage-requirements
     # refer   https://cmake.org/cmake/help/latest/command/target_link_libraries.html#libraries-for-a-target-and-or-its-dependents
@@ -30,21 +49,32 @@ function(add_unit_test testname OPTION_ENABLE_METADATA)
   endif()
 endfunction(add_unit_test)
 
+#[======================[
 # Test macro add_perf_test
 macro(add_perf_test testname OPTION_ENABLE_METADATA)
   if(CMAKE_BUILD_TYPE MATCHES "Release")
     message(STATUS "### TEST ${testname}")
     # https://cmake.org/cmake/help/latest/manual/cmake-generator-expressions.7.html#genex:condition
-    FILE(GLOB sources ${testname}.cpp main.cpp  ${ARGN})
-    add_executable(${testname} ${sources})
+    FILE(GLOB sourcesExe ${testname}.cpp)
+    FILE(GLOB sourcesLib main.cpp  ${ARGN})
+    add_executable(${testname} ${sourcesExe})
+    LIST(JOIN ${sourcesLib} "_" testlibname)
+    SET(testlibname "${testlibname}_${OPTION_ENABLE_METADATA}")
+    add_library(${testlibname} STATIC ${sourcesLib})
     add_test(NAME ${testname} COMMAND "${PROJECT_BINARY_DIR}/tests/versionedObject/${testname}")
-    target_link_libraries(${testname} dataStructure) # donot specify PUBLIC here,
-    target_compile_definitions(${testname} PRIVATE TEST_ENABLE_METADATA=$<BOOL:${OPTION_ENABLE_METADATA}>)
+    target_include_directories(${testname} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+    target_include_directories(${testlibname} INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+    target_link_libraries(${testname} dataStructure ${testlibname}) # donot specify PUBLIC here,
+    target_compile_definitions(${testname}    PRIVATE TEST_ENABLE_METADATA=$<BOOL:${OPTION_ENABLE_METADATA}>)
+    target_compile_definitions(${testlibname} PUBLIC  TEST_ENABLE_METADATA=$<BOOL:${OPTION_ENABLE_METADATA}>)
     # executable ${testname} has to have transitive association to all its dependencies(aka library chain)
     # refer   https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html#target-usage-requirements
     # refer   https://cmake.org/cmake/help/latest/command/target_link_libraries.html#libraries-for-a-target-and-or-its-dependents
+    set_target_properties(${testname} PROPERTIES  LINKER_LANGUAGE CXX)
+    set_target_properties(${testlibname} PROPERTIES  LINKER_LANGUAGE CXX)
   endif()
 endmacro(add_perf_test)
+#]======================]
 
 
 

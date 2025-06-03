@@ -108,16 +108,21 @@ namespace datastructure { namespace versionedObject
       return mergeableCount1;
     }
 
-    inline void toCSV(std::ostream& oss) const
+    template<typename SH = StreamerHelper>
+    inline void toCSV(std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
       //oss << _source;
-      _toCSV<0>(oss);
+      _toCSV<0>(oss, streamerHelper);
     }
 
-    inline std::string toCSV() const
+    template<typename SH = StreamerHelper>
+    inline std::string toCSV(
+      typename std::enable_if_t<  !std::is_same_v<SH, std::ostream&>,
+                                  const SH& >
+      streamerHelper = SH{}) const
     {
       std::ostringstream oss;
-      _ChangesInDataSetBase<T... >::toCSV(oss);
+      _ChangesInDataSetBase<T... >::toCSV(oss, streamerHelper);
       return oss.str();
     }
 
@@ -145,8 +150,8 @@ namespace datastructure { namespace versionedObject
         _buildDirection(snapOther.getBuildDirection())
     {}
 
-    template<size_t IDX>
-    inline void _toCSV(std::ostream& oss) const
+    template<size_t IDX , typename SH = StreamerHelper>
+    inline void _toCSV(std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
       if constexpr( IDX == 0 )
       {
@@ -159,7 +164,7 @@ namespace datastructure { namespace versionedObject
           oss << "[IsRECORD]:";
         }
       } else {
-        oss << ",";
+        oss << streamerHelper.getDelimiterCSV();
       }
 
       if( _modifiedElements.at(IDX) == eModificationPatch::DELTACHANGE ) // check if element is marked for change
@@ -174,7 +179,7 @@ namespace datastructure { namespace versionedObject
 
       if constexpr( IDX < (sizeof...(T)-1) )
       {
-        _toCSV< ( (IDX < (sizeof...(T)-1)) ? (IDX+1) : (sizeof...(T)-1) ) >(oss);
+        _toCSV< ( (IDX < (sizeof...(T)-1)) ? (IDX+1) : (sizeof...(T)-1) ) , SH >(oss, streamerHelper);
       }
     }
 
@@ -483,22 +488,30 @@ namespace datastructure { namespace versionedObject
         static_assert(false);
     }
 
-    inline void toCSV(std::ostream& oss) const
+    template<typename SH = StreamerHelper>
+    inline void toCSV(std::ostream& oss,
+                      const SH& streamerHelper = SH{}) const
     {
-      oss << _metaData.toCSV() << ",";
+      const SH& sh = streamerHelper;
+      oss << _metaData.toCSV(streamerHelper) << sh.getDelimiterCSV();
 
       // _toCSV<0>(oss);   #########  DOESNOT COMPILE : refer urls below
       //  https://stackoverflow.com/questions/9289859/calling-template-function-of-template-base-class
       //  https://stackoverflow.com/questions/610245/where-and-why-do-i-have-to-put-the-template-and-typename-keywords
-      this->template _toCSV<0>(oss);
+      this->template _toCSV<0>(oss, streamerHelper);
     }
 
-    inline std::string toCSV() const
+    template<typename SH = StreamerHelper>
+    inline std::string toCSV(
+      typename std::enable_if_t<  !std::is_same_v<SH, std::ostream&>,
+                                  const SH& >
+      streamerHelper = SH{}) const
     {
       std::ostringstream oss;
-      ChangesInDataSet<M, T...>::toCSV(oss);
+      ChangesInDataSet<M, T...>::toCSV(oss, streamerHelper);
       return oss.str();
     }
+
 
   private:
     M           _metaData;     // metaData-id of a change instance

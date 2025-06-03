@@ -24,10 +24,11 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     "22-Jan-2020," TEST_WITH_METADATA("+|%symbolchange|%namechange,") "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n";
 
 
+  const dsvo::StreamerHelper sh{};
   if(firstRun) {
-    unittest::ExpectEqual(std::string, std::string(""), t_versionObjectStream::createVOstreamer(voReload).toCSV(TEST_WITH_METADATA(dsvo::MetaDataSource::delimiter)));
+    unittest::ExpectEqual(std::string, std::string(""), t_versionObjectStream::createVOstreamer(voReload).toCSV(TEST_WITH_METADATA(sh)));
   } else {
-    unittest::ExpectEqual(std::string, voStr, t_versionObjectStream::createVOstreamer(voReload).toCSV(TEST_WITH_METADATA(dsvo::MetaDataSource::delimiter)));
+    unittest::ExpectEqual(std::string, voStr, t_versionObjectStream::createVOstreamer(voReload).toCSV(TEST_WITH_METADATA(sh)));
   }
 
 //  NOTE : the row below is manually deduced
@@ -163,7 +164,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 #endif
   }
 
-  unittest::ExpectEqual(std::string, voStr, t_versionObjectStream::createVOstreamer(voReload).toCSV(TEST_WITH_METADATA(dsvo::MetaDataSource::delimiter)));
+  unittest::ExpectEqual(std::string, voStr, t_versionObjectStream::createVOstreamer(voReload).toCSV(TEST_WITH_METADATA(sh)));
 
 //  ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 //  NOTE: the row below is not a versioned information, but CROWN info from EQUITY_L.csv

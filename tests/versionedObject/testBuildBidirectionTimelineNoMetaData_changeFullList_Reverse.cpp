@@ -27,7 +27,7 @@ void interimReverseTest(t_versionObject& vo,
   unittest::ExpectEqual(typename t_versionObjectBuilder::t_deltaEntriesMap_iter_diff_type, 0, buildResult.second);
 
 
-  //std::cout << "#### vo start ######\n" << t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA(dsvo::MetaDataSource::delimiter)) << "#### vo end ######\n";
+  //std::cout << "#### vo start ######\n" << t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA(sh)) << "#### vo end ######\n";
   std::string voStrBidi =
     "13-May-2004," TEST_WITH_METADATA("-|%symbolChange|@nameSpot,") "APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"     // listingDate-of-reverse
     "21-Jan-2014," TEST_WITH_METADATA("-|%symbolChange|%nameChange,") "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED\n"    // REVERSE
@@ -35,7 +35,8 @@ void interimReverseTest(t_versionObject& vo,
     "05-Mar-2020," TEST_WITH_METADATA("*|*EQUITY_L,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED\n"                             // REVERSE + vo.insertVersion(...)
     "07-Apr-2021," TEST_WITH_METADATA("+|@marketLotSpot,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED\n";                       // FORWARD
 
-  unittest::ExpectEqual(std::string, voStrBidi, t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA(dsvo::MetaDataSource::delimiter)));
+  const dsvo::StreamerHelper sh{};
+  unittest::ExpectEqual(std::string, voStrBidi, t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA(sh)));
 }
 
 

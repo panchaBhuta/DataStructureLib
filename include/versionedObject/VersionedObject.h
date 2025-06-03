@@ -20,6 +20,7 @@
 #include <string>
 #include <sstream>
 #include <chrono>
+#include <utility>
 
 #include <optional>
 #include <iterator>
@@ -73,10 +74,10 @@ namespace datastructure { namespace versionedObject
   template <typename M>
   concept c_noMetaData = !is_MetaData<M>::value;
 
-  enum eModificationPatch {   //   ModficationType
-    DELTACHANGE = '%',    //  DELTA_CHANGE=2
-    SNAPSHOT    = '@',    //  SNAPSHOT=1
-    FullRECORD  = '*'     //  NO_MODIFICATION=0
+  enum eModificationPatch {
+    DELTACHANGE = '%',
+    SNAPSHOT    = '@',
+    FullRECORD  = '*'
   };
 
   enum eBuildDirection {
@@ -103,18 +104,67 @@ namespace datastructure { namespace versionedObject
   using InvalidEnum_MetaDataSource_exception    =  VO_exception<9>;
   using MergeError_MetaDataSource_exception     =  VO_exception<10>;
 
+
+  inline eModificationPatch char2ModificationPatch(const char cModificationPatch)
+  {
+    switch(cModificationPatch)
+    {
+    case static_cast<char>(eModificationPatch::DELTACHANGE) : // = '%',
+    case static_cast<char>(eModificationPatch::SNAPSHOT)    : // = '@',
+    case static_cast<char>(eModificationPatch::FullRECORD)  : // = '*'
+      return static_cast<eModificationPatch>(cModificationPatch);
+    default:
+      std::ostringstream oss;
+      oss << "datastructure::versionedObject::char2ModificationPatch() : invalid enum symbol '"
+          << cModificationPatch << "'";
+      throw InvalidEnum_MetaDataSource_exception(oss.str());
+    };
+  }
+
+  inline eBuildDirection char2BuildDirection(const char cBuildDirection)
+  {
+    switch(cBuildDirection)
+    {
+    case static_cast<char>(eBuildDirection::FORWARD)  : // = '+',
+    case static_cast<char>(eBuildDirection::REVERSE)  : // = '-',
+    case static_cast<char>(eBuildDirection::IsRECORD) : // = '*'
+      return static_cast<eBuildDirection>(cBuildDirection);
+    default:
+      std::ostringstream oss;
+      oss << "datastructure::versionedObject::char2BuildDirection() : invalid enum symbol '"
+          << cBuildDirection << "'";
+      throw InvalidEnum_MetaDataSource_exception(oss.str());
+    };
+  }
+
+  class StreamerHelper
+  {
+    char _delimiterMetaData;
+    char _delimiterCSV;
+
+  public:
+    StreamerHelper(char pDelimiterMetaData = '|', char pDelimiterCSV = ',')
+      : _delimiterMetaData{pDelimiterMetaData},
+        _delimiterCSV{pDelimiterCSV}
+    {}
+
+    inline char getDelimiterMetaData() const { return _delimiterMetaData; }
+    inline char getDelimiterCSV() const { return _delimiterCSV; }
+  };
+
     // this is optional. A user can define their own MetaData class and pass it to "DataSet<>"
   // A user defined MetaData class needs to define three components as below:
   //      1. using isMetaData = std::true_type;
-  //      2. void merge(const MetaDataSource& other) { ... }
+  //      2. void merge(const crtpMetaDataSource& other) { ... }
   //      3. assignment operator
-  class MetaDataSource
+  template<typename M, typename CONTAINER = std::set<t_DataType> >
+  class crtpMetaDataSource   /// crtp -> Curiously recurring template pattern
   {
   public:
     using isMetaData = std::true_type;
-    inline static const char delimiter = '|';
+    using t_Container = CONTAINER;
 
-    MetaDataSource(const t_DataType& dataType, eBuildDirection prefixBuildType, eModificationPatch dataPatch)
+    crtpMetaDataSource(const t_DataType& dataType, eBuildDirection prefixBuildType, eModificationPatch dataPatch)
       : _dataType{dataType},
         _prefixBuildType{prefixBuildType},
         _dataPatch{dataPatch},
@@ -123,65 +173,177 @@ namespace datastructure { namespace versionedObject
       if( ( prefixBuildType == eBuildDirection::IsRECORD && dataPatch != eModificationPatch::FullRECORD ) ||
           ( prefixBuildType != eBuildDirection::IsRECORD && dataPatch == eModificationPatch::FullRECORD ) )
       {
-        throw EnumMismatch_MetaDataSource_exception{"MetaDataSource() : prefixBuildType and dataPatch are both of RECORD type, OR neither are of RECORD type"};
+        throw EnumMismatch_MetaDataSource_exception{"crtpMetaDataSource() : prefixBuildType and dataPatch are both of RECORD type, OR neither are of RECORD type"};
       }
-      if( dataPatch == eModificationPatch::SNAPSHOT && prefixBuildType != eBuildDirection::FORWARD )
+      if( dataPatch == eModificationPatch::SNAPSHOT && prefixBuildType != eBuildDirection::FORWARD ) // i.e SNAPSHOT change is applicable for FORWARD build only
       {
-        throw InvalidEnum_MetaDataSource_exception{"MetaDataSource() : if dataPatch==SNAPSHOT; then prefixBuildType should be FORWARD"};
+        throw InvalidEnum_MetaDataSource_exception{"crtpMetaDataSource() : if dataPatch==SNAPSHOT; then prefixBuildType should be FORWARD"};
       }
     }
 
-    //MetaDataSource() = default;
-    MetaDataSource(MetaDataSource const&) = default;
-    MetaDataSource& operator=(MetaDataSource const&) = default;
-    bool operator==(MetaDataSource const& other) const = default;
+    crtpMetaDataSource() = delete;
+    crtpMetaDataSource(crtpMetaDataSource const&) = default;
+    crtpMetaDataSource(crtpMetaDataSource &&) = default;
+    crtpMetaDataSource& operator=(crtpMetaDataSource const&) = default;
+    bool operator==(crtpMetaDataSource const& other) const = default;
 
-    void merge(MetaDataSource const& other)
+    void merge(const M& otherNew)
     {
-      if( _dataPatch == eModificationPatch::DELTACHANGE &&
-          other._dataPatch == eModificationPatch::DELTACHANGE &&
-          _prefixBuildType != other._prefixBuildType)
-      {
-        throw MergeError_MetaDataSource_exception{"MetaDataSource::merge() expects same Build-type when dataPatch == DELTACHANGE"};
-      }
+      static_cast<M*>(this)->_checkMerge(otherNew);
 
-      std::set<t_DataType> oSourceCopy {other._mergedDataTypes}; // why : refer https://en.cppreference.com/w/cpp/container/set/merge
-      t_DataType otherMain{char(other._dataPatch)};
-      otherMain += other._dataType;
-      oSourceCopy.insert(otherMain);
+      CONTAINER oSourceCopy {otherNew._mergedDataTypes}; // why : refer https://en.cppreference.com/w/cpp/container/set/merge
+      t_DataType otherMainKey{char(otherNew._dataPatch)};
+      otherMainKey += otherNew._dataType;
+
+      static_cast<M*>(this)->_insert(oSourceCopy, otherNew, otherMainKey);
+
       _mergedDataTypes.merge(oSourceCopy);
 
-      t_DataType thisMain{char(_dataPatch)};
-      thisMain += _dataType;
-      _mergedDataTypes.erase(thisMain);
+      t_DataType thisMainKey{char(_dataPatch)};
+      thisMainKey += _dataType;
+      _mergedDataTypes.erase(thisMainKey);
     }
 
     eBuildDirection getBuildDirection() const { return _prefixBuildType; }
+    eModificationPatch getModificationPatch() const { return _dataPatch; }
+    t_DataType getDataType() const { return _dataType; }
 
-    inline void toCSV(std::ostream& oss, const char delimitr = MetaDataSource::delimiter) const
+    virtual ~crtpMetaDataSource() { _mergedDataTypes.clear(); }
+
+    template<typename SH = StreamerHelper>
+    inline void toCSV(std::ostream& oss,
+                      typename std::enable_if_t< std::is_same_v<CONTAINER, std::set<t_DataType>>,
+                                                 const SH&
+                                               > streamerHelper = SH{}) const
     {
-      if (_dataType.empty()) return;
-
-      oss << char(_prefixBuildType) << delimitr << char(_dataPatch) << _dataType;
+      const SH& sh = streamerHelper;
+      oss << char(_prefixBuildType) << sh.getDelimiterMetaData() << char(_dataPatch) << _dataType;
 
       for (const auto& sr : _mergedDataTypes)
-        oss << delimitr << sr;
+        oss << sh.getDelimiterMetaData() << sr;
     }
 
-    inline std::string toCSV(const char delimitr = MetaDataSource::delimiter) const
+    template<typename SH = StreamerHelper>
+    inline std::string toCSV(
+      typename std::enable_if_t<  !std::is_same_v<SH, std::ostream&>,
+                                  const SH& >
+      streamerHelper = SH{}) const
     {
       std::ostringstream oss;
-      toCSV(oss, delimitr);
+      if constexpr(std::is_same_v<CONTAINER, std::set<t_DataType>>)
+      {
+        this->template toCSV<SH>(oss, streamerHelper);
+      } else {
+        using CM = const M;
+        static_cast<CM*>(this)->template toCSV<SH>(oss, streamerHelper);
+      }
       return oss.str();
     }
 
     protected:
-      const t_DataType            _dataType;
-      const eBuildDirection       _prefixBuildType;
-      const eModificationPatch    _dataPatch;
-      std::set<t_DataType>        _mergedDataTypes;
+      const t_DataType            _dataType;             // crown, symbolChange, nameChange, lotChange, delisted
+      const eBuildDirection       _prefixBuildType;      // '+'  '-'  '*'
+      const eModificationPatch    _dataPatch;            // '%'  '@'  '*'
+      CONTAINER                   _mergedDataTypes;      // default std::set<t_DataType>
+
+    void _checkMerge(M const& other) const
+    {
+      if( ( _dataPatch == eModificationPatch::FullRECORD  && other._dataPatch == eModificationPatch::FullRECORD ) &&   //   '*'
+          ( _prefixBuildType == eBuildDirection::IsRECORD && other._prefixBuildType == eBuildDirection::IsRECORD ) )   //   '*'
+      {
+        if(_mergedDataTypes.size() > 0)
+          throw MergeError_MetaDataSource_exception{"crtpMetaDataSource<M, CONTAINER>::_checkMerge() : _mergedDataTypes.size.size() should be zero"};
+
+        if(other._mergedDataTypes.size() > 0)
+          throw MergeError_MetaDataSource_exception{"crtpMetaDataSource<M, CONTAINER>::_checkMerge() : other._mergedDataTypes.size() should be zero"};
+
+        return;
+      }
+
+      if( _dataPatch == eModificationPatch::FullRECORD  || other._dataPatch == eModificationPatch::FullRECORD )   //   '*'
+      {
+        throw MergeError_MetaDataSource_exception{"crtpMetaDataSource<M, CONTAINER>::_checkMerge() : _dataPatch and other._dataPatch should both be of 'FullRECORD' type, OR neither are of 'FullRECORD' type"};
+      }
+
+      if( _prefixBuildType == eBuildDirection::IsRECORD || other._prefixBuildType == eBuildDirection::IsRECORD )   //   '*'
+      {
+        throw MergeError_MetaDataSource_exception{"crtpMetaDataSource<M, CONTAINER>::_checkMerge() : _prefixBuildType and other._prefixBuildType should both be of 'IsRECORD' type, OR neither are of 'IsRECORD' type"};
+      }
+
+
+/*
+20: DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)
+20: DEBUG_LOG:  +++++before combo+++++++
+20: DEBUG_LOG:    _logDeltaEntriesMap(START)
+20: DEBUG_LOG:    versionDate[21-Jan-2014] : delta{-|%symbolChange,[REVERSE]:APPAPER->IPAPPM,,,,,,,}
+20: DEBUG_LOG:    versionDate[22-Jan-2020] : delta{-|%symbolChange|%nameChange,[REVERSE]:IPAPPM->ANDPAPER,International Paper APPM Limited->ANDHRA PAPER LIMITED,,,,,,}
+20: DEBUG_LOG:    versionDate[05-Mar-2020] : delta{-|%symbolChange,[REVERSE]:ANDPAPER->ANDHRAPAP,,,,,,,}
+20: DEBUG_LOG:    _logDeltaEntriesMap(END)
+20: DEBUG_LOG:  ~~~~~~~~~~~~~~~~~~~~~~~~
+20: DEBUG_LOG:    _logSnapEntriesMap(START)
+20: DEBUG_LOG:    versionDate[21-Jan-2014] : snap{+|@nameSpot,[FORWARD]:,International Paper APPM Limited,,,,,,}
+20: DEBUG_LOG:    versionDate[05-Mar-2020] : snap{+|@nameSpot,[FORWARD]:,ANDHRA PAPER LIMITED,,,,,,}
+20: DEBUG_LOG:    _logSnapEntriesMap(END)
+20: DEBUG_LOG:  -----before combo-------
+*/
+      if( _prefixBuildType == other._prefixBuildType )  // '+' or '-'  ; NA '*'
+      {
+        //  { '+' , '+' } ; { '-' , '-' }
+        if( _dataPatch == other._dataPatch )            // '%' or '@'  ; NA '*'
+          return;      // { '+|%' , '+|%' } ; { '+|@' , '+|@' } ; { '-|%' , '-|%' } ; { NP , NP }   ;  NotPossible '-|@'
+
+        return;        // { '+|%' , '+|@' } ; { '+|@' , '+|%' } ; { '-|%' , NP } ; { NP , '-|%' }   ;  NotPossible '-|@'
+      } else {  //  ( _prefixBuildType != other._prefixBuildType )  // '+' or '-'  ; NA '*'
+        //  { '+' , '-' } ; { '-' , '+' }
+
+        if( _dataPatch == other._dataPatch )            // '%' or '@'  ; NA '*'
+        {
+          // { '+|%' , '-|%' } ; { '+|@' , NP } ; { '-|%' , '+|%' } ; { NP , '+|@' }   ;  NotPossible '-|@'
+
+          if( _dataPatch == eModificationPatch::DELTACHANGE )  // '%'
+          {
+            // { '+|%' , '-|%' } ; { '-|%' , '+|%' }
+            throw MergeError_MetaDataSource_exception{"crtpMetaDataSource<M, CONTAINER>::_checkMerge() : expects same Build-type when dataPatch == 'DELTACHANGE'"};
+          }
+
+          // { '+|@' , NP } ; { NP , '+|@' }   ;  NotPossible '-|@'
+          return;
+        }
+
+        return;        // { '+|%' , NP } ; { '+|@' , '-|%' } ; { '-|%' , '+|@' } ; { NP , '+|%' }   ;  NotPossible '-|@'
+      }
+
+      // _dataType ( crown, symbolChange, nameChange, lotChange, delisted)
+      // _dataType check is not needed here, as in merge(); we add other's KEY and remove this's KEY
+    }
+
+    void _insert(CONTAINER& oSourceCopy, [[maybe_unused]] const M& otherNew, const t_DataType& otherMainKey)
+    {
+      if(oSourceCopy.insert(otherMainKey).second == false)
+      {
+        throw MergeError_MetaDataSource_exception{"crtpMetaDataSource<M, CONTAINER>::_insert() : insert failed"};
+      }
+    }
   };
 
+  class MetaDataSource : public crtpMetaDataSource<MetaDataSource>
+  {
+  public:
+    //using isMetaData = std::true_type;
+    //inline static const char metaDataDelimiter   = '|';
+
+    MetaDataSource(const t_DataType& dataType, eBuildDirection prefixBuildType, eModificationPatch dataPatch)
+      : crtpMetaDataSource<MetaDataSource>(dataType, prefixBuildType, dataPatch)
+    {}
+
+    MetaDataSource() = delete;
+    MetaDataSource(MetaDataSource const&) = default;
+    MetaDataSource(MetaDataSource &&) = default;
+    MetaDataSource& operator=(MetaDataSource const&) = default;
+    bool operator==(MetaDataSource const& other) const = default;
+
+    ~MetaDataSource() {}
+  };
 
   template <typename M, typename ... T>
   class DataSet;
@@ -223,23 +385,32 @@ namespace datastructure { namespace versionedObject
     inline const M&           getMetaData() const { return _metaData; }
     inline const t_record&    getRecord()   const { return _record; }
 
-    inline void toCSV(std::ostream& oss, const char delimiterMetaData = M::delimiter) const
+    template<typename SH = StreamerHelper>
+    inline void toCSV(std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
-      oss << _metaData.toCSV(delimiterMetaData) << "," << converter::ConvertFromTuple<T...>::ToStr(_record);
+      const SH& sh = streamerHelper;
+      oss << _metaData.toCSV(streamerHelper) << sh.getDelimiterCSV()
+          << converter::ConvertFromTuple<T...>::ToStr(_record, sh.getDelimiterCSV());
     }
 
-    inline std::string toCSV(const char delimiterMetaData = M::delimiter) const
+    template<typename SH = StreamerHelper>
+    inline std::string toCSV(
+      typename std::enable_if_t<  !std::is_same_v<SH, std::ostream&>,
+                                  const SH& >
+      streamerHelper = SH{}) const
     {
       std::ostringstream oss;
-      toCSV(oss, delimiterMetaData);
+      toCSV(oss, streamerHelper);
       return oss.str();
     }
 
-    inline std::string toLog(const char delimiterMetaData = M::delimiter) const
+    template<typename SH = StreamerHelper>
+    inline std::string toLog(const SH& streamerHelper = SH{}) const
     {
+      const SH& sh = streamerHelper;
       std::ostringstream oss;
-      oss << " metaData=[" << _metaData.toCSV(delimiterMetaData)
-          << "] ; record=[" << converter::ConvertFromTuple<T...>::ToStr(_record) << "]";
+      oss << " metaData=[" << _metaData.toCSV(streamerHelper)
+          << "] ; record=[" << converter::ConvertFromTuple<T...>::ToStr(_record, sh.getDelimiterCSV()) << "]";
       return oss.str();
     }
 
@@ -279,22 +450,28 @@ namespace datastructure { namespace versionedObject
 
     inline const t_record&    getRecord() const { return _record; }
 
-    inline void toCSV(std::ostream& oss) const
+    template<typename SH = StreamerHelper>
+    inline void toCSV(std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
-      oss << converter::ConvertFromTuple<T1, TR...>::ToStr(_record);
+      oss << converter::ConvertFromTuple<T1, TR...>::ToStr(_record, streamerHelper.getDelimiterCSV());
     }
 
-    inline std::string toCSV() const
+    template<typename SH = StreamerHelper>
+    inline std::string toCSV(
+      typename std::enable_if_t<  !std::is_same_v<SH, std::ostream&>,
+                                  const SH& >
+      streamerHelper = SH{}) const
     {
       std::ostringstream oss;
-      toCSV(oss);
+      toCSV(oss, streamerHelper);
       return oss.str();
     }
 
-    inline std::string toLog() const
+    template<typename SH = StreamerHelper>
+    inline std::string toLog(const SH& streamerHelper = SH{}) const
     {
       std::ostringstream oss;
-      oss << " record=[" << converter::ConvertFromTuple<T1, TR...>::ToStr(_record) << "]";
+      oss << " record=[" << converter::ConvertFromTuple<T1, TR...>::ToStr(_record, streamerHelper.getDelimiterCSV()) << "]";
       return oss.str();
     }
 

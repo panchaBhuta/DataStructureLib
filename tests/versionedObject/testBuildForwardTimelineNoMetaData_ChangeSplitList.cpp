@@ -19,7 +19,8 @@ void interimForwardTest(t_versionObject& vo,
     voStrFirst += "07-Apr-2021," TEST_WITH_METADATA("+|@marketLotSpot,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED\n";      // FORWARD
   }
 
-  unittest::ExpectEqual(std::string, voStrFirst, t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA(dsvo::MetaDataSource::delimiter)));
+  const dsvo::StreamerHelper sh{};
+  unittest::ExpectEqual(std::string, voStrFirst, t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA(sh)));
 
   vob.clear();
 
@@ -40,11 +41,11 @@ void interimForwardTest(t_versionObject& vo,
   vob.buildForwardTimeline(vo);
 
 
-  //std::cout << "#### vo start ######\n" << t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA(dsvo::MetaDataSource::delimiter)) << "#### vo end ######\n";
+  //std::cout << "#### vo start ######\n" << t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA(sh)) << "#### vo end ######\n";
   std::string voStrForward = voStrFirst +
     (insertResultExpected?"07-Apr-2021," TEST_WITH_METADATA("+|@marketLotSpot,") "ANDHRAPAP,ANDHRA PAPER LIMITED,EQ,10,2,INE435A01028,10,LISTED\n":"");  // FORWARD
 
-  unittest::ExpectEqual(std::string, voStrForward, t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA(dsvo::MetaDataSource::delimiter)));
+  unittest::ExpectEqual(std::string, voStrForward, t_versionObjectStream::createVOstreamer(vo).toCSV(TEST_WITH_METADATA(sh)));
 }
 
 

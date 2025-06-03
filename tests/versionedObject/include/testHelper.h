@@ -67,7 +67,7 @@ using t_versionObjectBuilder = dsvo::VersionedObjectBuilder<t_versionDate, COMPA
 using t_changesInDataSet = dsvo::ChangesInDataSet<COMPANYMETAINFO_TYPE_LIST>;
 using t_snapshotDataSet  = dsvo::SnapshotDataSet<COMPANYMETAINFO_TYPE_LIST>;
 using t_dataSet  = dsvo::DataSet<COMPANYMETAINFO_TYPE_LIST>;
-using t_versionObjectStream = dsvo::VersionedObjectStream<t_dataSet::hasMetaData(), t_versionDate, COMPANYMETAINFO_TYPE_LIST>;
+using t_versionObjectStream = dsvo::VersionedObjectStream<t_versionDate, COMPANYMETAINFO_TYPE_LIST>;
 using t_convertFromString = converter::ConvertFromString<COMPANYINFO_TYPE_LIST>;
 using t_eDataBuild = dsvo::eBuildDirection;
 using t_eDataPatch = dsvo::eModificationPatch;
@@ -78,7 +78,8 @@ namespace unittest
   struct SScompatible<t_dataSet> {
     inline static std::string getVal(const t_dataSet& val)
     {
-      return val.toCSV(TEST_WITH_METADATA('#'));
+      TEST_WITH_METADATA(dsvo::StreamerHelper sh{'#'});
+      return val.toCSV(TEST_WITH_METADATA(sh));
     }
   };
 
@@ -86,7 +87,8 @@ namespace unittest
   struct SScompatible<t_versionObject> {
     inline static std::string getVal(const t_versionObject& val)
     {
-      return t_versionObjectStream::createVOstreamer(val).toCSV(TEST_WITH_METADATA('#'));
+      TEST_WITH_METADATA(dsvo::StreamerHelper sh{'#'});
+      return t_versionObjectStream::createVOstreamer(val).toCSV(TEST_WITH_METADATA(sh));
     }
   };
 
@@ -94,7 +96,8 @@ namespace unittest
   struct SScompatible<dsvo::MetaDataSource> {
     inline static std::string getVal(const dsvo::MetaDataSource& val)
     {
-      return val.toCSV('#');
+      TEST_WITH_METADATA(dsvo::StreamerHelper sh{'#'});
+      return val.toCSV(TEST_WITH_METADATA(sh));
     }
   };
 }

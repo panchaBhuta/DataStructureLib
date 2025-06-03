@@ -52,7 +52,7 @@ namespace datastructure { namespace versionedObject
     using t_versionDate      = VDT;
     using t_versionedObject  = VersionedObject<VDT, MT...>;
     using t_dataset          = DataSet<MT...>;
-    using t_versionObjectStream = VersionedObjectStream<t_dataset::hasMetaData(), t_versionDate, MT...>;
+    using t_versionObjectStream = VersionedObjectStream<t_versionDate, MT...>;
     using t_record           = typename t_dataset::t_record;
     using t_metaData         = typename t_dataset::t_metaData;
     using t_datasetLedger    = typename t_versionedObject::t_datasetLedger;
@@ -672,8 +672,8 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
     }
 
   public:
-  inline bool insertDeltaVersion(const t_versionDate& forDate,
-                                   const ChangesInDataSet<MT...>& chgEntry)
+  inline bool insertDeltaVersion( const t_versionDate& forDate,
+                                  const ChangesInDataSet<MT...>& chgEntry)
     {
       //VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::insertDeltaVersion(START)");
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
@@ -1034,7 +1034,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
     using t_versionDate      = VDT;
     using t_versionedObject  = VersionedObject<VDT, M, T...>;
     using t_dataset          = DataSet<M, T...>;
-    using t_versionObjectStream = VersionedObjectStream<t_dataset::hasMetaData(), t_versionDate, M, T...>;
+    using t_versionObjectStream = VersionedObjectStream<t_versionDate, M, T...>;
     using t_record           = typename t_dataset::t_record;
     using t_metaData         = typename t_dataset::t_metaData;
     using t_deltaEntriesMap  =
@@ -1093,7 +1093,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
     using t_versionDate      = VDT;
     using t_versionedObject  = VersionedObject<T1, TR...>;
     using t_dataset          = DataSet<T1, TR...>;
-    using t_versionObjectStream = VersionedObjectStream<t_dataset::hasMetaData(), t_versionDate, T1, TR...>;
+    using t_versionObjectStream = VersionedObjectStream<t_versionDate, T1, TR...>;
     using t_record           = typename t_dataset::t_record;
     using t_metaData         = typename t_dataset::t_metaData;
     using t_deltaEntriesMap  =

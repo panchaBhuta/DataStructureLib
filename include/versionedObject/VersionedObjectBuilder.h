@@ -970,42 +970,50 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
     }
     */
 
-    inline void toCSV(const t_deltaEntriesMap& comboChgEntries, const std::string& prefix, std::ostream& oss) const
+    template<typename SH = StreamerHelper>
+    inline void toCSV(const t_deltaEntriesMap& comboChgEntries, const std::string& prefix,
+                      std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
       for(auto iter : comboChgEntries)
       {
-        oss << prefix << iter.first << ",";
+        oss << prefix << iter.first << streamerHelper.getDelimiterCSV();
         iter.second.toCSV(oss);
         oss << std::endl;
       }
     }
 
-    inline void toCSV(const t_deltaEntriesMap& comboChgEntries, std::ostream& oss) const
+    template<typename SH = StreamerHelper>
+    inline void toCSV(const t_deltaEntriesMap& comboChgEntries,
+                      std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
       for(auto iter : comboChgEntries)
       {
-        oss << iter.first << ",";
+        oss << iter.first << streamerHelper.getDelimiterCSV();
         iter.second.toCSV(oss);
         oss << std::endl;
       }
     }
 
-    inline void toStr(const t_deltaEntriesMap& comboChgEntries, const std::string& prefix, std::ostream& oss) const
+    template<typename SH = StreamerHelper>
+    inline void toStr(const t_deltaEntriesMap& comboChgEntries, const std::string& prefix,
+                      std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
       for(auto iter : comboChgEntries)
       {
         oss << prefix << "versionDate=" << iter.first << ", deltaEntry = {";
-        iter.second.toCSV(oss);
+        iter.second.toCSV(oss, streamerHelper);
         oss << "}" << std::endl;
       }
     }
 
-    inline void toStr(const t_deltaEntriesMap& comboChgEntries, std::ostream& oss) const
+    template<typename SH = StreamerHelper>
+    inline void toStr(const t_deltaEntriesMap& comboChgEntries,
+                      std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
       for(auto iter : comboChgEntries)
       {
         oss << "versionDate=" << iter.first << ", deltaEntry = {";
-        iter.second.toCSV(oss);
+        iter.second.toCSV(oss, streamerHelper);
         oss << "}" << std::endl;
       }
     }

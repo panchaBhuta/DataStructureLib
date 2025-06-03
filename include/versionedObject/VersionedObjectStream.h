@@ -67,10 +67,7 @@ namespace datastructure { namespace versionedObject
     }
 
     template<typename SH = StreamerHelper>
-    inline void toCSV(std::ostream& oss,
-      typename std::enable_if_t<  !std::is_same_v<SH, std::ostream&>,
-                                  const SH& >
-      streamerHelper = SH{}) const
+    inline void toCSV(std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
       for(auto iter : _datasetLedger)
       {
@@ -83,7 +80,10 @@ namespace datastructure { namespace versionedObject
     }
 
     template<typename SH = StreamerHelper>
-    inline std::string toCSV(const SH& streamerHelper = SH{}) const
+    inline std::string toCSV(
+      typename std::enable_if_t<  !std::is_same_v<SH, std::ostream&>,
+                                  const SH& >
+      streamerHelper = SH{}) const
     {
       std::ostringstream oss;
       toCSV(oss, streamerHelper);
@@ -104,10 +104,7 @@ namespace datastructure { namespace versionedObject
     }
 
     template<typename SH = StreamerHelper>
-    inline void toStr(std::ostream& oss,
-      typename std::enable_if_t<  !std::is_same_v<SH, std::ostream&>,
-                                  const SH& >
-      streamerHelper = SH{}) const
+    inline void toStr(std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
       for(auto iter : _datasetLedger)
       {
@@ -120,7 +117,10 @@ namespace datastructure { namespace versionedObject
     }
 
     template<typename SH = StreamerHelper>
-    inline std::string toStr(const SH& streamerHelper = SH{}) const
+    inline std::string toStr(
+      typename std::enable_if_t<  !std::is_same_v<SH, std::ostream&>,
+                                  const SH& >
+      streamerHelper = SH{}) const
     {
       std::ostringstream oss;
       toCSV(oss, streamerHelper);

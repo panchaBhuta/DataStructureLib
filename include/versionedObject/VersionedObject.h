@@ -137,6 +137,25 @@ namespace datastructure { namespace versionedObject
     };
   }
 
+  /*  template<typename T>
+  concept has_resize_member_func = requires {
+      typename T::size_type;
+      { std::declval<T>().resize(std::declval<typename T::size_type>()) } -> std::same_as<void>;
+  };
+  */
+
+  template<typename T, typename SH>
+  concept has_void_toCSV_member_func = requires {
+      { std::declval<T>().toCSV(std::declval<std::ostream>(), std::declval<SH>()) } -> std::same_as<void>;
+  };
+
+  template<typename CR>
+  concept has_insert_member_func = requires {
+      typename CR::value_type;
+      typename CR::iterator;
+      { std::declval<CR>().insert(std::declval<typename CR::value_type>()) } -> std::same_as< std::pair<typename CR::iterator, bool> >;
+  };
+
   class StreamerHelper
   {
     char _delimiterMetaData;
@@ -211,10 +230,7 @@ namespace datastructure { namespace versionedObject
     virtual ~crtpMetaDataSource() { _mergedDataTypes.clear(); }
 
     template<typename SH = StreamerHelper>
-    inline void toCSV(std::ostream& oss,
-                      typename std::enable_if_t< std::is_same_v<CONTAINER, std::set<t_DataType>>,
-                                                 const SH&
-                                               > streamerHelper = SH{}) const
+    inline void toCSV(std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
       const SH& sh = streamerHelper;
       oss << char(_prefixBuildType) << sh.getDelimiterMetaData() << char(_dataPatch) << _dataType;
@@ -230,14 +246,17 @@ namespace datastructure { namespace versionedObject
       streamerHelper = SH{}) const
     {
       std::ostringstream oss;
-      if constexpr(std::is_same_v<CONTAINER, std::set<t_DataType>>)
+      if constexpr(has_void_toCSV_member_func<M, SH>)
       {
-        this->template toCSV<SH>(oss, streamerHelper);
-      } else {
         using CM = const M;
         static_cast<CM*>(this)->template toCSV<SH>(oss, streamerHelper);
+        return oss.str();
+      } else
+      if constexpr(has_insert_member_func<CONTAINER>)
+      {
+        this->template toCSV<SH>(oss, streamerHelper);
+        return oss.str();
       }
-      return oss.str();
     }
 
     protected:

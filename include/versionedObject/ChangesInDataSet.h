@@ -489,8 +489,7 @@ namespace datastructure { namespace versionedObject
     }
 
     template<typename SH = StreamerHelper>
-    inline void toCSV(std::ostream& oss,
-                      const SH& streamerHelper = SH{}) const
+    inline void toCSV(std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
       const SH& sh = streamerHelper;
       oss << _metaData.toCSV(streamerHelper) << sh.getDelimiterCSV();

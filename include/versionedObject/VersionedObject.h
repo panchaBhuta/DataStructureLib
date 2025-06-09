@@ -162,6 +162,12 @@ namespace datastructure { namespace versionedObject
     char _delimiterCSV;
 
   public:
+    //StreamerHelper() = delete;
+    StreamerHelper(StreamerHelper const&) = default;
+    StreamerHelper(StreamerHelper &&) = default;
+    StreamerHelper& operator=(StreamerHelper const&) = default;
+    bool operator==(StreamerHelper const& other) const = default;
+
     StreamerHelper(char pDelimiterMetaData = '|', char pDelimiterCSV = ',')
       : _delimiterMetaData{pDelimiterMetaData},
         _delimiterCSV{pDelimiterCSV}
@@ -176,18 +182,23 @@ namespace datastructure { namespace versionedObject
   //      1. using isMetaData = std::true_type;
   //      2. void merge(const crtpMetaDataSource& other) { ... }
   //      3. assignment operator
-  template<typename M, typename CONTAINER = std::set<t_DataType> >
+  template<typename M, typename CONTAINER = std::set<t_DataType>,
+           typename SHD = StreamerHelper >
   class crtpMetaDataSource   /// crtp -> Curiously recurring template pattern
   {
   public:
     using isMetaData = std::true_type;
     using t_Container = CONTAINER;
+    using t_StreamerHelper = SHD;
 
-    crtpMetaDataSource(const t_DataType& dataType, eBuildDirection prefixBuildType, eModificationPatch dataPatch)
+    crtpMetaDataSource(const t_DataType& dataType,
+                       eBuildDirection prefixBuildType, eModificationPatch dataPatch,
+                       const SHD streamerHelper = SHD{} )
       : _dataType{dataType},
         _prefixBuildType{prefixBuildType},
         _dataPatch{dataPatch},
-        _mergedDataTypes{}
+        _mergedDataTypes{},
+        _streamerHelper{streamerHelper}
     {
       if( ( prefixBuildType == eBuildDirection::IsRECORD && dataPatch != eModificationPatch::FullRECORD ) ||
           ( prefixBuildType != eBuildDirection::IsRECORD && dataPatch == eModificationPatch::FullRECORD ) )
@@ -226,24 +237,31 @@ namespace datastructure { namespace versionedObject
     eBuildDirection getBuildDirection() const { return _prefixBuildType; }
     eModificationPatch getModificationPatch() const { return _dataPatch; }
     t_DataType getDataType() const { return _dataType; }
+    const SHD& getStreamerHelper() const { return  _streamerHelper; }
 
     virtual ~crtpMetaDataSource() { _mergedDataTypes.clear(); }
 
-    template<typename SH = StreamerHelper>
-    inline void toCSV(std::ostream& oss, const SH& streamerHelper = SH{}) const
+    template<typename SH = SHD>
+    inline void toCSV(std::ostream& oss, const SH& streamerHelper) const
     {
       const SH& sh = streamerHelper;
-      oss << char(_prefixBuildType) << sh.getDelimiterMetaData() << char(_dataPatch) << _dataType;
+      oss << char(_prefixBuildType) << sh.getDelimiterMetaData()
+          << char(_dataPatch) << _dataType;
 
       for (const auto& sr : _mergedDataTypes)
         oss << sh.getDelimiterMetaData() << sr;
     }
 
-    template<typename SH = StreamerHelper>
+    inline void toCSV(std::ostream& oss) const
+    {
+      toCSV(oss, _streamerHelper);
+    }
+
+    template<typename SH = SHD>
     inline std::string toCSV(
       typename std::enable_if_t<  !std::is_same_v<SH, std::ostream&>,
                                   const SH& >
-      streamerHelper = SH{}) const
+      streamerHelper) const
     {
       std::ostringstream oss;
       if constexpr(has_void_toCSV_member_func<M, SH>)
@@ -252,18 +270,24 @@ namespace datastructure { namespace versionedObject
         static_cast<CM*>(this)->template toCSV<SH>(oss, streamerHelper);
         return oss.str();
       } else
-      if constexpr(has_insert_member_func<CONTAINER>)
+      //if constexpr(has_insert_member_func<CONTAINER>)
       {
         this->template toCSV<SH>(oss, streamerHelper);
         return oss.str();
       }
     }
 
-    protected:
-      const t_DataType            _dataType;             // crown, symbolChange, nameChange, lotChange, delisted
-      const eBuildDirection       _prefixBuildType;      // '+'  '-'  '*'
-      const eModificationPatch    _dataPatch;            // '%'  '@'  '*'
-      CONTAINER                   _mergedDataTypes;      // default std::set<t_DataType>
+    inline std::string toCSV() const
+    {
+      return toCSV(_streamerHelper);
+    }
+
+  protected:
+    const t_DataType            _dataType;             // crown, symbolChange, nameChange, lotChange, delisted
+    const eBuildDirection       _prefixBuildType;      // '+'  '-'  '*'
+    const eModificationPatch    _dataPatch;            // '%'  '@'  '*'
+    CONTAINER                   _mergedDataTypes;      // default std::set<t_DataType>
+    const SHD                   _streamerHelper;       // ','  '|'
 
     void _checkMerge(M const& other) const
     {
@@ -351,8 +375,9 @@ namespace datastructure { namespace versionedObject
     //using isMetaData = std::true_type;
     //inline static const char metaDataDelimiter   = '|';
 
-    MetaDataSource(const t_DataType& dataType, eBuildDirection prefixBuildType, eModificationPatch dataPatch)
-      : crtpMetaDataSource<MetaDataSource>(dataType, prefixBuildType, dataPatch)
+    MetaDataSource(const t_DataType& dataType, eBuildDirection prefixBuildType, eModificationPatch dataPatch,
+                   const StreamerHelper streamerHelper = StreamerHelper{})
+      : crtpMetaDataSource<MetaDataSource>(dataType, prefixBuildType, dataPatch, streamerHelper)
     {}
 
     MetaDataSource() = delete;
@@ -376,6 +401,7 @@ namespace datastructure { namespace versionedObject
   public:
     using t_record   = typename std::tuple<T ...>;
     using t_metaData = M;
+    using t_StreamerHelper  = typename M::t_StreamerHelper;
 
     DataSet(const M& metaData, T&& ... args)
       : _metaData(metaData),
@@ -404,33 +430,49 @@ namespace datastructure { namespace versionedObject
     inline const M&           getMetaData() const { return _metaData; }
     inline const t_record&    getRecord()   const { return _record; }
 
-    template<typename SH = StreamerHelper>
-    inline void toCSV(std::ostream& oss, const SH& streamerHelper = SH{}) const
+    template<typename SH = M::t_StreamerHelper>
+    inline void toCSV(std::ostream& oss, const SH& streamerHelper) const
     {
       const SH& sh = streamerHelper;
       oss << _metaData.toCSV(streamerHelper) << sh.getDelimiterCSV()
           << converter::ConvertFromTuple<T...>::ToStr(_record, sh.getDelimiterCSV());
     }
 
-    template<typename SH = StreamerHelper>
+    inline void toCSV(std::ostream& oss) const
+    {
+      toCSV(oss, _metaData.getStreamerHelper());
+    }
+
+    template<typename SH = M::t_StreamerHelper>
     inline std::string toCSV(
       typename std::enable_if_t<  !std::is_same_v<SH, std::ostream&>,
                                   const SH& >
-      streamerHelper = SH{}) const
+      streamerHelper) const
     {
       std::ostringstream oss;
       toCSV(oss, streamerHelper);
       return oss.str();
     }
 
-    template<typename SH = StreamerHelper>
-    inline std::string toLog(const SH& streamerHelper = SH{}) const
+    inline std::string toCSV() const
+    {
+      return toCSV(_metaData.getStreamerHelper());
+    }
+
+    template<typename SH = M::t_StreamerHelper>
+    inline std::string toLog(const SH& streamerHelper) const
     {
       const SH& sh = streamerHelper;
       std::ostringstream oss;
-      oss << " metaData=[" << _metaData.toCSV(streamerHelper)
-          << "] ; record=[" << converter::ConvertFromTuple<T...>::ToStr(_record, sh.getDelimiterCSV()) << "]";
+      oss << " metaData=[";
+      _metaData.toCSV(oss, streamerHelper);
+      oss << "] ; record=[" << converter::ConvertFromTuple<T...>::ToStr(_record, sh.getDelimiterCSV()) << "]";
       return oss.str();
+    }
+
+    inline std::string toLog() const
+    {
+      return toLog(_metaData.getStreamerHelper());
     }
 
     constexpr static bool hasMetaData() { return true; }
@@ -448,7 +490,8 @@ namespace datastructure { namespace versionedObject
   {
   public:
     using t_record   = typename std::tuple<T1, TR...>;
-    using t_metaData = void*;
+    //using t_metaData = void*;
+    using t_StreamerHelper  = StreamerHelper;
 
     DataSet(T1&& arg1, TR&& ... args)
       : _record(arg1, args...)
@@ -501,8 +544,6 @@ namespace datastructure { namespace versionedObject
   };
 
 
-
-
   template <typename VDT, typename ... MT>
   class VersionedObject
   {
@@ -511,6 +552,7 @@ namespace datastructure { namespace versionedObject
     using t_dataset        = DataSet<MT ...>;
     using t_datasetLedger  = std::map< t_versionDate, t_dataset >;
     using t_record         = typename t_dataset::t_record;
+    using t_StreamerHelper = typename t_dataset::t_StreamerHelper;
 
     VersionedObject() : _datasetLedger() {}
     virtual ~VersionedObject()
@@ -525,7 +567,7 @@ namespace datastructure { namespace versionedObject
 
     // throws an error if for a particular date existing-record doesn't match the new-record
     // returns false if same record exists
-    inline bool insertVersion(const t_versionDate& forDate, const t_dataset& newEntry)
+    inline bool insertVersion(const t_versionDate& forDate, const t_dataset& newEntry )
     {
       //VERSIONEDOBJECT_DEBUG_LOG( "DEBUG_LOG:  versionDate=" << forDate << ", newEntry={ " << newEntry.toLog() << " }");  // this is too verbose
       const auto [ iter, success ] = _datasetLedger.emplace(forDate, newEntry);
@@ -601,3 +643,4 @@ namespace datastructure { namespace versionedObject
   };
 
 } }   //  namespace datastructure::versionedObject
+

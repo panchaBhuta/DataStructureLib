@@ -42,8 +42,9 @@ namespace datastructure { namespace versionedObject
   {
   public:
     using t_deltaEntriesMap  = typename std::map < VDT, ChangesInDataSet<MT...> >;
-    using t_deltaEntriesMap_iter_diff_type  = typename std::iterator_traits<
-                                            typename t_deltaEntriesMap::const_iterator
+    using t_deltaEntriesMap_iter_diff_type  =
+          typename std::iterator_traits <
+                                          typename t_deltaEntriesMap::const_iterator
                                         >::difference_type;
 
     using t_snapShotEntriesMap  = typename std::multimap < VDT, SnapshotDataSet<MT...> >;
@@ -54,7 +55,8 @@ namespace datastructure { namespace versionedObject
     using t_dataset          = DataSet<MT...>;
     using t_versionObjectStream = VersionedObjectStream<t_versionDate, MT...>;
     using t_record           = typename t_dataset::t_record;
-    using t_metaData         = typename t_dataset::t_metaData;
+    //using t_metaData         = typename t_dataset::t_metaData;         NA for c_noMetaData
+    using t_StreamerHelper   = typename t_dataset::t_StreamerHelper;
     using t_datasetLedger    = typename t_versionedObject::t_datasetLedger;
 
     t_deltaEntriesMap     _deltaChgEntries;
@@ -970,9 +972,9 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
     }
     */
 
-    template<typename SH = StreamerHelper>
-    inline void toCSV(const t_deltaEntriesMap& comboChgEntries, const std::string& prefix,
-                      std::ostream& oss, const SH& streamerHelper = SH{}) const
+    template<typename SH = t_StreamerHelper>
+    inline void toCSV(const t_deltaEntriesMap& comboChgEntries,
+                      const std::string& prefix, std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
       for(auto iter : comboChgEntries)
       {
@@ -981,8 +983,14 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
         oss << std::endl;
       }
     }
+    template<typename SH = t_StreamerHelper>
+    inline void toCSV(//const t_deltaEntriesMap& comboChgEntries,
+                      const std::string& prefix, std::ostream& oss, const SH& streamerHelper = SH{}) const
+    {
+      toCSV(_deltaChgEntries, prefix, oss, streamerHelper);
+    }
 
-    template<typename SH = StreamerHelper>
+    template<typename SH = t_StreamerHelper>
     inline void toCSV(const t_deltaEntriesMap& comboChgEntries,
                       std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
@@ -993,10 +1001,16 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
         oss << std::endl;
       }
     }
-
-    template<typename SH = StreamerHelper>
-    inline void toStr(const t_deltaEntriesMap& comboChgEntries, const std::string& prefix,
+    template<typename SH = t_StreamerHelper>
+    inline void toCSV(//const t_deltaEntriesMap& comboChgEntries,
                       std::ostream& oss, const SH& streamerHelper = SH{}) const
+    {
+      toCSV(_deltaChgEntries, oss, streamerHelper);
+    }
+
+    template<typename SH = t_StreamerHelper>
+    inline void toStr(const t_deltaEntriesMap& comboChgEntries,
+                      const std::string& prefix, std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
       for(auto iter : comboChgEntries)
       {
@@ -1005,8 +1019,14 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
         oss << "}" << std::endl;
       }
     }
+    template<typename SH = t_StreamerHelper>
+    inline void toStr(//const t_deltaEntriesMap& comboChgEntries,
+                      const std::string& prefix, std::ostream& oss, const SH& streamerHelper = SH{}) const
+    {
+      toStr(_deltaChgEntries, prefix, oss, streamerHelper);
+    }
 
-    template<typename SH = StreamerHelper>
+    template<typename SH = t_StreamerHelper>
     inline void toStr(const t_deltaEntriesMap& comboChgEntries,
                       std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
@@ -1016,6 +1036,12 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
         iter.second.toCSV(oss, streamerHelper);
         oss << "}" << std::endl;
       }
+    }
+    template<typename SH = t_StreamerHelper>
+    inline void toStr(//const t_deltaEntriesMap& comboChgEntries,
+                      std::ostream& oss, const SH& streamerHelper = SH{}) const
+    {
+      toStr(_deltaChgEntries, oss, streamerHelper);
     }
 
     //inline const t_deltaEntriesMap& getDeltaChangeMap() const { return _deltaChgEntries; }
@@ -1045,6 +1071,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
     using t_versionObjectStream = VersionedObjectStream<t_versionDate, M, T...>;
     using t_record           = typename t_dataset::t_record;
     using t_metaData         = typename t_dataset::t_metaData;
+    using t_StreamerHelper   = typename t_dataset::t_StreamerHelper;
     using t_deltaEntriesMap  =
             typename _VersionedObjectBuilderBase<VDT, M, T...>::t_deltaEntriesMap;
     using t_deltaEntriesMap_iter_diff_type =
@@ -1103,7 +1130,8 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
     using t_dataset          = DataSet<T1, TR...>;
     using t_versionObjectStream = VersionedObjectStream<t_versionDate, T1, TR...>;
     using t_record           = typename t_dataset::t_record;
-    using t_metaData         = typename t_dataset::t_metaData;
+    //using t_metaData         = typename t_dataset::t_metaData;  NA for c_noMetaData
+    using t_StreamerHelper   = typename t_dataset::t_StreamerHelper;
     using t_deltaEntriesMap  =
             typename _VersionedObjectBuilderBase<VDT, T1, TR...>::t_deltaEntriesMap;
     using t_deltaEntriesMap_iter_diff_type =

@@ -33,7 +33,7 @@ namespace datastructure { namespace versionedObject
     using t_versionedObject  = VersionedObject<VDT, MT...>;
     using t_dataset          = DataSet<MT...>;
     using t_record           = typename t_dataset::t_record;
-    using t_metaData         = typename t_dataset::t_metaData;
+    using t_StreamerHelper   = typename t_dataset::t_StreamerHelper;
     using t_datasetLedger    = typename t_versionedObject::t_datasetLedger;
 
     VersionedObjectPriorityMerge(
@@ -61,6 +61,7 @@ namespace datastructure { namespace versionedObject
           if(highPriorityDataset.getRecord() == lowrPriorityDataset.getRecord()) {
             // metaData need NOT be equal (when data from different sources)
             if constexpr(t_dataset::hasMetaData()) {
+              using t_metaData         = typename t_dataset::t_metaData;
               t_metaData hpMetaData {highPriorityDataset.getMetaData()};
               hpMetaData.merge(lowrPriorityDataset.getMetaData());
               t_dataset highPriorityDataset_metaMerge{hpMetaData, highPriorityDataset.getRecord()};

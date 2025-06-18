@@ -76,8 +76,8 @@ namespace datastructure { namespace versionedObject
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
             std::ostringstream eoss;
             eoss << errMsg << " : forDate=" << highPriorityDate;
-            eoss <<   " : highPriorityDataset={ " << highPriorityDataset.toCSV();
-            eoss << " } : lowrPriorityDataset={ " << lowrPriorityDataset.toCSV() << " }";
+            eoss <<   " : highPriorityDataset={ " << highPriorityDataset.toCSV(t_StreamerHelper{});
+            eoss << " } : lowrPriorityDataset={ " << lowrPriorityDataset.toCSV(t_StreamerHelper{}) << " }";
             VERSIONEDOBJECT_DEBUG_LOG(eoss.str());
 #endif
             throw VOPM_Record_Mismatch_exception(errMsg);

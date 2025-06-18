@@ -194,11 +194,11 @@ namespace datastructure { namespace versionedObject
     crtpMetaDataSource(const t_DataType& dataType,
                        eBuildDirection prefixBuildType, eModificationPatch dataPatch,
                        const SHD streamerHelper = SHD{} )
-      : _dataType{dataType},
-        _prefixBuildType{prefixBuildType},
-        _dataPatch{dataPatch},
-        _mergedDataTypes{},
-        _streamerHelper{streamerHelper}
+      : _dataType{dataType},                  // crown | symbolchange | namechange
+        _prefixBuildType{prefixBuildType},    // '+' | '-' | '*'
+        _dataPatch{dataPatch},                // '%' | '@' | '*'
+        _mergedDataTypes{},                   // symbolchange, namechange
+        _streamerHelper{streamerHelper}       // ',' & '|' ...
     {
       if( ( prefixBuildType == eBuildDirection::IsRECORD && dataPatch != eModificationPatch::FullRECORD ) ||
           ( prefixBuildType != eBuildDirection::IsRECORD && dataPatch == eModificationPatch::FullRECORD ) )

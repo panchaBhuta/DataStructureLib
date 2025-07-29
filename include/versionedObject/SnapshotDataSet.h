@@ -100,9 +100,9 @@ namespace datastructure { namespace versionedObject
     _SnapshotDataSetBase( const std::array<bool, sizeof...(T)>& modifiedElements,
                           const t_record& snapshotValues,
                                  eBuildDirection buildDirection = eBuildDirection::FORWARD)
-      : _modifiedElements(),
-        _newValues(snapshotValues),
-        _buildDirection(buildDirection)
+      : _modifiedElements{},
+        _newValues{snapshotValues},
+        _buildDirection{buildDirection}
     {
       if(buildDirection != eBuildDirection::FORWARD)
       {
@@ -136,10 +136,12 @@ namespace datastructure { namespace versionedObject
         oss << sh.getDelimiterCSV();
       }
 
+      using t_idx_type = std::tuple_element_t<IDX, t_record>;
       if( _modifiedElements.at(IDX) == eModificationPatch::SNAPSHOT ) // check if element is marked for change
       {
+        const t_idx_type& newVal = std::get<IDX>(_newValues);
         // NOTE :: will fail for types that donot support "operator<<"
-        oss << std::get<IDX>(_newValues);
+        oss << newVal;
       }
 
       if constexpr( IDX < (sizeof...(T)-1) )
@@ -177,9 +179,12 @@ namespace datastructure { namespace versionedObject
         {
           if( hitheroProcessedElements[IDX] ) // check if element was previously modified
           {
+            using t_idx_type = std::tuple_element_t<IDX, t_record>;
+            const t_idx_type& updateVal = std::get<IDX>(updateRecord);
+
             std::ostringstream eoss;
             eoss << "ERROR(1) : in function _SnapshotDataSetBase<T ...>::_getLatestValue() : ";
-            eoss << " at tuple-index[" << IDX << "] : updateRecord-value{" << std::get<IDX>(updateRecord);
+            eoss << " at tuple-index[" << IDX << "] : updateRecord-value{" << updateVal;
             eoss << "} was previously modified." << std::endl;
             throw std::invalid_argument(eoss.str());
           }
@@ -262,10 +267,14 @@ namespace datastructure { namespace versionedObject
 
           if(std::get<IDX>(other._newValues) != std::get<IDX>(_newValues))
           {
+            using t_idx_type = std::tuple_element_t<IDX, t_record>;
+            const t_idx_type& newVal = std::get<IDX>(_newValues);
+            const t_idx_type& oNewVal = std::get<IDX>(other._newValues);
+
             std::ostringstream eoss;
             eoss << "ERROR : in function _SnapshotDataSetBase<T ...>::_isMergeable(const _SnapshotDataSetBase<T...>&) : ";
-            eoss << " at tuple-index[" << IDX << "] : other-value{" << std::get<IDX>(other._newValues);
-            eoss << "} doesn't match with expected this-Value{" << std::get<IDX>(_newValues) << "}" << std::endl;
+            eoss << " at tuple-index[" << IDX << "] : other-value{" << oNewVal;
+            eoss << "} doesn't match with expected this-Value{" << newVal << "}" << std::endl;
             throw std::invalid_argument(eoss.str());
           }
           mergeableElements.at(IDX) = 1;  // elements of both tuple matches

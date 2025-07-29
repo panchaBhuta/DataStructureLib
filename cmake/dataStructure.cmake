@@ -86,7 +86,7 @@ macro(fetch_dependencies)
     include( FetchContent )
     FetchContent_Declare( ${CONVERTERLIB}
                           GIT_REPOSITORY https://github.com/panchaBhuta/converter.git
-                          GIT_TAG        v1.2.23)  # adjust tag/branch/commit as needed
+                          GIT_TAG        v1.3.27)  # adjust tag/branch/commit as needed
     FetchContent_MakeAvailable(${CONVERTERLIB})
 
     #[==================[
@@ -159,7 +159,8 @@ macro(dataStructure_enable_warnings)
         "$<$<AND:${gcc_like_cxx},$<NOT:${windows_os_clang_cxx}>>:$<BUILD_INTERFACE:-Wall>>" # -Wall for 'windows_os_clang_cxx' gives lot of warnings
         "$<${gcc_cxx_v5_or_later}:$<BUILD_INTERFACE:-Wsuggest-override>>"
         "$<$<NOT:${windows_os}>:$<BUILD_INTERFACE:-g>>"  # for linux and macOS
-        "$<${windows_os}:$<BUILD_INTERFACE:-Z7>>"  # -Z7 is equivalent for -g
+        "$<$<AND:${windows_os},${gcc_cxx}>:$<BUILD_INTERFACE:-g>>"  # for g++ on windows
+        "$<$<AND:${windows_os},$<NOT:${gcc_cxx}>>:$<BUILD_INTERFACE:-Z7>>"  # -Z7 is equivalent for -g
         #"$<${windows_os_clang_cxx}:$<BUILD_INTERFACE:-Wno-c++98-compat;-Wno-c++98-compat-pedantic>>"
         #"$<${windows_os_clang_cxx}:$<BUILD_INTERFACE:-Wno-global-constructors;-Wno-exit-time-destructors>>"
         #"$<${windows_os_clang_cxx}:$<BUILD_INTERFACE:-Wno-extra-semi-stmt;-Wno-string-plus-int>>"

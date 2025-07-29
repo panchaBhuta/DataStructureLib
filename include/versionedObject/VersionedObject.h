@@ -244,12 +244,21 @@ namespace datastructure { namespace versionedObject
     template<typename SH = SHD>
     inline void toCSV(std::ostream& oss, const SH& streamerHelper) const
     {
-      const SH& sh = streamerHelper;
-      oss << char(_prefixBuildType) << sh.getDelimiterMetaData()
-          << char(_dataPatch) << _dataType;
+      // crtp -> Curiously recurring template pattern
+      // For super class(es) of crtpMetaDataSource, the compile time
+      // function overloading gets triggered here.
+      if constexpr(has_void_toCSV_member_func<M, SH>)
+      {
+        using CM = const M;
+        static_cast<CM*>(this)->template toCSV<SH>(oss, streamerHelper);
+      } else {
+        const SH& sh = streamerHelper;
+        oss << char(_prefixBuildType) << sh.getDelimiterMetaData()
+            << char(_dataPatch) << _dataType;
 
-      for (const auto& sr : _mergedDataTypes)
-        oss << sh.getDelimiterMetaData() << sr;
+        for (const auto& sr : _mergedDataTypes)
+          oss << sh.getDelimiterMetaData() << sr;
+      }
     }
 
     inline void toCSV(std::ostream& oss) const
@@ -264,17 +273,8 @@ namespace datastructure { namespace versionedObject
       streamerHelper) const
     {
       std::ostringstream oss;
-      if constexpr(has_void_toCSV_member_func<M, SH>)
-      {
-        using CM = const M;
-        static_cast<CM*>(this)->template toCSV<SH>(oss, streamerHelper);
-        return oss.str();
-      } else
-      //if constexpr(has_insert_member_func<CONTAINER>)
-      {
-        this->template toCSV<SH>(oss, streamerHelper);
-        return oss.str();
-      }
+      toCSV(oss, streamerHelper);
+      return oss.str();
     }
 
     inline std::string toCSV() const
@@ -385,6 +385,13 @@ namespace datastructure { namespace versionedObject
     MetaDataSource(MetaDataSource &&) = default;
     MetaDataSource& operator=(MetaDataSource const&) = default;
     bool operator==(MetaDataSource const& other) const = default;
+
+/*
+  *  https://stackoverflow.com/questions/5195512/namespaces-and-operator-resolution
+  *  refer URL^  for   "Namespaces and operator resolution"  for eg: 'operator<<'
+  *  same constraints apply to crtpMetaDataSource<MetaDataSource>::toCSV;
+*/
+    using crtpMetaDataSource<MetaDataSource>::toCSV;
 
     ~MetaDataSource() {}
   };

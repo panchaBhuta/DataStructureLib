@@ -33,7 +33,7 @@ function(add_unit_test testname OPTION_ENABLE_METADATA)
   if(CMAKE_BUILD_TYPE MATCHES "Debug")
   #if(BUILD_TESTING)
     FILE(GLOB sourcesExe ${testname}.cpp)
-    SET(sourcesFile main.cpp ${ARGN})
+    SET(sourcesFile main.cpp ${ARGN})   # ARGN here contains list of additional files if any
     LIST(TRANSFORM sourcesFile REPLACE [[\.cpp]] "_${OPTION_ENABLE_METADATA}"   OUTPUT_VARIABLE binaryLibs)
     message(STATUS "### TEST ${testname} :: sourcesFile[${sourcesFile}] -> libs[${binaryLibs}]")
     add_executable(${testname} ${sourcesExe})

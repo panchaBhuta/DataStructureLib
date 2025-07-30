@@ -31,40 +31,45 @@ jobs:
       fail-fast: false
       matrix:
         # https://github.com/actions/runner-images#available-images
-        # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources  (os-labels : macos-12)
-        # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#preinstalled-software
-        os: [ macos-14, macos-13, macos-12 ]  #  macos-latest  ==  macos-14
+        # https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories  (os-labels : macos-12)
+        # https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#preinstalled-software-for-github-owned-images
+        #os: [ macos-15-large, macos-15-xlarge, macos-14-large, macos-14-xlarge, macos-13-large, macos-13-xlarge ]  #  macos-latest  ==  macos-14 == macos-14-xlarge
+        #  NOTE :: macos-**-large and macos-**-xlarge are chargeable hence NOT added here
+        os: [ macos-15, macos-14, macos-13 ]  #  macos-latest  ==  macos-14
+#  NOTE : macos-*        : executes arm64 (instead of x64_64), which lowers FLOATING POINT precision similar to Windows
+#         macos-*-large  : x86_64
+#         macos-*-xlarge : arm64 lowers FLOATING POINT precision similar to Windows
+        # https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md#language-and-runtime
+        # https://github.com/actions/runner-images/blob/main/images/macos/macos-14-Readme.md#language-and-runtime
         # https://github.com/actions/runner-images/blob/main/images/macos/macos-13-Readme.md#language-and-runtime
-        # https://github.com/actions/runner-images/blob/main/images/macos/macos-12-Readme.md#language-and-runtime
-        # https://github.com/actions/runner-images/blob/main/images/macos/macos-11-Readme.md#language-and-runtime
           # clang++ == 'AppleClang-14'
           # default : [ macos-11 -> AppleClang-13 ,
           #             macos-12 -> AppleClang-14 ,
           #             macos-13 -> AppleClang-15 ,
-          #             macos-14 -> AppleClang-15 ]
+          #             macos-14 -> AppleClang-15 ,
+	  #             macos-15 -> AppleClang-16 ]
         compiler: [ default, g++-14, g++-13, g++-12 ]
-        exclude:
-          - os: macos-12
-            compiler : g++-13      #  https://github.com/panchaBhuta/converter/actions/runs/10863394822/job/30147499006
-          - os: macos-13
-            compiler : g++-13      #  https://github.com/panchaBhuta/converter/actions/runs/10863394822/job/30147499604
-          - os : macos-12          #  This combination doesn't fail for 'convertor' and 'rapidcsv_FilterSort'
-            compiler : default     #  https://github.com/panchaBhuta/DataStructureLib/actions/runs/11074208088/job/30772482835
+        exclude: [ # skipping a fix for g++-N compilers. refer thread https://github.com/iains/gcc-14-branch/issues/11
+                   { os: macos-15, compiler: g++-14 },
+                   { os: macos-15, compiler: g++-13 },
+                   { os: macos-15, compiler: g++-12 } ]
     runs-on: ${{matrix.os}}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
       - name: Get Version
-        run: uname -a && cmake --version
+        run: uname -a && echo "------------" && cmake --version && echo "------------" && bash -c 'COMPILER="${{matrix.compiler}}"; if [ "${COMPILER}" == "default" ]; then COMPILER="clang"; fi; ${COMPILER}  -dM -E - < /dev/null | egrep -i "(apple|mach|gnu|clang|version|major|minor)"'
       - name: Check Generators
         # https://stackoverflow.com/questions/25941536/what-is-a-cmake-generator
         run: cmake --help
       - name: Configure CMake (compiler=default) [Debug]
         if: matrix.compiler == 'default'
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DRAPIDCSV_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON  -DCONVERTER_TEST_OS_VERSION=${{matrix.os}}
       - name: Configure CMake (compiler=NOT-default) [Debug]
         if: matrix.compiler != 'default'
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DRAPIDCSV_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_COMPILER=${{matrix.compiler}}
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON  -DCONVERTER_TEST_OS_VERSION=${{matrix.os}} -DCMAKE_CXX_COMPILER=${{matrix.compiler}}
+      - name: Check Work-Around-Flags
+        run: grep define "${{github.workspace}}/build-debug/include/converter/_workaroundConfig.h" | grep -v -e "^//" -e " e_[^ ]*_FEATURE "
       - name: Show compile commands [Debug]
         run: cat build-debug/compile_commands.json
       - name: Build [Debug]
@@ -77,10 +82,10 @@ jobs:
         run: sudo cmake --install "${{github.workspace}}/build-debug" --config Debug
       - name: Configure CMake (compiler=default) [Release]
         if: matrix.compiler == 'default'
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DRAPIDCSV_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
       - name: Configure CMake (compiler=NOT-default) [Release]
         if: matrix.compiler != 'default'
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DRAPIDCSV_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_COMPILER=${{matrix.compiler}}
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_COMPILER=${{matrix.compiler}}
       - name: Build [Release]
         run: cmake --build "${{github.workspace}}/build-release" --config Release -j$(sysctl -n hw.ncpu)
       - name: Test [Release]
@@ -88,5 +93,3 @@ jobs:
         run: ctest -C Release --verbose
       - name: Install [Release]
         run: sudo cmake --install "${{github.workspace}}/build-release" --config Release
-      - name: Check Work-Arounds
-        run: grep define "${{github.workspace}}/build-release/_deps/converter-build/include/converter/_workaroundConfig.h" | grep -v -e "^//" -e " e_[^ ]*_FEATURE "

@@ -352,18 +352,18 @@ namespace datastructure { namespace versionedObject
     template <size_t IDX, isChangeType<T...> OT>
     void _merge(const OT& other, std::array <int, sizeof...(T)>& mergeableElements)
     {
-      //static_assert(std::is_same_v<decltype(other), const  _SnapshotDataSetBase<T...>& > == true ||
-      //              std::is_same_v<decltype(other), const _ChangesInDataSetBase<T...>& > == true );
+      //static_assert(std::is_base_of_v<decltype(other), const  _SnapshotDataSetBase<T...>& > == true ||
+      //              std::is_base_of_v<decltype(other), const _ChangesInDataSetBase<T...>& > == true );
 
       if(mergeableElements.at(IDX) == 2)  // copy where applicable
       {
         std::get<IDX>(_newValues) = std::get<IDX>(other.getNewRecord());
-        if constexpr(std::is_same_v<OT, _ChangesInDataSetBase<T...> > == true)
+        if constexpr(std::is_base_of_v<OT, _ChangesInDataSetBase<T...> > == true)
         {
           std::get<IDX>(_oldValues) = std::get<IDX>(other._oldValues);
           _modifiedElements.at(IDX) = eModificationPatch::DELTACHANGE;
         } else
-        if constexpr(std::is_same_v<OT, _SnapshotDataSetBase<T...> > == true)
+        if constexpr(std::is_base_of_v<OT, _SnapshotDataSetBase<T...> > == true)
         {
           _modifiedElements.at(IDX) = eModificationPatch::SNAPSHOT;
         } else {
@@ -487,28 +487,26 @@ namespace datastructure { namespace versionedObject
 
     inline const M&           getMetaData() const { return _metaData; }
 
-    int merge(const auto& other)
+    int merge(const SnapshotDataSet<M, T...>& other)
     {
-      if constexpr(std::is_same_v<decltype(other), const  SnapshotDataSet<M, T...>& > == true)
-      {
-        this->_metaData.merge(other.getMetaData());
+      this->_metaData.merge(other.getMetaData());
 
-        return this->_merge(dynamic_cast<const _SnapshotDataSetBase<T...>& >(other));
-      } else
-      if constexpr(std::is_same_v<decltype(other), const  ChangesInDataSet<M, T...>& > == true)
-      {
-        this->_metaData.merge(other.getMetaData());
+      return this->_merge(dynamic_cast<const _SnapshotDataSetBase<T...>& >(other));
+    }
 
-        return this->_merge(dynamic_cast<const _ChangesInDataSetBase<T...>& >(other));
-      } else
-      if constexpr(std::is_same_v<decltype(other), const  SnapshotDataSet<T...>& > == true)
-      {
-         // special case: SnapshotDataSet<T...> is without metaInfo, as it's part of
-         //               previous ChangesInDataSet<M, T...> OR SnapshotDataSet<M, T...>
-         //               that's being appended here.
-        return this->_merge(dynamic_cast<const _SnapshotDataSetBase<T...>& >(other));
-      } else
-        static_assert(false);
+    int merge(const ChangesInDataSet<M, T...>& other)
+    {
+      this->_metaData.merge(other.getMetaData());
+
+      return this->_merge(dynamic_cast<const _ChangesInDataSetBase<T...>& >(other));
+    }
+
+    int merge(const SnapshotDataSet<T...>& other)
+    {
+        // special case: SnapshotDataSet<T...> is without metaInfo, as it's part of
+        //               previous ChangesInDataSet<M, T...> OR SnapshotDataSet<M, T...>
+        //               that's being appended here.
+      return this->_merge(dynamic_cast<const _SnapshotDataSetBase<T...>& >(other));
     }
 
     template<typename SH = StreamerHelper>
@@ -556,17 +554,14 @@ namespace datastructure { namespace versionedObject
       : _ChangesInDataSetBase<T1, TR...>(otherSnapDataset)
     {}
 
-    int merge(const auto& other)
+    int merge(const SnapshotDataSet<T1, TR...>& other)
     {
-      if constexpr(std::is_same_v<decltype(other), const  SnapshotDataSet<T1, TR...>& > == true)
-      {
-        return this->_merge(dynamic_cast<const _SnapshotDataSetBase<T1, TR...>& >(other));
-      } else
-      if constexpr(std::is_same_v<decltype(other), const  ChangesInDataSet<T1, TR...>& > == true)
-      {
+      return this->_merge(dynamic_cast<const _SnapshotDataSetBase<T1, TR...>& >(other));
+    }
+
+    int merge(const ChangesInDataSet<T1, TR...>& other)
+    {
         return this->_merge(dynamic_cast<const _ChangesInDataSetBase<T1, TR...>& >(other));
-      } else
-        static_assert(false);
     }
 
     ChangesInDataSet() = delete;

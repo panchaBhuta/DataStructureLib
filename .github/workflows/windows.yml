@@ -20,9 +20,9 @@ on:
   #BUILD_TYPE: Release
 
 
-defaults:
-  run:
-    shell: bash
+#defaults:
+#  run:
+#    shell: bash
 
 jobs:
   build-windows:
@@ -31,9 +31,10 @@ jobs:
       fail-fast: false
       matrix:
         # https://github.com/actions/runner-images#available-images
-        # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources  (os-labels : windows-2022)
-        # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#preinstalled-software
-        os: [windows-2022]  #  windows-latest  ==  windows-2022
+        # https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories  (os-labels : windows-2022)
+        # https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners#preinstalled-software-for-github-owned-images
+        #   os: [windows-2025, windows-2022]  #  windows-latest  ==  windows-2022
+        os: [windows-2025, windows-2022] #, windows-2019]  #  windows-latest  ==  windows-2022
         # https://cmake.org/cmake/help/latest/manual/cmake.1.html#cmdoption-cmake-T
         # CMake compiler option doesn't work for Visual Studio project :: https://youtrack.jetbrains.com/issue/CPP-17314
         # https://github.com/actions/runner-images/blob/main/images/win/Windows2022-Readme.md#tools
@@ -44,20 +45,39 @@ jobs:
           # g++-13  == 'MSVC 19'
           # clang   == 'MSVC 19'
           # ClangCl == 'Clang 16'
-        toolset_compiler: [ { compiler: default, toolset: -1 },
-                            { compiler: ClangCl, toolset:  1 } ]
-        include:
-          - os: windows-2019
-              # ClangCl == 'Clang 12'
-            toolset_compiler : { compiler: ClangCl, toolset: 1 }
+        toolset_compiler: [ { compiler: default, toolset: -1, cmdShell: bash },
+                            { compiler: ClangCl, toolset:  1, cmdShell: bash },
+                            # https://github.com/ArchieAtkinson/CppTemplate
+                            # https://github.com/scikit-build/scikit-build-core/blob/main/.github/workflows/ci.yml
+                            { compiler: g++,     toolset:  0, cmdShell: "msys2 {0}" } ]
+        #include:
+        #  - os: windows-2019
+        #      # ClangCl == 'Clang 12'
+        #    toolset_compiler : { compiler: ClangCl, toolset: 1 }
     runs-on: ${{matrix.os}}
+    defaults:
+      run:
+        #  msys2 shell when using g++ else bash
+        shell: ${{matrix.toolset_compiler.cmdShell}}
     steps:
-      - name: Add msbuild to PATH
+      - name: Setup msbuild
+        if: matrix.toolset_compiler.compiler != 'g++'
         uses: microsoft/setup-msbuild@v2
+      - name : Setup msys2
+        if: matrix.toolset_compiler.compiler == 'g++'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          path-type: minimal
+          update: true
+          install: >-
+            base-devel git
+          pacboy: >-
+            python:p python-pip:p gcc:p cmake:p
       - name: Checkout Repo
         uses: actions/checkout@v4
       - name: Get Version
-        run: uname -a && cmake --version
+        run: uname -a && echo "------------" && cmake --version
       - name: Check Generators
         # https://stackoverflow.com/questions/25941536/what-is-a-cmake-generator
         run: cmake --help
@@ -74,16 +94,22 @@ jobs:
         # https://docs.github.com/en/actions/learn-github-actions/expressions
         # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idif
         if: matrix.toolset_compiler.compiler == 'default'
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DRAPIDCSV_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug
-      - name: Configure CMake (compiler=${{matrix.toolset_compiler.compiler}}) [Debug]
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug
+      - name: Configure CMake (compiler=g++) [Debug]
         if: matrix.toolset_compiler.toolset == 0
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DRAPIDCSV_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=${{matrix.toolset_compiler.compiler}}
-      - name: Configure CMake (toolset_compiler=${{matrix.toolset_compiler.compiler}}) [Debug]
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=${{matrix.toolset_compiler.compiler}}
+      - name: Configure CMake (toolset_compiler=clang) [Debug]
         # https://cmake.org/cmake/help/latest/guide/user-interaction/index.html
         if: matrix.toolset_compiler.toolset == 1
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DRAPIDCSV_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug  -T "${{matrix.toolset_compiler.compiler}}"
-      - name: Build [Debug]
-        run: cmake --build "${{github.workspace}}/build-debug" --config Debug -j   -- -m -nologo -verbosity:quiet
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug  -T "${{matrix.toolset_compiler.compiler}}"
+      - name: Check Work-Around-Flags
+        run: grep define "${{github.workspace}}/build-debug/include/converter/_workaroundConfig.h" | grep -v -e "^//" -e " e_[^ ]*_FEATURE "
+      - name: Build compiler != g++ [Debug]
+        if: matrix.toolset_compiler.compiler != 'g++'
+        run: cmake --build "${{github.workspace}}/build-debug" --config Debug -j$(nproc)   -- -m -nologo #-verbosity:quiet
+      - name: Build compiler == g++ [Debug]
+        if: matrix.toolset_compiler.compiler == 'g++'
+        run: cmake --build "${{github.workspace}}/build-debug" --config Debug -j$(nproc)
       - name: Test [Debug]
         working-directory: ${{github.workspace}}/build-debug
         #run: ctest -C Debug --output-on-failure -j
@@ -92,21 +118,23 @@ jobs:
         run: cmake --install "${{github.workspace}}/build-debug" --config Debug
       - name: Configure CMake (compiler=default) [Release]
         if: matrix.toolset_compiler.compiler == 'default'
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DRAPIDCSV_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release
       - name: Configure CMake (compiler=${{matrix.toolset_compiler.compiler}}) [Release]
         if: matrix.toolset_compiler.toolset == 0
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DRAPIDCSV_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${{matrix.toolset_compiler.compiler}}
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${{matrix.toolset_compiler.compiler}}
       - name: Configure CMake (toolset_compiler=${{matrix.toolset_compiler.compiler}}) [Release]
         if: matrix.toolset_compiler.toolset == 1
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DRAPIDCSV_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release  -T "${{matrix.toolset_compiler.compiler}}"
-      - name: Build [Release]
-        run: cmake --build "${{github.workspace}}/build-release" --config Release -j   -- -m -nologo -verbosity:quiet
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release  -T "${{matrix.toolset_compiler.compiler}}"
+      - name: Build compiler != g++ [Release]
+        if: matrix.toolset_compiler.compiler != 'g++'
+        run: cmake --build "${{github.workspace}}/build-release" --config Release -j$(nproc)   -- -m -nologo #-verbosity:quiet
+      - name: Build compiler == g++ [Release]
+        if: matrix.toolset_compiler.compiler == 'g++'
+        run: cmake --build "${{github.workspace}}/build-release" --config Release -j$(nproc)
       - name: Test [Release]
         working-directory: ${{github.workspace}}/build-release
         run: ctest -C Release --verbose
       - name: Install [Release]
         run: cmake --install "${{github.workspace}}/build-release" --config Release
-      - name: Check Work-Arounds
-        run: grep define "${{github.workspace}}/build-release/_deps/converter-build/include/converter/_workaroundConfig.h" | grep -v -e "^//" -e " e_[^ ]*_FEATURE "
 
 

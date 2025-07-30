@@ -93,7 +93,7 @@ jobs:
         if: matrix.compiler != 'default'
         run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=${{matrix.compiler}}
       - name: Check Work-Around-Flags
-        run: grep define "${{github.workspace}}/build-debug/include/converter/_workaroundConfig.h" | grep -v -e "^//" -e " e_[^ ]*_FEATURE "
+        run: grep define "${{github.workspace}}/build-debug/_deps/converter-build/include/converter/_workaroundConfig.h" | grep -v -e "^//" -e " e_[^ ]*_FEATURE "
       - name: Build [Debug]
         run: cmake --build "${{github.workspace}}/build-debug" --config Debug -j$(nproc)
       - name: Test [Debug]

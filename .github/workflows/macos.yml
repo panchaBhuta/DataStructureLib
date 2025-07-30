@@ -47,7 +47,7 @@ jobs:
           #             macos-12 -> AppleClang-14 ,
           #             macos-13 -> AppleClang-15 ,
           #             macos-14 -> AppleClang-15 ,
-	  #             macos-15 -> AppleClang-16 ]
+          #             macos-15 -> AppleClang-16 ]
         compiler: [ default, g++-14, g++-13, g++-12 ]
         exclude: [ # skipping a fix for g++-N compilers. refer thread https://github.com/iains/gcc-14-branch/issues/11
                    { os: macos-15, compiler: g++-14 },
@@ -64,10 +64,10 @@ jobs:
         run: cmake --help
       - name: Configure CMake (compiler=default) [Debug]
         if: matrix.compiler == 'default'
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON  -DCONVERTER_TEST_OS_VERSION=${{matrix.os}}
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON  -DDATASTRUCTURE_TEST_OS_VERSION=${{matrix.os}}
       - name: Configure CMake (compiler=NOT-default) [Debug]
         if: matrix.compiler != 'default'
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON  -DCONVERTER_TEST_OS_VERSION=${{matrix.os}} -DCMAKE_CXX_COMPILER=${{matrix.compiler}}
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON  -DDATASTRUCTURE_TEST_OS_VERSION=${{matrix.os}} -DCMAKE_CXX_COMPILER=${{matrix.compiler}}
       - name: Check Work-Around-Flags
         run: grep define "${{github.workspace}}/build-debug/include/converter/_workaroundConfig.h" | grep -v -e "^//" -e " e_[^ ]*_FEATURE "
       - name: Show compile commands [Debug]
@@ -82,10 +82,10 @@ jobs:
         run: sudo cmake --install "${{github.workspace}}/build-debug" --config Debug
       - name: Configure CMake (compiler=default) [Release]
         if: matrix.compiler == 'default'
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
       - name: Configure CMake (compiler=NOT-default) [Release]
         if: matrix.compiler != 'default'
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_COMPILER=${{matrix.compiler}}
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_CXX_COMPILER=${{matrix.compiler}}
       - name: Build [Release]
         run: cmake --build "${{github.workspace}}/build-release" --config Release -j$(sysctl -n hw.ncpu)
       - name: Test [Release]

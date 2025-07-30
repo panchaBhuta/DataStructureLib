@@ -94,14 +94,14 @@ jobs:
         # https://docs.github.com/en/actions/learn-github-actions/expressions
         # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idif
         if: matrix.toolset_compiler.compiler == 'default'
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug
       - name: Configure CMake (compiler=g++) [Debug]
         if: matrix.toolset_compiler.toolset == 0
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=${{matrix.toolset_compiler.compiler}}
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=${{matrix.toolset_compiler.compiler}}
       - name: Configure CMake (toolset_compiler=clang) [Debug]
         # https://cmake.org/cmake/help/latest/guide/user-interaction/index.html
         if: matrix.toolset_compiler.toolset == 1
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug  -T "${{matrix.toolset_compiler.compiler}}"
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug  -T "${{matrix.toolset_compiler.compiler}}"
       - name: Check Work-Around-Flags
         run: grep define "${{github.workspace}}/build-debug/include/converter/_workaroundConfig.h" | grep -v -e "^//" -e " e_[^ ]*_FEATURE "
       - name: Build compiler != g++ [Debug]
@@ -118,13 +118,13 @@ jobs:
         run: cmake --install "${{github.workspace}}/build-debug" --config Debug
       - name: Configure CMake (compiler=default) [Release]
         if: matrix.toolset_compiler.compiler == 'default'
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release
       - name: Configure CMake (compiler=${{matrix.toolset_compiler.compiler}}) [Release]
         if: matrix.toolset_compiler.toolset == 0
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${{matrix.toolset_compiler.compiler}}
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${{matrix.toolset_compiler.compiler}}
       - name: Configure CMake (toolset_compiler=${{matrix.toolset_compiler.compiler}}) [Release]
         if: matrix.toolset_compiler.toolset == 1
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release  -T "${{matrix.toolset_compiler.compiler}}"
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release  -T "${{matrix.toolset_compiler.compiler}}"
       - name: Build compiler != g++ [Release]
         if: matrix.toolset_compiler.compiler != 'g++'
         run: cmake --build "${{github.workspace}}/build-release" --config Release -j$(nproc)   -- -m -nologo #-verbosity:quiet

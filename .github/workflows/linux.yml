@@ -88,10 +88,10 @@ jobs:
         run: ./make.sh deps
       - name: Configure CMake (compiler=default) [Debug]
         if: matrix.compiler == 'default'
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug
       - name: Configure CMake (compiler=NOT-default) [Debug]
         if: matrix.compiler != 'default'
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=${{matrix.compiler}}
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=${{matrix.compiler}}
       - name: Check Work-Around-Flags
         run: grep define "${{github.workspace}}/build-debug/include/converter/_workaroundConfig.h" | grep -v -e "^//" -e " e_[^ ]*_FEATURE "
       - name: Build [Debug]
@@ -102,10 +102,10 @@ jobs:
         run: ctest -C Debug --verbose
       - name: Configure CMake (compiler=default) [Release]
         if: matrix.compiler == 'default'
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release
       - name: Configure CMake (compiler=NOT-default) [Release]
         if: matrix.compiler != 'default'
-        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DCONVERTER_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${{matrix.compiler}}
+        run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${{matrix.compiler}}
       - name: Build [Release]
         run: cmake --build "${{github.workspace}}/build-release" --config Release -j$(nproc)
       - name: Test [Release]

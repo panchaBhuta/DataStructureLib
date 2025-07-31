@@ -29,8 +29,10 @@ namespace datastructure { namespace versionedObject
 
     template<typename OT, typename ... T>
     concept isChangeType =
-        (std::is_base_of_v< _SnapshotDataSetBase<T...>, OT> == true ||
-         std::is_base_of_v<_ChangesInDataSetBase<T...>, OT> == true );
+        (std::is_same_v< _SnapshotDataSetBase<T...>, OT> == true ||
+         std::is_same_v<_ChangesInDataSetBase<T...>, OT> == true );
+        //(std::is_base_of_v< _SnapshotDataSetBase<T...>, OT> == true ||
+        // std::is_base_of_v<_ChangesInDataSetBase<T...>, OT> == true );
 
   template <typename ... T>
   class _ChangesInDataSetBase
@@ -352,23 +354,10 @@ namespace datastructure { namespace versionedObject
     template <size_t IDX, isChangeType<T...> OT>
     void _merge(const OT& other, std::array <int, sizeof...(T)>& mergeableElements)
     {
-      //static_assert(std::is_base_of_v<decltype(other), const  _SnapshotDataSetBase<T...>& > == true ||
-      //              std::is_base_of_v<decltype(other), const _ChangesInDataSetBase<T...>& > == true );
-
       if(mergeableElements.at(IDX) == 2)  // copy where applicable
       {
         std::get<IDX>(_newValues) = std::get<IDX>(other.getNewRecord());
-        if constexpr(std::is_base_of_v<OT, _ChangesInDataSetBase<T...> > == true)
-        {
-          std::get<IDX>(_oldValues) = std::get<IDX>(other._oldValues);
-          _modifiedElements.at(IDX) = eModificationPatch::DELTACHANGE;
-        } else
-        if constexpr(std::is_base_of_v<OT, _SnapshotDataSetBase<T...> > == true)
-        {
-          _modifiedElements.at(IDX) = eModificationPatch::SNAPSHOT;
-        } else {
-          static_assert(false);
-        }
+        _mergeValue<IDX>(other);
       }
 
       if constexpr( IDX > 0 )
@@ -377,6 +366,19 @@ namespace datastructure { namespace versionedObject
         // and we don't have to define function specialization for _merge<0>()
         _merge< ((IDX>0)?(IDX-1):0) , OT >(other, mergeableElements);
       }
+    }
+
+    template <size_t IDX>
+    inline void _mergeValue(const _ChangesInDataSetBase<T...>& other)
+    {
+      std::get<IDX>(_oldValues) = std::get<IDX>(other._oldValues);
+      _modifiedElements.at(IDX) = eModificationPatch::DELTACHANGE;
+    }
+
+    template <size_t IDX>
+    inline void _mergeValue([[maybe_unused]] const _SnapshotDataSetBase<T...>& other)
+    {
+      _modifiedElements.at(IDX) = eModificationPatch::SNAPSHOT;
     }
 
 

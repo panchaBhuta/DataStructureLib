@@ -7,7 +7,7 @@
 # dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details. 
 #
 
-if (CMAKE_VERSION VERSION_GREATER 3.10 OR CMAKE_VERSION VERSION_EQUAL 3.10)
+if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.10)
     # Use include_guard() added in cmake 3.10
     include_guard()
 endif()
@@ -85,7 +85,7 @@ function(dataStructure_getversion version_arg)
 
     # Give feedback to the user. Prefer DEBUG when available since large projects tend to have a lot
     # going on already
-    if (CMAKE_VERSION VERSION_GREATER 3.15 OR CMAKE_VERSION VERSION_EQUAL 3.15)
+    if (CMAKE_VERSION VERSION_GREATER_EQUAL 3.15)
         message(DEBUG "dataStructure version ${VERSION}")
     else()
         message(STATUS "dataStructure version ${VERSION}")
@@ -193,7 +193,7 @@ macro(dataStructure_enable_warnings)
     set(gcc_warnings "${gcc_warnings};-Wunreachable-code;-Wundef;-Wuninitialized;-Wold-style-cast;-Wwrite-strings")
     set(gcc_warnings "${gcc_warnings};-Wsign-conversion;-Weffc++")
     if(CMAKE_SYSTEM_NAME  EQUAL LINUX   AND   CMAKE_CXX_COMPILER_ID EQUAL Clang )
-      if (CMAKE_VERSION VERSION_GREATER_EQUAL 13.0 OR CMAKE_VERSION VERSION_LESS 16.0)
+      if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 13.0 OR CMAKE_CXX_COMPILER_VERSION VERSION_LESS 16.0)
         set(gcc_warnings "${gcc_warnings};-Wno-defaulted-function-deleted")
       endif()
     endif()

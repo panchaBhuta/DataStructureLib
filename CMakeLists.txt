@@ -47,6 +47,8 @@ message(STATUS "############################################### CMAKE_BUILD_TYPE
 message(STATUS "#### OS-id=${CMAKE_SYSTEM_NAME}   OS-id-version=${CMAKE_SYSTEM}")
 message(STATUS "#### CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID}    version=${CMAKE_CXX_COMPILER_VERSION}")
 
+dataStructure_cmake_variables_config()
+
 # Determine whether this is a standalone project or included by other projects
 set(DATASTRUCTURE_STANDALONE_PROJECT OFF)
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)

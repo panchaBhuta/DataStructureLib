@@ -1,7 +1,7 @@
 #
 # URL:      https://github.com/panchaBhuta/dataStructure
 #
-# Copyright (c) 2023-2023 Gautam Dhar
+# Copyright (c) 2023-2025 Gautam Dhar
 # All rights reserved.
 #
 # dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details. 
@@ -14,13 +14,62 @@ endif()
 
 include(CMakePackageConfigHelpers)
 
+
+
+function(dataStructure_cmake_variables_config)
+    # parameters which are NON Generator-Expressions if set outside of function,
+    # not all variables CMAKE_* e.g(CMAKE_SYSTEM_NAME) are NOT set by CMAKE.
+    # Seems those variables get set after call of 'include(GNUInstallDirs)' in CMakeLists.txt
+    # this parameters are not available outside of this function
+    set(_CNV_OS_FLAGS_ "OS-flags: UNIX=${UNIX} , APPLE=${APPLE} , WIN32=${WIN32}")
+    set(_CNV_OS_NAME_  "OS-name: CMAKE_SYSTEM_NAME=${CMAKE_SYSTEM_NAME} , CMAKE_HOST_SYSTEM_NAME=${CMAKE_HOST_SYSTEM_NAME}")
+    set(_CNV_SYSTEM_PROCESSOR_ "system-processor: CMAKE_SYSTEM_VERSION=${CMAKE_SYSTEM_VERSION} , CMAKE_SYSTEM_PROCESSOR=${CMAKE_SYSTEM_PROCESSOR}")
+    set(_CNV_CXX_COMPILER_ "cxx-compiler: CMAKE_CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID} , COMPILE_LANG_AND_ID=${COMPILE_LANG_AND_ID} , CMAKE_CXX_COMPILER_VERSION=${CMAKE_CXX_COMPILER_VERSION}")
+    set(_CNV_BUILD_ENV_ "ENV: MINGW=${MINGW} , MSYS=${MSYS} , CYGWIN=${CYGWIN}")
+    set(_CNV_ENV_MSYSTEM_ "ENV: MSYSTEM=$ENV{MSYSTEM}")
+
+    # Configure-time values
+    message(STATUS "++++ ${_CNV_OS_FLAGS_}")
+    message(STATUS "++++ ${_CNV_OS_NAME_}")
+    message(STATUS "++++ ${_CNV_SYSTEM_PROCESSOR_}")
+    message(STATUS "++++ ${_CNV_CXX_COMPILER_}")
+    message(STATUS "++++ ${_CNV_BUILD_ENV_}")
+    message(STATUS "++++ ${_CNV_ENV_MSYSTEM_}")
+
+    # https://gitlab.kitware.com/cmake/community/-/wikis/doc/tutorials/How-To-Write-Platform-Checks
+    # Build-time values
+    add_custom_target(genexdebug_dataStructure_1 ALL COMMAND ${CMAKE_COMMAND} -E echo "**** ${_CNV_OS_FLAGS_}")
+    add_custom_target(genexdebug_dataStructure_2 ALL COMMAND ${CMAKE_COMMAND} -E echo "**** ${_CNV_OS_NAME_}")
+    add_custom_target(genexdebug_dataStructure_3 ALL COMMAND ${CMAKE_COMMAND} -E echo "**** ${_CNV_SYSTEM_PROCESSOR_}")
+    add_custom_target(genexdebug_dataStructure_4 ALL COMMAND ${CMAKE_COMMAND} -E echo "**** ${_CNV_CXX_COMPILER_}")
+    add_custom_target(genexdebug_dataStructure_5 ALL COMMAND ${CMAKE_COMMAND} -E echo "**** ${_CNV_BUILD_ENV_}")
+    add_custom_target(genexdebug_dataStructure_6 ALL COMMAND ${CMAKE_COMMAND} -E echo "**** ${_CNV_ENV_MSYSTEM_}")
+endfunction()
+
+
+
+# parameters with Generator-Expressions can reside here at this level (i.e. Non-function)
+set(unix_like_os "$<BOOL:${UNIX}>")     # is TRUE on all UNIX-like OS's, including Apple OS X and CygWin
+set(apple_os     "$<BOOL:${APPLE}>")    # is TRUE on Apple systems. Note this does not imply the
+                                        # system is Mac OS X, only that APPLE is #defined in C/C++ header files.
+set(windows_os   "$<BOOL:${WIN32}>")    # is TRUE on Windows. Prior to 2.8.4 this included CygWin
+set(unix_os      "$<AND:$<BOOL:${UNIX}>,$<NOT:$<OR:${apple_os},${windows_os}>>>")
+                                        # is TRUE on all UNIX-like OS's, excluding Apple OS X and CygWin (on Windows)
+add_custom_target(genexdebug_dataStructure_7 ALL COMMAND ${CMAKE_COMMAND} -E echo "**** OS: unix_like_os=${unix_like_os} , unix_os=${unix_os} , apple_os=${apple_os} , windows_os=${windows_os}")
+
+set(mingw_build_env    "$<BOOL:${MINGW}>")    # is TRUE when using the MinGW compiler in Windows
+set(msys_build_env     "$<BOOL:${MSYS}>")     # is TRUE when using the MSYS developer environment in Windows
+set(cygwin_build_env   "$<BOOL:${CYGWIN}>")   # is TRUE on Windows when using the CygWin version of cmake
+add_custom_target(genexdebug_dataStructure_8 ALL COMMAND ${CMAKE_COMMAND} -E echo "**** ENV-flag: mingw_build_env=${mingw_build_env} , msys_build_env=${msys_build_env} , cygwin_build_env=${cygwin_build_env}")
+
 set(clang_cxx "$<COMPILE_LANG_AND_ID:CXX,Clang>")
 set(clang_like_cxx "$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang>")
 set(gcc_cxx "$<COMPILE_LANG_AND_ID:CXX,GNU>")
 set(gcc_like_cxx "$<OR:$<COMPILE_LANG_AND_ID:CXX,GNU,LCC>,${clang_like_cxx}>")
 set(msvc_cxx "$<COMPILE_LANG_AND_ID:CXX,MSVC>")
-set(windows_os "$<BOOL:${WIN32}>")
-
+message(STATUS "++++ COMPILE_LANG_AND_ID=${COMPILE_LANG_AND_ID}")
+# COMPILE_LANG_AND_ID can't be called in add_custom_target()
+#add_custom_target(genexdebug_dataStructure_9 ALL COMMAND ${CMAKE_COMMAND} -E echo "**** ENV: clang_cxx=${clang_cxx} , clang_like_cxx=${clang_like_cxx} , gcc_cxx=${gcc_cxx} , gcc_like_cxx=${gcc_like_cxx} , msvc_cxx=${msvc_cxx}")
 
 
 function(dataStructure_getversion version_arg)
@@ -75,7 +124,7 @@ macro(dataStructure_set_cxx_standard)
 endmacro()
 
 
-# fetch dependencies of rapidcsv
+# fetch dependencies of dataStructure
 macro(fetch_dependencies)
 
     set(CONVERTERLIB "converter")  # local-variable
@@ -143,6 +192,11 @@ macro(dataStructure_enable_warnings)
     set(gcc_warnings "${gcc_warnings};-Wcast-qual;-Wno-missing-braces;-Wswitch-default;-Wcast-align;-Winit-self")
     set(gcc_warnings "${gcc_warnings};-Wunreachable-code;-Wundef;-Wuninitialized;-Wold-style-cast;-Wwrite-strings")
     set(gcc_warnings "${gcc_warnings};-Wsign-conversion;-Weffc++")
+    if(CMAKE_SYSTEM_NAME  EQUAL LINUX   AND   CMAKE_CXX_COMPILER_ID EQUAL Clang )
+      if (CMAKE_VERSION VERSION_GREATER_EQUAL 13.0 OR CMAKE_VERSION VERSION_LESS 16.0)
+        set(gcc_warnings "${gcc_warnings};-Wno-defaulted-function-deleted")
+      endif()
+    endif()
 
     # https://cmake.org/cmake/help/v3.27/manual/cmake-generator-expressions.7.html
     #set(is_gnu "$<CXX_COMPILER_ID:GNU>")
@@ -223,11 +277,39 @@ macro(dataStructure_build)
     #target_include_directories(dataStructure INTERFACE
     #    "$<$<BOOL:${CMAKE_HOST_UNIX}>:/opt/include/$<CXX_COMPILER_ID>>")
 
+    set(ENV_MSYSTEM "$ENV{MSYSTEM}")
+    add_custom_target(genexdebug_dataStructure_10 ALL COMMAND ${CMAKE_COMMAND} -E echo "**** ENV_MSYSTEM=${ENV_MSYSTEM}  , windows_os=${windows_os}")
+    # IMPORTANT : below code doesn't work as expected as "if($<BOOL:${windows_os})" is evaluated
+    #             during Configure time, during which windows_os and WIN32 among other variables
+    #             would evaluate to BOOL=false. Thus, MSYSTEM_VALUE="MSYSTEM_NOTAPPLICABLE_NonWindowsOS"
+    #             gets set incorrectly in configure time itself(instead of compile time).
+    #             These variables(WIN32 etc) are set later during Compile time, but then this if
+    #             condition doen't get evaluted.
+    #             For MSYSTEM_VALUE to be correctly evaluted we need to set it thru generator-expressions.
+    #if($<BOOL:${windows_os})
+    #    message(STATUS "windows_os=true")
+    #    if($<BOOL:${ENV_MSYSTEM}>)
+    #        set(MSYSTEM_VALUE "MSYSTEM_${ENV_MSYSTEM}")
+    #    else()
+    #        set(MSYSTEM_VALUE "MSYSTEM_NOTSET")
+    #    endif()
+    #else()
+    #    message(STATUS "windows_os=false")
+    #    set(MSYSTEM_VALUE "MSYSTEM_NOTAPPLICABLE_NonWindowsOS")
+    #endif()
+    set(MSYSTEM_VALUE_WIN32 "$<IF:$<BOOL:${ENV_MSYSTEM}>,MSYSTEM_${ENV_MSYSTEM},MSYSTEM_NOTSET>")
+    set(MSYSTEM_VALUE "$<IF:$<BOOL:${windows_os}>,${MSYSTEM_VALUE_WIN32},MSYSTEM_NOTAPPLICABLE_NonWindowsOS>")
+    add_custom_target(genexdebug_dataStructure_11 ALL COMMAND ${CMAKE_COMMAND} -E echo "**** MSYSTEM_VALUE=${MSYSTEM_VALUE}")
     target_compile_definitions(dataStructure INTERFACE
         $<$<CONFIG:Debug>:DEBUG_BUILD>
         $<$<CONFIG:Release>:RELEASE_BUILD>
         FLAG_VERSIONEDOBJECT_debug_log=$<BOOL:${OPTION_VERSIONEDOBJECT_debug_log}>
-        FLAG_BIMAP_debug_log=$<BOOL:${OPTION_BIMAP_debug_log}>)
+        FLAG_BIMAP_debug_log=$<BOOL:${OPTION_BIMAP_debug_log}>
+        # below variables are useful for Windows GNU build environment
+        "${MSYSTEM_VALUE}"  "COMPILER_${CMAKE_CXX_COMPILER_ID}"
+        $<$<BOOL:mingw_build_env>:BUILD_ENV_MINGW>
+        $<$<BOOL:msys_build_env>:BUILD_ENV_MSYS>
+        $<$<BOOL:cygwin_build_env>:BUILD_ENV_CYGWIN>)
     #[==================================================================================[
     # refer https://cmake.org/cmake/help/v3.27/manual/cmake-generator-expressions.7.html#genex:COMPILE_LANG_AND_ID
     # This specifies the use of different compile definitions based on both the compiler id and compilation language.

@@ -4,7 +4,7 @@
  * URL:      https://github.com/panchaBhuta/dataStructure
  * Version:  v2.2.6
  *
- * Copyright (C) 2023-2024 Gautam Dhar
+ * Copyright (C) 2023-2025 Gautam Dhar
  * All rights reserved.
  *
  * dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details.
@@ -68,7 +68,7 @@ namespace datastructure { namespace versionedObject
     {}
 
     inline static t_dataset _datasetFactory(
-                    [[maybe_unused]]  const t_deltaEntriesMap::mapped_type& changesInDataSet,
+                    [[maybe_unused]]  const typename t_deltaEntriesMap::mapped_type& changesInDataSet,
                                       const t_record& record)
     {
       if constexpr ( t_dataset::hasMetaData() )

@@ -437,7 +437,7 @@ namespace datastructure { namespace versionedObject
     inline const M&           getMetaData() const { return _metaData; }
     inline const t_record&    getRecord()   const { return _record; }
 
-    template<typename SH = M::t_StreamerHelper>
+    template<typename SH = typename M::t_StreamerHelper>
     inline void toCSV(std::ostream& oss, const SH& streamerHelper) const
     {
       const SH& sh = streamerHelper;
@@ -450,7 +450,7 @@ namespace datastructure { namespace versionedObject
       toCSV(oss, _metaData.getStreamerHelper());
     }
 
-    template<typename SH = M::t_StreamerHelper>
+    template<typename SH = typename M::t_StreamerHelper>
     inline std::string toCSV(
       typename std::enable_if_t<  !std::is_same_v<SH, std::ostream&>,
                                   const SH& >
@@ -466,7 +466,7 @@ namespace datastructure { namespace versionedObject
       return toCSV(_metaData.getStreamerHelper());
     }
 
-    template<typename SH = M::t_StreamerHelper>
+    template<typename SH = typename M::t_StreamerHelper>
     inline std::string toLog(const SH& streamerHelper) const
     {
       const SH& sh = streamerHelper;

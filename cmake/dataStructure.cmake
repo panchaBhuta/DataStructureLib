@@ -209,7 +209,8 @@ macro(dataStructure_enable_warnings)
     # To specify this, we wrap our flags in a generator expression using the BUILD_INTERFACE condition.
     #]==================================================================================]
     target_compile_options(dataStructure INTERFACE
-        "$<${gcc_like_cxx}:$<BUILD_INTERFACE:${gcc_warnings}>>"
+        #"$<${gcc_like_cxx}:$<BUILD_INTERFACE:${gcc_warnings}>>"
+        "$<BUILD_INTERFACE:${gcc_warnings}>"
         "$<$<AND:${gcc_like_cxx},$<NOT:${windows_os_clang_cxx}>>:$<BUILD_INTERFACE:-Wall>>" # -Wall for 'windows_os_clang_cxx' gives lot of warnings
         "$<${gcc_cxx_v5_or_later}:$<BUILD_INTERFACE:-Wsuggest-override>>"
         "$<$<NOT:${windows_os}>:$<BUILD_INTERFACE:-g>>"  # for linux and macOS

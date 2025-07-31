@@ -188,7 +188,7 @@ endmacro()
 
 # Helper function to enable warnings
 macro(dataStructure_enable_warnings)
-    set(gcc_warnings "-Wextra;-Wpedantic;-Wshadow;-Wpointer-arith")
+    set(gcc_warnings "-Wpedantic;-Wshadow;-Wpointer-arith")
     set(gcc_warnings "${gcc_warnings};-Wcast-qual;-Wno-missing-braces;-Wswitch-default;-Wcast-align;-Winit-self")
     set(gcc_warnings "${gcc_warnings};-Wunreachable-code;-Wundef;-Wuninitialized;-Wold-style-cast;-Wwrite-strings")
     set(gcc_warnings "${gcc_warnings};-Wsign-conversion;-Weffc++")
@@ -209,7 +209,6 @@ macro(dataStructure_enable_warnings)
     # To specify this, we wrap our flags in a generator expression using the BUILD_INTERFACE condition.
     #]==================================================================================]
     target_compile_options(dataStructure INTERFACE
-        #"$<${gcc_like_cxx}:$<BUILD_INTERFACE:${gcc_warnings}>>"
         "$<BUILD_INTERFACE:${gcc_warnings}>"
         "$<$<AND:${gcc_like_cxx},$<NOT:${windows_os_clang_cxx}>>:$<BUILD_INTERFACE:-Wall>>" # -Wall for 'windows_os_clang_cxx' gives lot of warnings
         "$<${gcc_cxx_v5_or_later}:$<BUILD_INTERFACE:-Wsuggest-override>>"
@@ -219,6 +218,7 @@ macro(dataStructure_enable_warnings)
         #"$<${windows_os_clang_cxx}:$<BUILD_INTERFACE:-Wno-c++98-compat;-Wno-c++98-compat-pedantic>>"
         #"$<${windows_os_clang_cxx}:$<BUILD_INTERFACE:-Wno-global-constructors;-Wno-exit-time-destructors>>"
         #"$<${windows_os_clang_cxx}:$<BUILD_INTERFACE:-Wno-extra-semi-stmt;-Wno-string-plus-int>>"
+        "$<$<NOT:${msvc_cxx}>:$<BUILD_INTERFACE:-Wextra>>"
         "$<${msvc_cxx}:$<BUILD_INTERFACE:-W4>>")
     #add_compile_options("/utf-8")  for msvc  -> check in cxxopts.cmake
 endmacro()

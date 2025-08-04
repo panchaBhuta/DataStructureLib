@@ -144,11 +144,6 @@ namespace datastructure { namespace versionedObject
   };
   */
 
-  template<typename T, typename SH>
-  concept has_void_toCSV_member_func = requires {
-      { std::declval<T>().toCSV(std::declval<std::ostream>(), std::declval<SH>()) } -> std::same_as<void>;
-  };
-
   template<typename CR>
   concept has_insert_member_func = requires {
       typename CR::value_type;
@@ -182,7 +177,7 @@ namespace datastructure { namespace versionedObject
   //      1. using isMetaData = std::true_type;
   //      2. void merge(const crtpMetaDataSource& other) { ... }
   //      3. assignment operator
-  template<typename M, typename CONTAINER = std::set<t_DataType>,
+  template<typename M, typename CONTAINER,
            typename SHD = StreamerHelper >
   class crtpMetaDataSource   /// crtp -> Curiously recurring template pattern
   {
@@ -244,21 +239,8 @@ namespace datastructure { namespace versionedObject
     template<typename SH = SHD>
     inline void toCSV(std::ostream& oss, const SH& streamerHelper) const
     {
-      // crtp -> Curiously recurring template pattern
-      // For super class(es) of crtpMetaDataSource, the compile time
-      // function overloading gets triggered here.
-      if constexpr(has_void_toCSV_member_func<M, SH>)
-      {
-        using CM = const M;
-        static_cast<CM*>(this)->template toCSV<SH>(oss, streamerHelper);
-      } else {
-        const SH& sh = streamerHelper;
-        oss << char(_prefixBuildType) << sh.getDelimiterMetaData()
-            << char(_dataPatch) << _dataType;
-
-        for (const auto& sr : _mergedDataTypes)
-          oss << sh.getDelimiterMetaData() << sr;
-      }
+      using CM = const M;
+      static_cast<CM*>(this)->template _toCSV<SH>(oss, streamerHelper);
     }
 
     inline void toCSV(std::ostream& oss) const
@@ -369,15 +351,30 @@ namespace datastructure { namespace versionedObject
     }
   };
 
-  class MetaDataSource : public crtpMetaDataSource<MetaDataSource>
+  class MetaDataSource
+        : public crtpMetaDataSource<MetaDataSource, std::set<t_DataType> >
   {
+  friend crtpMetaDataSource<MetaDataSource , std::set<t_DataType>>;
+
+  private:
+    template<typename SH = StreamerHelper>
+    inline void _toCSV( std::ostream& oss, const SH& streamerHelper) const
+    {
+      const SH& sh = streamerHelper;
+      oss << char(_prefixBuildType) << sh.getDelimiterMetaData()
+          << char(_dataPatch) << _dataType;
+
+      for (const auto& sr : _mergedDataTypes)
+        oss << sh.getDelimiterMetaData() << sr;
+    }
+
   public:
     //using isMetaData = std::true_type;
     //inline static const char metaDataDelimiter   = '|';
 
     MetaDataSource(const t_DataType& dataType, eBuildDirection prefixBuildType, eModificationPatch dataPatch,
                    const StreamerHelper streamerHelper = StreamerHelper{})
-      : crtpMetaDataSource<MetaDataSource>(dataType, prefixBuildType, dataPatch, streamerHelper)
+      : crtpMetaDataSource<MetaDataSource , std::set<t_DataType> >(dataType, prefixBuildType, dataPatch, streamerHelper)
     {}
 
     MetaDataSource() = delete;
@@ -391,7 +388,7 @@ namespace datastructure { namespace versionedObject
   *  refer URL^  for   "Namespaces and operator resolution"  for eg: 'operator<<'
   *  same constraints apply to crtpMetaDataSource<MetaDataSource>::toCSV;
 */
-    using crtpMetaDataSource<MetaDataSource>::toCSV;
+    //using crtpMetaDataSource<MetaDataSource , std::set<t_DataType>>::_toCSV;
 
     ~MetaDataSource() {}
   };

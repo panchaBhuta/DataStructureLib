@@ -126,16 +126,18 @@ endmacro()
 
 # fetch dependencies of dataStructure
 macro(fetch_dependencies)
+    include( FetchContent )
 
+    ########## converter start  ###############
     set(CONVERTERLIB "converter")  # local-variable
     # https://stackoverflow.com/questions/29892929/variables-set-with-parent-scope-are-empty-in-the-corresponding-child-scope-why
     #set(CONVERTERLIB ${CONVERTERLIB} PARENT_SCOPE)  # global-variable
     set_target_properties(dataStructure PROPERTIES CONVERTERLIB ${CONVERTERLIB})  # global-variable
 
-    include( FetchContent )
+
     FetchContent_Declare( ${CONVERTERLIB}
                           GIT_REPOSITORY https://github.com/panchaBhuta/converter.git
-                          GIT_TAG        v1.3.28)  # adjust tag/branch/commit as needed
+                          GIT_TAG        v1.3.29)  # adjust tag/branch/commit as needed
     FetchContent_MakeAvailable(${CONVERTERLIB})
 
     #[==================[
@@ -149,6 +151,9 @@ macro(fetch_dependencies)
     #if (NOT TARGET converter::converter)
     #    find_package(converter REQUIRED)
     #endif()
+
+    ########## converter end  ###############
+
 endmacro()
 
 
@@ -246,8 +251,8 @@ macro(dataStructure_build)
     # for _DEBUG_LOG can't use generator-expression as its computed during build-stage, but we need it during config-stage
     option(OPTION_VERSIONEDOBJECT_debug_log  "Set to ON for VersionedObject debugging logs"  ${_DEBUG_LOG})
     message(STATUS "OPTION_VERSIONEDOBJECT_debug_log=${OPTION_VERSIONEDOBJECT_debug_log}")
-    option(OPTION_BIMAP_debug_log  "Set to ON for BiMap debugging logs"  ${_DEBUG_LOG})
-    message(STATUS "OPTION_BIMAP_debug_log=${OPTION_BIMAP_debug_log}")
+    #option(OPTION_BIMAP_debug_log  "Set to ON for BiMap debugging logs"  ${_DEBUG_LOG})
+    #message(STATUS "OPTION_BIMAP_debug_log=${OPTION_BIMAP_debug_log}")
     #[===========[  donot use generator-expressions in option() functions
     # option(OPTION_VERSIONEDOBJECT_debug_log  "Set to ON for debugging logs"   "$<AND:$<CONFIG:Debug>,$<DATASTRUCTURE_STANDALONE_PROJECT>>")
     #]===========]
@@ -304,7 +309,7 @@ macro(dataStructure_build)
         $<$<CONFIG:Debug>:DEBUG_BUILD>
         $<$<CONFIG:Release>:RELEASE_BUILD>
         FLAG_VERSIONEDOBJECT_debug_log=$<BOOL:${OPTION_VERSIONEDOBJECT_debug_log}>
-        FLAG_BIMAP_debug_log=$<BOOL:${OPTION_BIMAP_debug_log}>
+        #FLAG_BIMAP_debug_log=$<BOOL:${OPTION_BIMAP_debug_log}>
         # below variables are useful for Windows GNU build environment
         "${MSYSTEM_VALUE}"  "COMPILER_${CMAKE_CXX_COMPILER_ID}"
         $<$<BOOL:mingw_build_env>:BUILD_ENV_MINGW>

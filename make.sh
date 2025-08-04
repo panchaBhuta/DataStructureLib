@@ -2,7 +2,7 @@
 
 # make.sh
 #
-# Copyright (C) 2023-2023 Gautam Dhar
+# Copyright (C) 2023-2025 Gautam Dhar
 # All rights reserved.
 #
 # See LICENSE for redistribution information.
@@ -140,8 +140,10 @@ if [[ "${BUILD}" == "1" ]]; then
   elif [ "${OS}" == "Darwin" ]; then
     MAKEARGS="-j$(sysctl -n hw.ncpu)"
   fi
-  mkdir -p build-debug && cd build-debug && cmake -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug .. && cmake --build . ${MAKEARGS} && cd .. && \
-  mkdir -p build-release && cd build-release && cmake -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release .. && cmake --build . ${MAKEARGS} && cd .. || \
+  mkdir -p build-debug && cd build-debug && echo "##### START(debug) : processing/configure of CMakeLists.txt #####" && cmake -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug .. && \
+  echo "##### START(debug) : project build #####" && cmake --build . ${MAKEARGS} && cd .. && \
+  mkdir -p build-release && cd build-release && echo "##### START(release) : processing/configure of CMakeLists.txt #####" && cmake -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release .. && \
+  echo "##### START(release) : project build #####" && cmake --build . ${MAKEARGS} && cd .. || \
   exiterr "build failed, exiting."
 fi
 
@@ -156,8 +158,8 @@ if [[ "${TESTS}" == "1" ]]; then
   fi
   #  https://stackoverflow.com/questions/28678505/add-command-arguments-using-inline-if-statement-in-bash/28678587#28678587
   #cd build-debug && ctest --output-on-failure ${CTESTARGS} $( (( $# == 2 )) && printf "%s %s" "-R" "${2}" ) && cd .. && \
-  cd build-debug && ctest --verbose ${CTESTARGS} $( (( $# == 2 )) && printf "%s %s" "-R" "${2}" ) && cd .. && \
-  cd build-release && ctest --verbose ${CTESTARGS} $( (( $# == 2 )) && printf "%s %s" "-R" "${2}" ) && cd .. || \
+  cd build-debug && echo "##### START(debug) : project Test #####" && ctest --verbose ${CTESTARGS} $( (( $# == 2 )) && printf "%s %s" "-R" "${2}" ) && cd .. && \
+  cd build-release && echo "##### START(release) : project Test #####" && ctest --verbose ${CTESTARGS} $( (( $# == 2 )) && printf "%s %s" "-R" "${2}" ) && cd .. || \
   exiterr "tests failed, exiting."
 fi
 
@@ -174,7 +176,11 @@ if [[ "${INSTALL}" == "1" ]]; then
   if [ "${OS}" == "Linux" ]; then
     cd build-release && sudo cmake --install . && cd .. || exiterr "install failed (linux), exiting."
   elif [ "${OS}" == "Darwin" ]; then
-    cd build-release && cmake --install . && cd .. || exiterr "install failed (mac), exiting."
+    GHSUDO=""
+    if [[ "${GITHUB_ACTIONS}" == "true" ]]; then
+      GHSUDO="sudo"
+    fi
+    cd build-release && ${GHSUDO} cmake --install . && cd .. || exiterr "install failed (mac), exiting."
   else
     exiterr "install failed (unsupported os ${OS}), exiting."
   fi

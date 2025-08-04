@@ -1,7 +1,7 @@
 #
 # URL:      https://github.com/panchaBhuta/dataStructure
 #
-# Copyright (c) 2023-2023 Gautam Dhar
+# Copyright (c) 2023-2025 Gautam Dhar
 # All rights reserved.
 #
 # dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details. 

@@ -1047,7 +1047,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
       toStr(_deltaChgEntries, oss, streamerHelper);
     }
 
-    //inline const t_deltaEntriesMap& getDeltaChangeMap() const { return _deltaChgEntries; }
+    inline const t_deltaEntriesMap& getDeltaChangeMap() const { return _deltaChgEntries; }
 
     virtual ~_VersionedObjectBuilderBase()
     {
@@ -1127,6 +1127,8 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
   template <typename VDT, c_noMetaData T1, typename ... TR>
   class VersionedObjectBuilder<VDT, T1, TR...> : public _VersionedObjectBuilderBase<VDT, T1, TR...>
   {
+  //private:
+  //  t_BaseMetaDataSource _factoryMethod() { return
   public:
     using t_versionDate      = VDT;
     using t_versionedObject  = VersionedObject<T1, TR...>;

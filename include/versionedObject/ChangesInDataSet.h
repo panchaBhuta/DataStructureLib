@@ -110,24 +110,6 @@ namespace datastructure { namespace versionedObject
       return mergeableCount1;
     }
 
-    template<typename SH = StreamerHelper>
-    inline void toCSV(std::ostream& oss, const SH& streamerHelper = SH{}) const
-    {
-      //oss << _source;
-      _toCSV<0>(oss, streamerHelper);
-    }
-
-    template<typename SH = StreamerHelper>
-    inline std::string toCSV(
-      typename std::enable_if_t<  !std::is_same_v<SH, std::ostream&>,
-                                  const SH& >
-      streamerHelper = SH{}) const
-    {
-      std::ostringstream oss;
-      _ChangesInDataSetBase<T... >::toCSV(oss, streamerHelper);
-      return oss.str();
-    }
-
   protected:
     _ChangesInDataSetBase( const std::array<bool, sizeof...(T)>& modifiedElements,
                            const t_record& oldValues,
@@ -152,7 +134,7 @@ namespace datastructure { namespace versionedObject
         _buildDirection{snapOther.getBuildDirection()}
     {}
 
-    template<size_t IDX , typename SH = StreamerHelper>
+    template<size_t IDX , typename SH> // = StreamerHelper>
     inline void _toCSV(std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
       if constexpr( IDX == 0 )
@@ -511,7 +493,7 @@ namespace datastructure { namespace versionedObject
       return this->_merge(dynamic_cast<const _SnapshotDataSetBase<T...>& >(other));
     }
 
-    template<typename SH = StreamerHelper>
+    template<typename SH = typename M::t_StreamerHelper>
     inline void toCSV(std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
       const SH& sh = streamerHelper;
@@ -523,7 +505,7 @@ namespace datastructure { namespace versionedObject
       this->template _toCSV<0>(oss, streamerHelper);
     }
 
-    template<typename SH = StreamerHelper>
+    template<typename SH = typename M::t_StreamerHelper>
     inline std::string toCSV(
       typename std::enable_if_t<  !std::is_same_v<SH, std::ostream&>,
                                   const SH& >
@@ -570,6 +552,24 @@ namespace datastructure { namespace versionedObject
     ChangesInDataSet(ChangesInDataSet const&) = default;
     ChangesInDataSet& operator=(ChangesInDataSet const&) = delete;
     bool operator==(ChangesInDataSet const&) const = default;
+
+    template<typename SH = StreamerHelper>
+    inline void toCSV(std::ostream& oss, const SH& streamerHelper = SH{}) const
+    {
+      //oss << _source;
+      this->template _toCSV<0>(oss, streamerHelper);
+    }
+
+    template<typename SH = StreamerHelper>
+    inline std::string toCSV(
+      typename std::enable_if_t<  !std::is_same_v<SH, std::ostream&>,
+                                  const SH& >
+      streamerHelper = SH{}) const
+    {
+      std::ostringstream oss;
+      ChangesInDataSet<T1, TR...>::toCSV(oss, streamerHelper);
+      return oss.str();
+    }
   };
 
 } }  //  datastructure::versionedObject

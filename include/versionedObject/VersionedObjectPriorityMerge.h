@@ -59,15 +59,20 @@ namespace datastructure { namespace versionedObject
         const t_dataset& lowrPriorityDataset = iterLowrPriorityVO->second;
         if(highPriorityDate == lowrPriorityDate) {
           if(highPriorityDataset.getRecord() == lowrPriorityDataset.getRecord()) {
-            // metaData need NOT be equal (when data from different sources)
-            if constexpr(t_dataset::hasMetaData()) {
-              using t_metaData         = typename t_dataset::t_metaData;
-              t_metaData hpMetaData {highPriorityDataset.getMetaData()};
-              hpMetaData.merge(lowrPriorityDataset.getMetaData());
-              t_dataset highPriorityDataset_metaMerge{hpMetaData, highPriorityDataset.getRecord()};
-              mergeVersionedObject.insertVersion(highPriorityDate, highPriorityDataset_metaMerge);
-            } else {
-              mergeVersionedObject.insertVersion(highPriorityDate, highPriorityDataset);
+            try {
+              if constexpr(t_dataset::hasMetaData()) {
+                // metaData need NOT be equal (when data from different sources)
+                using t_metaData         = typename t_dataset::t_metaData;
+                t_metaData hpMetaData {highPriorityDataset.getMetaData()};
+                hpMetaData.merge(lowrPriorityDataset.getMetaData());
+                t_dataset highPriorityDataset_metaMerge{hpMetaData, highPriorityDataset.getRecord()};
+                mergeVersionedObject.insertVersion(highPriorityDate, highPriorityDataset_metaMerge);
+              } else {
+                mergeVersionedObject.insertVersion(highPriorityDate, highPriorityDataset);
+              }
+            } catch(...) {
+              std::cout << "ERROR : VersionedObjectPriorityMerge::getMergeResult()-> versionDate[" << highPriorityDate << "]" << std::endl;
+              throw;
             }
             ++iterHighPriorityVO;
             ++iterLowrPriorityVO;

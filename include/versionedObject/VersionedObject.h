@@ -74,13 +74,13 @@ namespace datastructure { namespace versionedObject
   template <typename M>
   concept c_noMetaData = !is_MetaData<M>::value;
 
-  enum eModificationPatch {
+  enum eModificationPatch : char {
     DELTACHANGE = '%',
     SNAPSHOT    = '@',
     FullRECORD  = '*'
   };
 
-  enum eBuildDirection {
+  enum eBuildDirection : char {
     FORWARD   = '+',
     REVERSE   = '-',
     IsRECORD  = '*'
@@ -195,14 +195,23 @@ namespace datastructure { namespace versionedObject
         _mergedDataTypes{},                   // symbolchange, namechange
         _streamerHelper{streamerHelper}       // ',' & '|' ...
     {
-      if( ( prefixBuildType == eBuildDirection::IsRECORD && dataPatch != eModificationPatch::FullRECORD ) ||
-          ( prefixBuildType != eBuildDirection::IsRECORD && dataPatch == eModificationPatch::FullRECORD ) )
+      if( (prefixBuildType == eBuildDirection::IsRECORD && dataPatch != eModificationPatch::FullRECORD ) ||
+          (prefixBuildType != eBuildDirection::IsRECORD && dataPatch == eModificationPatch::FullRECORD ) )
       {
-        throw EnumMismatch_MetaDataSource_exception{"crtpMetaDataSource() : prefixBuildType and dataPatch are both of RECORD type, OR neither are of RECORD type"};
+        // eBuildDirection::IsRECORD = '*'    eModificationPatch::FullRECORD = '*'
+        std::ostringstream eoss;
+        eoss << "ERROR(1) :: crtpMetaDataSource() : prefixBuildType[" << prefixBuildType << "] and dataPatch[";
+        eoss << dataPatch << "] , both needs to-be of RECORD(*) type, OR neither are of RECORD(*) type.";
+        VERSIONEDOBJECT_DEBUG_LOG(eoss.str());
+        throw EnumMismatch_MetaDataSource_exception{eoss.str()};
       }
       if( dataPatch == eModificationPatch::SNAPSHOT && prefixBuildType != eBuildDirection::FORWARD ) // i.e SNAPSHOT change is applicable for FORWARD build only
       {
-        throw InvalidEnum_MetaDataSource_exception{"crtpMetaDataSource() : if dataPatch==SNAPSHOT; then prefixBuildType should be FORWARD"};
+        // eModificationPatch::SNAPSHOT = '@'    eBuildDirection::FORWARD = '+'
+        std::ostringstream eoss;
+        eoss << "ERROR(2) :: crtpMetaDataSource() : if dataPatch==SNAPSHOT(@); then prefixBuildType[" << prefixBuildType << "] should be FORWARD(+)";
+        VERSIONEDOBJECT_DEBUG_LOG(eoss.str());
+        throw InvalidEnum_MetaDataSource_exception{eoss.str()};
       }
     }
 
@@ -277,22 +286,30 @@ namespace datastructure { namespace versionedObject
           ( _prefixBuildType == eBuildDirection::IsRECORD && other._prefixBuildType == eBuildDirection::IsRECORD ) )   //   '*'
       {
         if(_mergedDataTypes.size() > 0)
-          throw MergeError_MetaDataSource_exception{"crtpMetaDataSource<M, CONTAINER>::_checkMerge() : _mergedDataTypes.size.size() should be zero"};
+          throw MergeError_MetaDataSource_exception{"ERROR(1) :: crtpMetaDataSource<M, CONTAINER>::_checkMerge() : _mergedDataTypes.size.size() should be zero"};
 
         if(other._mergedDataTypes.size() > 0)
-          throw MergeError_MetaDataSource_exception{"crtpMetaDataSource<M, CONTAINER>::_checkMerge() : other._mergedDataTypes.size() should be zero"};
+          throw MergeError_MetaDataSource_exception{"ERROR(2) :: crtpMetaDataSource<M, CONTAINER>::_checkMerge() : other._mergedDataTypes.size() should be zero"};
 
         return;
       }
 
       if( _dataPatch == eModificationPatch::FullRECORD  || other._dataPatch == eModificationPatch::FullRECORD )   //   '*'
       {
-        throw MergeError_MetaDataSource_exception{"crtpMetaDataSource<M, CONTAINER>::_checkMerge() : _dataPatch and other._dataPatch should both be of 'FullRECORD' type, OR neither are of 'FullRECORD' type"};
+        std::ostringstream eoss;
+        eoss << "ERROR(3) :: crtpMetaDataSource<M, CONTAINER>::_checkMerge() : _dataPatch[" << _dataPatch << "] and other._dataPatch[";
+        eoss << other._dataPatch << "] both should be of FullRECORD(*) type, OR neither are of FullRECORD(*) type.";
+        VERSIONEDOBJECT_DEBUG_LOG(eoss.str());
+        throw MergeError_MetaDataSource_exception{eoss.str()};
       }
 
       if( _prefixBuildType == eBuildDirection::IsRECORD || other._prefixBuildType == eBuildDirection::IsRECORD )   //   '*'
       {
-        throw MergeError_MetaDataSource_exception{"crtpMetaDataSource<M, CONTAINER>::_checkMerge() : _prefixBuildType and other._prefixBuildType should both be of 'IsRECORD' type, OR neither are of 'IsRECORD' type"};
+        std::ostringstream eoss;
+        eoss << "ERROR(4) :: crtpMetaDataSource<M, CONTAINER>::_checkMerge() : _prefixBuildType[" << _prefixBuildType << "] and other._prefixBuildType[";
+        eoss << other._prefixBuildType << "] both should be of IsRECORD(*) type, OR neither are of IsRECORD(*) type.";
+        VERSIONEDOBJECT_DEBUG_LOG(eoss.str());
+        throw MergeError_MetaDataSource_exception{eoss.str()};
       }
 
 
@@ -328,7 +345,11 @@ namespace datastructure { namespace versionedObject
           if( _dataPatch == eModificationPatch::DELTACHANGE )  // '%'
           {
             // { '+|%' , '-|%' } ; { '-|%' , '+|%' }
-            throw MergeError_MetaDataSource_exception{"crtpMetaDataSource<M, CONTAINER>::_checkMerge() : expects same Build-type when dataPatch == 'DELTACHANGE'"};
+            std::ostringstream eoss;
+            eoss << "ERROR(5) :: crtpMetaDataSource<M, CONTAINER>::_checkMerge() : expects same Build-type when _dataPatch[";
+            eoss << _dataPatch << "] == DELTACHANGE(%). ";
+            VERSIONEDOBJECT_DEBUG_LOG(eoss.str());
+            throw MergeError_MetaDataSource_exception{eoss.str()};
           }
 
           // { '+|@' , NP } ; { NP , '+|@' }   ;  NotPossible '-|@'
@@ -351,18 +372,20 @@ namespace datastructure { namespace versionedObject
     }
   };
 
+  class MetaDataSource;
+  using t_BaseMetaDataSource = crtpMetaDataSource<MetaDataSource, std::set<t_DataType> >;
   class MetaDataSource
-        : public crtpMetaDataSource<MetaDataSource, std::set<t_DataType> >
+        : public t_BaseMetaDataSource
   {
-  friend crtpMetaDataSource<MetaDataSource , std::set<t_DataType>>;
+  friend t_BaseMetaDataSource;
 
   private:
     template<typename SH = StreamerHelper>
     inline void _toCSV( std::ostream& oss, const SH& streamerHelper) const
     {
       const SH& sh = streamerHelper;
-      oss << char(_prefixBuildType) << sh.getDelimiterMetaData()
-          << char(_dataPatch) << _dataType;
+      oss << _prefixBuildType << sh.getDelimiterMetaData()
+          << _dataPatch       << _dataType;
 
       for (const auto& sr : _mergedDataTypes)
         oss << sh.getDelimiterMetaData() << sr;

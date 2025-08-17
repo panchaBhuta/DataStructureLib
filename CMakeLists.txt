@@ -44,7 +44,7 @@ project(dataStructure
 # Must include after the project call due to GNUInstallDirs requiring a language be enabled (IE. CXX)
 include(GNUInstallDirs)
 
-message(STATUS "############################################### CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
+message(STATUS "############################################### dataStructure :: CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
 message(STATUS "#### OS-id=${CMAKE_SYSTEM_NAME}   OS-id-version=${CMAKE_SYSTEM}")
 message(STATUS "#### CXX_COMPILER_ID=${CMAKE_CXX_COMPILER_ID}    version=${CMAKE_CXX_COMPILER_VERSION}")
 

@@ -2,12 +2,12 @@
  * VersionedObjectPriorityMerge.h
  *
  * URL:      https://github.com/panchaBhuta/dataStructure
- * Version:  v2.1.3
+ * Version:  v3.5
  *
- * Copyright (C) 2023-2023 Gautam Dhar
+ * Copyright (C) 2023-2025 Gautam Dhar
  * All rights reserved.
  *
- * dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details. 
+ * dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details.
  *
  */
 
@@ -64,7 +64,7 @@ namespace datastructure { namespace versionedObject
                 // metaData need NOT be equal (when data from different sources)
                 using t_metaData         = typename t_dataset::t_metaData;
                 t_metaData hpMetaData {highPriorityDataset.getMetaData()};
-                hpMetaData.merge(lowrPriorityDataset.getMetaData());
+                hpMetaData.mergeVersion(lowrPriorityDataset.getMetaData());
                 t_dataset highPriorityDataset_metaMerge{hpMetaData, highPriorityDataset.getRecord()};
                 mergeVersionedObject.insertVersion(highPriorityDate, highPriorityDataset_metaMerge);
               } else {

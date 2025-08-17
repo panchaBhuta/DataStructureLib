@@ -55,7 +55,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
 
 
   TEST_WITH_METADATA(dsvo::MetaDataSource expectedStartMergeMeta{"crown" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::FullRECORD});
-  TEST_WITH_METADATA(expectedStartMergeMeta.merge(dsvo::MetaDataSource{"manualDeduction" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::FullRECORD}));
+  TEST_WITH_METADATA(expectedStartMergeMeta.mergeVersion(dsvo::MetaDataSource{"manualDeduction" COMMA t_eDataBuild::IsRECORD COMMA t_eDataPatch::FullRECORD}));
   t_dataSet companyStartRecordExpected { TEST_WITH_METADATA(expectedStartMergeMeta COMMA) companyInfoStart};
 
   t_versionObject voExpected;
@@ -130,7 +130,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
     "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED"    );
 
   TEST_WITH_METADATA(dsvo::MetaDataSource symChgNamChgMetaExp{"symbolchange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::DELTACHANGE});
-  TEST_WITH_METADATA(symChgNamChgMetaExp.merge(dsvo::MetaDataSource{"namechange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::DELTACHANGE}));
+  TEST_WITH_METADATA(symChgNamChgMetaExp.mergeChanges(dsvo::MetaDataSource{"namechange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::DELTACHANGE}));
   t_dataSet companyRecordThirdExpected { TEST_WITH_METADATA(symChgNamChgMetaExp COMMA) companyInfoThird};
 
   const t_versionDate symChgNameChgDate{std::chrono::year(int(2020)), std::chrono::January, std::chrono::day(unsigned(22))};

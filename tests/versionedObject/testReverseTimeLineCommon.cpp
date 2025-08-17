@@ -164,7 +164,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
              "IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED"    );
 
   TEST_WITH_METADATA(dsvo::MetaDataSource symChgNamChgMetaExp("nameChange" COMMA t_eDataBuild::REVERSE COMMA t_eDataPatch::DELTACHANGE));
-  TEST_WITH_METADATA(symChgNamChgMetaExp.merge(dsvo::MetaDataSource{"symbolChange" COMMA t_eDataBuild::REVERSE COMMA t_eDataPatch::DELTACHANGE}));
+  TEST_WITH_METADATA(symChgNamChgMetaExp.mergeChanges(dsvo::MetaDataSource{"symbolChange" COMMA t_eDataBuild::REVERSE COMMA t_eDataPatch::DELTACHANGE}));
   t_dataSet companyRecordSecondExpected {TEST_WITH_METADATA(symChgNamChgMetaExp COMMA) companyInfoSecond};
 
   t_versionDate secondDate{std::chrono::year(int(2014)), std::chrono::January, std::chrono::day(unsigned(21))};

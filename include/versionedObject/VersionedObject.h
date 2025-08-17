@@ -2,9 +2,9 @@
  * versionedObject.h
  *
  * URL:      https://github.com/panchaBhuta/dataStructure
- * Version:  v3.4.14
+ * Version:  v3.5
  *
- * Copyright (C) 2023-2023 Gautam Dhar
+ * Copyright (C) 2023-2025 Gautam Dhar
  * All rights reserved.
  *
  * dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details.
@@ -109,9 +109,9 @@ namespace datastructure { namespace versionedObject
   {
     switch(cModificationPatch)
     {
-    case static_cast<char>(eModificationPatch::DELTACHANGE) : // = '%',
-    case static_cast<char>(eModificationPatch::SNAPSHOT)    : // = '@',
-    case static_cast<char>(eModificationPatch::FullRECORD)  : // = '*'
+    case eModificationPatch::DELTACHANGE : // = '%',
+    case eModificationPatch::SNAPSHOT    : // = '@',
+    case eModificationPatch::FullRECORD  : // = '*'
       return static_cast<eModificationPatch>(cModificationPatch);
     default:
       std::ostringstream oss;
@@ -125,9 +125,9 @@ namespace datastructure { namespace versionedObject
   {
     switch(cBuildDirection)
     {
-    case static_cast<char>(eBuildDirection::FORWARD)  : // = '+',
-    case static_cast<char>(eBuildDirection::REVERSE)  : // = '-',
-    case static_cast<char>(eBuildDirection::IsRECORD) : // = '*'
+    case eBuildDirection::FORWARD  : // = '+',
+    case eBuildDirection::REVERSE  : // = '-',
+    case eBuildDirection::IsRECORD : // = '*'
       return static_cast<eBuildDirection>(cBuildDirection);
     default:
       std::ostringstream oss;
@@ -221,21 +221,21 @@ namespace datastructure { namespace versionedObject
     crtpMetaDataSource& operator=(crtpMetaDataSource const&) = default;
     bool operator==(crtpMetaDataSource const& other) const = default;
 
-    void merge(const M& otherNew)
+    /*
+     * called when applying changes from ChangesInDataSet and SnapshotDataSet
+     */
+    inline void mergeChanges(const M& otherNew)
     {
-      static_cast<M*>(this)->_checkMerge(otherNew);
+      static_cast<M*>(this)->_checkMergeChanges(otherNew);
 
-      CONTAINER oSourceCopy {otherNew._mergedDataTypes}; // why : refer https://en.cppreference.com/w/cpp/container/set/merge
-      t_DataType otherMainKey{char(otherNew._dataPatch)};
-      otherMainKey += otherNew._dataType;
+      static_cast<M*>(this)->_mergeContainer(otherNew);
+    }
 
-      static_cast<M*>(this)->_insert(oSourceCopy, otherNew, otherMainKey);
+    inline void mergeVersion(const M& otherLowPriority)
+    {
+      static_cast<M*>(this)->_checkMergeVersion(otherLowPriority);
 
-      _mergedDataTypes.merge(oSourceCopy);
-
-      t_DataType thisMainKey{char(_dataPatch)};
-      thisMainKey += _dataType;
-      _mergedDataTypes.erase(thisMainKey);
+      static_cast<M*>(this)->_mergeContainer(otherLowPriority);
     }
 
     eBuildDirection getBuildDirection() const { return _prefixBuildType; }
@@ -280,34 +280,34 @@ namespace datastructure { namespace versionedObject
     CONTAINER                   _mergedDataTypes;      // default std::set<t_DataType>
     const SHD                   _streamerHelper;       // ','  '|'
 
-    void _checkMerge(M const& other) const
+    void _checkMergeChanges(M const& otherNew) const
     {
-      if( ( _dataPatch == eModificationPatch::FullRECORD  && other._dataPatch == eModificationPatch::FullRECORD ) &&   //   '*'
-          ( _prefixBuildType == eBuildDirection::IsRECORD && other._prefixBuildType == eBuildDirection::IsRECORD ) )   //   '*'
+      if( ( _dataPatch == eModificationPatch::FullRECORD  && otherNew._dataPatch == eModificationPatch::FullRECORD ) &&   //   '*'
+          ( _prefixBuildType == eBuildDirection::IsRECORD && otherNew._prefixBuildType == eBuildDirection::IsRECORD ) )   //   '*'
       {
         if(_mergedDataTypes.size() > 0)
-          throw MergeError_MetaDataSource_exception{"ERROR(1) :: crtpMetaDataSource<M, CONTAINER>::_checkMerge() : _mergedDataTypes.size.size() should be zero"};
+          throw MergeError_MetaDataSource_exception{"ERROR(1) :: crtpMetaDataSource<M, CONTAINER>::_checkMergeChanges() : _mergedDataTypes.size.size() should be zero"};
 
-        if(other._mergedDataTypes.size() > 0)
-          throw MergeError_MetaDataSource_exception{"ERROR(2) :: crtpMetaDataSource<M, CONTAINER>::_checkMerge() : other._mergedDataTypes.size() should be zero"};
+        if(otherNew._mergedDataTypes.size() > 0)
+          throw MergeError_MetaDataSource_exception{"ERROR(2) :: crtpMetaDataSource<M, CONTAINER>::_checkMergeChanges() : other._mergedDataTypes.size() should be zero"};
 
         return;
       }
 
-      if( _dataPatch == eModificationPatch::FullRECORD  || other._dataPatch == eModificationPatch::FullRECORD )   //   '*'
+      if( _dataPatch == eModificationPatch::FullRECORD  || otherNew._dataPatch == eModificationPatch::FullRECORD )   //   '*'
       {
         std::ostringstream eoss;
-        eoss << "ERROR(3) :: crtpMetaDataSource<M, CONTAINER>::_checkMerge() : _dataPatch[" << _dataPatch << "] and other._dataPatch[";
-        eoss << other._dataPatch << "] both should be of FullRECORD(*) type, OR neither are of FullRECORD(*) type.";
+        eoss << "ERROR(3) :: crtpMetaDataSource<M, CONTAINER>::_checkMergeChanges() : _dataPatch[" << _dataPatch << "] and other._dataPatch[";
+        eoss << otherNew._dataPatch << "] both should be of FullRECORD(*) type, OR neither are of FullRECORD(*) type.";
         VERSIONEDOBJECT_DEBUG_LOG(eoss.str());
         throw MergeError_MetaDataSource_exception{eoss.str()};
       }
 
-      if( _prefixBuildType == eBuildDirection::IsRECORD || other._prefixBuildType == eBuildDirection::IsRECORD )   //   '*'
+      if( _prefixBuildType == eBuildDirection::IsRECORD || otherNew._prefixBuildType == eBuildDirection::IsRECORD )   //   '*'
       {
         std::ostringstream eoss;
-        eoss << "ERROR(4) :: crtpMetaDataSource<M, CONTAINER>::_checkMerge() : _prefixBuildType[" << _prefixBuildType << "] and other._prefixBuildType[";
-        eoss << other._prefixBuildType << "] both should be of IsRECORD(*) type, OR neither are of IsRECORD(*) type.";
+        eoss << "ERROR(4) :: crtpMetaDataSource<M, CONTAINER>::_checkMergeChanges() : _prefixBuildType[" << _prefixBuildType << "] and other._prefixBuildType[";
+        eoss << otherNew._prefixBuildType << "] both should be of IsRECORD(*) type, OR neither are of IsRECORD(*) type.";
         VERSIONEDOBJECT_DEBUG_LOG(eoss.str());
         throw MergeError_MetaDataSource_exception{eoss.str()};
       }
@@ -328,17 +328,17 @@ namespace datastructure { namespace versionedObject
 20: DEBUG_LOG:    _logSnapEntriesMap(END)
 20: DEBUG_LOG:  -----before combo-------
 */
-      if( _prefixBuildType == other._prefixBuildType )  // '+' or '-'  ; NA '*'
+      if( _prefixBuildType == otherNew._prefixBuildType )  // '+' or '-'  ; NA '*'
       {
         //  { '+' , '+' } ; { '-' , '-' }
-        if( _dataPatch == other._dataPatch )            // '%' or '@'  ; NA '*'
+        if( _dataPatch == otherNew._dataPatch )            // '%' or '@'  ; NA '*'
           return;      // { '+|%' , '+|%' } ; { '+|@' , '+|@' } ; { '-|%' , '-|%' } ; { NP , NP }   ;  NotPossible '-|@'
 
         return;        // { '+|%' , '+|@' } ; { '+|@' , '+|%' } ; { '-|%' , NP } ; { NP , '-|%' }   ;  NotPossible '-|@'
-      } else {  //  ( _prefixBuildType != other._prefixBuildType )  // '+' or '-'  ; NA '*'
+      } else {  //  ( _prefixBuildType != otherNew._prefixBuildType )  // '+' or '-'  ; NA '*'
         //  { '+' , '-' } ; { '-' , '+' }
 
-        if( _dataPatch == other._dataPatch )            // '%' or '@'  ; NA '*'
+        if( _dataPatch == otherNew._dataPatch )            // '%' or '@'  ; NA '*'
         {
           // { '+|%' , '-|%' } ; { '+|@' , NP } ; { '-|%' , '+|%' } ; { NP , '+|@' }   ;  NotPossible '-|@'
 
@@ -346,7 +346,7 @@ namespace datastructure { namespace versionedObject
           {
             // { '+|%' , '-|%' } ; { '-|%' , '+|%' }
             std::ostringstream eoss;
-            eoss << "ERROR(5) :: crtpMetaDataSource<M, CONTAINER>::_checkMerge() : expects same Build-type when _dataPatch[";
+            eoss << "ERROR(5) :: crtpMetaDataSource<M, CONTAINER>::_checkMergeChanges() : expects same Build-type when _dataPatch[";
             eoss << _dataPatch << "] == DELTACHANGE(%). ";
             VERSIONEDOBJECT_DEBUG_LOG(eoss.str());
             throw MergeError_MetaDataSource_exception{eoss.str()};
@@ -361,6 +361,42 @@ namespace datastructure { namespace versionedObject
 
       // _dataType ( crown, symbolChange, nameChange, lotChange, delisted)
       // _dataType check is not needed here, as in merge(); we add other's KEY and remove this's KEY
+    }
+
+    void _checkMergeVersion(M const& otherLowPriority) const
+    {
+      if( _dataPatch != otherLowPriority._dataPatch )
+      {
+        std::ostringstream eoss;
+        eoss << "ERROR(1) :: crtpMetaDataSource<M, CONTAINER>::_checkMergeVersion() : _dataPatch[" << _dataPatch;
+        eoss << "] and other._dataPatch[" << otherLowPriority._dataPatch << "] both should be of same.";
+        VERSIONEDOBJECT_DEBUG_LOG(eoss.str());
+        throw MergeError_MetaDataSource_exception{eoss.str()};
+      }
+
+      if( _prefixBuildType != otherLowPriority._prefixBuildType )
+      {
+        std::ostringstream eoss;
+        eoss << "ERROR(2) :: crtpMetaDataSource<M, CONTAINER>::_checkMergeVersion() : _prefixBuildType[" << _prefixBuildType;
+        eoss << "] and other._prefixBuildType[" << otherLowPriority._prefixBuildType << "] both should be of same.";
+        VERSIONEDOBJECT_DEBUG_LOG(eoss.str());
+        throw MergeError_MetaDataSource_exception{eoss.str()};
+      }
+    }
+
+    inline void _mergeContainer(const M& other)
+    {
+      CONTAINER oSourceCopy {other._mergedDataTypes}; // why : refer https://en.cppreference.com/w/cpp/container/set/merge
+      t_DataType otherMainKey{char(other._dataPatch)};
+      otherMainKey += other._dataType;
+
+      static_cast<M*>(this)->_insert(oSourceCopy, other, otherMainKey);
+
+      _mergedDataTypes.merge(oSourceCopy);
+
+      t_DataType thisMainKey{char(_dataPatch)};
+      thisMainKey += _dataType;
+      _mergedDataTypes.erase(thisMainKey);
     }
 
     void _insert(CONTAINER& oSourceCopy, [[maybe_unused]] const M& otherNew, const t_DataType& otherMainKey)
@@ -411,7 +447,9 @@ namespace datastructure { namespace versionedObject
   *  refer URL^  for   "Namespaces and operator resolution"  for eg: 'operator<<'
   *  same constraints apply to crtpMetaDataSource<MetaDataSource>::toCSV;
 */
-    //using crtpMetaDataSource<MetaDataSource , std::set<t_DataType>>::_toCSV;
+    using crtpMetaDataSource<MetaDataSource , std::set<t_DataType>>::_checkMergeChanges;
+    using crtpMetaDataSource<MetaDataSource , std::set<t_DataType>>::_checkMergeVersion;
+    using crtpMetaDataSource<MetaDataSource , std::set<t_DataType>>::_mergeContainer;
 
     ~MetaDataSource() {}
   };

@@ -2,9 +2,9 @@
  * ChangesInDataSet.h
  *
  * URL:      https://github.com/panchaBhuta/dataStructure
- * Version:  v2.2.6
+ * Version:  v3.5
  *
- * Copyright (C) 2023-2024 Gautam Dhar
+ * Copyright (C) 2023-2025 Gautam Dhar
  * All rights reserved.
  *
  * dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details.
@@ -63,7 +63,7 @@ namespace datastructure { namespace versionedObject
     {
       std::array <int, sizeof...(T)> mergeableElements;
       mergeableElements.fill(0);
-      _isMergeable<sizeof...(T) -1>(other, mergeableElements);  // 0, 1, 2
+      _isMergeableChanges<sizeof...(T) -1>(other, mergeableElements);  // 0, 1, 2
 
       size_t mergeableCount1 = 0;
       for(size_t iii = 0; iii < sizeof...(T); ++iii )
@@ -184,11 +184,11 @@ namespace datastructure { namespace versionedObject
       }
     }
 
-    int _merge(const _SnapshotDataSetBase<T...>& other)
+    int _mergeChanges(const _SnapshotDataSetBase<T...>& other)
     {
       std::array <int, sizeof...(T)> mergeableElements;
       mergeableElements.fill(0);
-      _isMergeable<sizeof...(T) -1>(other, mergeableElements);
+      _isMergeableChanges<sizeof...(T) -1>(other, mergeableElements);
 
       size_t mergeableCount1 = 0;
       size_t mergeableCount2 = 0;
@@ -205,13 +205,13 @@ namespace datastructure { namespace versionedObject
       }
 
       if(mergeableCount2 > 0)
-        _merge<sizeof...(T) -1>(other, mergeableElements);
+        _mergeChanges<sizeof...(T) -1>(other, mergeableElements);
 
       return mergeableCount1 + mergeableCount2;
     }
 
     template<size_t IDX>
-    void _merge(const _SnapshotDataSetBase<T...>& other, std::array <int, sizeof...(T)>& mergeableElements)
+    void _mergeChanges(const _SnapshotDataSetBase<T...>& other, std::array <int, sizeof...(T)>& mergeableElements)
     {
       if(mergeableElements.at(IDX) == 2)  // copy where applicable
       {
@@ -223,13 +223,13 @@ namespace datastructure { namespace versionedObject
       {
         // "((IDX>0)?(IDX-1):0)" eliminates infinite compile time looping,
         // and we don't have to define function specialization for _merge<0>()
-        _merge< ((IDX>0)?(IDX-1):0) >(other, mergeableElements);
+        _mergeChanges< ((IDX>0)?(IDX-1):0) >(other, mergeableElements);
       }
     }
 
 
     template<size_t IDX>
-    void _isMergeable(const _SnapshotDataSetBase<T...>& other, std::array <int, sizeof...(T)>& mergeableElements) const
+    void _isMergeableChanges(const _SnapshotDataSetBase<T...>& other, std::array <int, sizeof...(T)>& mergeableElements) const
     {
       if( _modifiedElements.at(IDX) != eModificationPatch::FullRECORD ) // check if element is marked for change
       {
@@ -240,7 +240,7 @@ namespace datastructure { namespace versionedObject
             if(other._buildDirection != _buildDirection)
             {
               std::ostringstream eoss;
-              eoss << "ERROR : in function _SnapshotDataSetBase<T ...>::_isMergeable(const _SnapshotDataSetBase<T...>&) : ";
+              eoss << "ERROR(1) : in function _SnapshotDataSetBase<T ...>::_isMergeableChanges(const _SnapshotDataSetBase<T...>&) : ";
               eoss << " other._buildDirection{" << (other._buildDirection==eBuildDirection::FORWARD?"FORWARD":"REVERSE");
               eoss << "} doesn't match with expected this._buildDirection{" << (_buildDirection==eBuildDirection::FORWARD?"FORWARD":"REVERSE") << "}" << std::endl;
               throw std::invalid_argument(eoss.str());
@@ -254,7 +254,7 @@ namespace datastructure { namespace versionedObject
             const t_idx_type& oNewVal = std::get<IDX>(other._newValues);
 
             std::ostringstream eoss;
-            eoss << "ERROR : in function _SnapshotDataSetBase<T ...>::_isMergeable(const _SnapshotDataSetBase<T...>&) : ";
+            eoss << "ERROR(2) : in function _SnapshotDataSetBase<T ...>::_isMergeableChanges(const _SnapshotDataSetBase<T...>&) : ";
             eoss << " at tuple-index[" << IDX << "] : other-value{" << oNewVal;
             eoss << "} doesn't match with expected this-Value{" << newVal << "}" << std::endl;
             throw std::invalid_argument(eoss.str());
@@ -274,7 +274,7 @@ namespace datastructure { namespace versionedObject
       {
         // "((IDX>0)?(IDX-1):0)" eliminates infinite compile time looping,
         // and we don't have to define function specialization for _isMergeable<0>()
-        _isMergeable< ((IDX>0)?(IDX-1):0) >(other, mergeableElements);
+        _isMergeableChanges< ((IDX>0)?(IDX-1):0) >(other, mergeableElements);
       }
     }
 
@@ -307,10 +307,10 @@ namespace datastructure { namespace versionedObject
 
     inline const M&           getMetaData() const { return _metaData; }
 
-    int merge(const SnapshotDataSet<M, T...>& other)
+    int mergeChanges(const SnapshotDataSet<M, T...>& other)
     {
-      this->_metaData.merge(other._metaData);
-      return this->template _merge<sizeof...(T) -1>(other);
+      this->_metaData.mergeChanges(other._metaData);
+      return this->template _mergeChanges<sizeof...(T) -1>(other);
     }
 
     template<typename SH = typename M::t_StreamerHelper>
@@ -351,9 +351,9 @@ namespace datastructure { namespace versionedObject
       : _SnapshotDataSetBase<T1, TR...>(modifiedElements, snapshotValues, buildDirection)
     {}
 
-    int merge(const SnapshotDataSet<T1, TR...>& other)
+    int mergeChanges(const SnapshotDataSet<T1, TR...>& other)
     {
-      return this->template _merge<sizeof...(TR) /*-1*/>(other);
+      return this->template _mergeChanges<sizeof...(TR) /*-1*/>(other);
     }
 
     SnapshotDataSet() = delete;

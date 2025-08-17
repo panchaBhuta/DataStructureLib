@@ -2,7 +2,7 @@
  * VersionedObjectBuilder.h
  *
  * URL:      https://github.com/panchaBhuta/dataStructure
- * Version:  v2.2.6
+ * Version:  v3.5
  *
  * Copyright (C) 2023-2025 Gautam Dhar
  * All rights reserved.
@@ -120,7 +120,7 @@ namespace datastructure { namespace versionedObject
         if( auto comboIter  = comboChgEntries.find(snapIter.first);
                  comboIter != comboChgEntries.end() )
         {
-          comboIter->second.merge(snapIter.second);
+          comboIter->second.mergeChanges(snapIter.second);
         } else {
           comboChgEntries.emplace(snapIter.first, snapIter.second);
         }
@@ -735,15 +735,15 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
         ChangesInDataSet<MT...>& existingChgDataSet = existingIter->second;
         try {
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
-        std::cout << "DEBUG_LOG:    existingChgDataSet={";
-        existingChgDataSet.toCSV(std::cout, t_StreamerHelper{});
-        std::cout << "}" << std::endl;
+          std::cout << "DEBUG_LOG:    existingChgDataSet={";
+          existingChgDataSet.toCSV(std::cout, t_StreamerHelper{});
+          std::cout << "}" << std::endl;
 #endif
-          existingChgDataSet.merge(chgEntry);
+          existingChgDataSet.mergeChanges(chgEntry);
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
-        std::cout << "DEBUG_LOG:    merged-existingChgDataSet={";
-        existingChgDataSet.toCSV(std::cout, t_StreamerHelper{});
-        std::cout << "}" << std::endl;
+          std::cout << "DEBUG_LOG:    merged-existingChgDataSet={";
+          existingChgDataSet.toCSV(std::cout, t_StreamerHelper{});
+          std::cout << "}" << std::endl;
 #endif
         } catch (const std::invalid_argument& err) {
           std::ostringstream eoss;
@@ -798,12 +798,12 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
           eoss << "ChangesInDataSet<MT...>={";
           deltaChg.toCSV(eoss, t_StreamerHelper{});
           eoss << "} eBuildDirection="
-                << (deltaChg.getBuildDirection() == eBuildDirection::FORWARD ?
+               << (deltaChg.getBuildDirection() == eBuildDirection::FORWARD ?
                     "FORWARD" : "REVERSE") << std::endl;
           eoss << "SnapshotDataSet<MT...>={";
           snpEntry.toCSV(eoss, t_StreamerHelper{});
           eoss << "} eBuildDirection="
-                << (snpEntry.getBuildDirection() == eBuildDirection::FORWARD ?
+               << (snpEntry.getBuildDirection() == eBuildDirection::FORWARD ?
                     "FORWARD" : "REVERSE") << std::endl;
           throw std::invalid_argument(eoss.str());
         }
@@ -846,10 +846,10 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
                 snpEntry.isSubset(chkSnpEntry) > 0 )
             {
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
-            std::cout << "} skipped as it's a subset of ..." << std::endl;
-            std::cout << "DEBUG_LOG:    SnapshotDataSet<MT...>={";
-            chkSnpEntry.toCSV(std::cout, t_StreamerHelper{});
-            std::cout << "}" << std::endl;
+              std::cout << "} skipped as it's a subset of ..." << std::endl;
+              std::cout << "DEBUG_LOG:    SnapshotDataSet<MT...>={";
+              chkSnpEntry.toCSV(std::cout, t_StreamerHelper{});
+              std::cout << "}" << std::endl;
 #endif
               return false;
             }
@@ -869,9 +869,9 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
       if(retn)
       {
-            std::cout << "} : Insert success" << std::endl;
+        std::cout << "} : Insert success" << std::endl;
       } else {
-            std::cout << "} : Insert fails as it already exists" << std::endl;
+        std::cout << "} : Insert fails as it already exists" << std::endl;
       }
 #endif
       return retn;
@@ -1127,8 +1127,6 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
   template <typename VDT, c_noMetaData T1, typename ... TR>
   class VersionedObjectBuilder<VDT, T1, TR...> : public _VersionedObjectBuilderBase<VDT, T1, TR...>
   {
-  //private:
-  //  t_BaseMetaDataSource _factoryMethod() { return
   public:
     using t_versionDate      = VDT;
     using t_versionedObject  = VersionedObject<T1, TR...>;

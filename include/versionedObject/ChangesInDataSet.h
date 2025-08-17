@@ -2,9 +2,9 @@
  * ChangesInDataSet.h
  *
  * URL:      https://github.com/panchaBhuta/dataStructure
- * Version:  v2.2.6
+ * Version:  v3.5
  *
- * Copyright (C) 2023-2024 Gautam Dhar
+ * Copyright (C) 2023-2025 Gautam Dhar
  * All rights reserved.
  *
  * dataStructure is distributed under the BSD 3-Clause license, see LICENSE for details.
@@ -95,7 +95,7 @@ namespace datastructure { namespace versionedObject
     {
       std::array <int, sizeof...(T)> mergeableElements;
       mergeableElements.fill(0);
-      _isMergeable<sizeof...(T) -1, _SnapshotDataSetBase<T...> >(other, mergeableElements);  // 0, 1, 2
+      _isMergeableChanges<sizeof...(T) -1, _SnapshotDataSetBase<T...> >(other, mergeableElements);  // 0, 1, 2
 
       size_t mergeableCount1 = 0;
       for(size_t iii = 0; iii < sizeof...(T); ++iii )
@@ -304,14 +304,14 @@ namespace datastructure { namespace versionedObject
     }
 
     template <isChangeType<T...> OT>
-    int _merge(const OT& other)
+    int _mergeChanges(const OT& other)
     {
       //static_assert(std::is_same_v<decltype(other), const  _SnapshotDataSetBase<T...>& > == true ||
       //              std::is_same_v<decltype(other), const _ChangesInDataSetBase<T...>& > == true );
 
       std::array <int, sizeof...(T)> mergeableElements;
       mergeableElements.fill(0);
-      _isMergeable<sizeof...(T) -1, OT>(other, mergeableElements);
+      _isMergeableChanges<sizeof...(T) -1, OT>(other, mergeableElements);
 
       size_t mergeableCount1 = 0;
       size_t mergeableCount2 = 0;
@@ -328,44 +328,44 @@ namespace datastructure { namespace versionedObject
       }
 
       if(mergeableCount2 > 0)
-        _merge<sizeof...(T) -1, OT>(other, mergeableElements);
+        _mergeChanges<sizeof...(T) -1, OT>(other, mergeableElements);
 
       return mergeableCount1 + mergeableCount2;
     }
 
     template <size_t IDX, isChangeType<T...> OT>
-    void _merge(const OT& other, std::array <int, sizeof...(T)>& mergeableElements)
+    void _mergeChanges(const OT& other, std::array <int, sizeof...(T)>& mergeableElements)
     {
       if(mergeableElements.at(IDX) == 2)  // copy where applicable
       {
         std::get<IDX>(_newValues) = std::get<IDX>(other.getNewRecord());
-        _mergeValue<IDX>(other);
+        _mergeValueChanges<IDX>(other);
       }
 
       if constexpr( IDX > 0 )
       {
         // "((IDX>0)?(IDX-1):0)" eliminates infinite compile time looping,
         // and we don't have to define function specialization for _merge<0>()
-        _merge< ((IDX>0)?(IDX-1):0) , OT >(other, mergeableElements);
+        _mergeChanges< ((IDX>0)?(IDX-1):0) , OT >(other, mergeableElements);
       }
     }
 
     template <size_t IDX>
-    inline void _mergeValue(const _ChangesInDataSetBase<T...>& other)
+    inline void _mergeValueChanges(const _ChangesInDataSetBase<T...>& other)
     {
       std::get<IDX>(_oldValues) = std::get<IDX>(other._oldValues);
       _modifiedElements.at(IDX) = eModificationPatch::DELTACHANGE;
     }
 
     template <size_t IDX>
-    inline void _mergeValue([[maybe_unused]] const _SnapshotDataSetBase<T...>& other)
+    inline void _mergeValueChanges([[maybe_unused]] const _SnapshotDataSetBase<T...>& other)
     {
       _modifiedElements.at(IDX) = eModificationPatch::SNAPSHOT;
     }
 
 
     template<size_t IDX, isChangeType<T...> OT>
-    void _isMergeable(const OT& other, std::array <int, sizeof...(T)>& mergeableElements) const
+    void _isMergeableChanges(const OT& other, std::array <int, sizeof...(T)>& mergeableElements) const
     {
       //static_assert(std::is_same_v<decltype(other), const  _SnapshotDataSetBase<T...>& > == true ||
       //              std::is_same_v<decltype(other), const _ChangesInDataSetBase<T...>& > == true );
@@ -379,7 +379,7 @@ namespace datastructure { namespace versionedObject
             if(other.getBuildDirection() != _buildDirection)
             {
               std::ostringstream eoss;
-              eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::_isMergeable(const auto&) : ";
+              eoss << "ERROR(1) : in function _ChangesInDataSetBase<T ...>::_isMergeableChanges(const auto&) : ";
               eoss << " other._buildDirection{" << (other.getBuildDirection()==eBuildDirection::FORWARD?"FORWARD":"REVERSE");
               eoss << "} doesn't match with expected this._buildDirection{" << (_buildDirection==eBuildDirection::FORWARD?"FORWARD":"REVERSE") << "}" << std::endl;
               throw std::invalid_argument(eoss.str());
@@ -401,7 +401,7 @@ namespace datastructure { namespace versionedObject
               const t_idx_type& oldVal  = std::get<IDX>(_oldValues);
               const t_idx_type& oNewVal = std::get<IDX>(other._newValues);
               const t_idx_type& oOldVal = std::get<IDX>(other._oldValues);
-              eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::_isMergeable(const _ChangesInDataSetBase<T...>& other) : ";
+              eoss << "ERROR(2) : in function _ChangesInDataSetBase<T ...>::_isMergeableChanges(const _ChangesInDataSetBase<T...>& other) : ";
               eoss << " at tuple-index[" << IDX << "] : other<newvalue,oldvalue>{" << oNewVal;
               eoss << ',' << oOldVal;
               eoss << "} doesn't match with expected this<newvalue,oldvalue>{" << newVal;
@@ -409,7 +409,7 @@ namespace datastructure { namespace versionedObject
             } else {
               const t_idx_type& newVal  = std::get<IDX>(_newValues);
               const t_idx_type& oNewVal = std::get<IDX>(other.getNewRecord());
-              eoss << "ERROR : in function _ChangesInDataSetBase<T ...>::_isMergeable(const _SnapshotDataSetBase<T...>& other) : ";
+              eoss << "ERROR(3) : in function _ChangesInDataSetBase<T ...>::_isMergeableChanges(const _SnapshotDataSetBase<T...>& other) : ";
               eoss << " at tuple-index[" << IDX << "] : other-value{" << oNewVal;
               eoss << "} doesn't match with expected this-Value{" << newVal << "}" << std::endl;
             }
@@ -430,7 +430,7 @@ namespace datastructure { namespace versionedObject
       {
         // "((IDX>0)?(IDX-1):0)" eliminates infinite compile time looping,
         // and we don't have to define function specialization for _isMergeable<0>()
-        _isMergeable< ((IDX>0)?(IDX-1):0), OT >(other, mergeableElements);
+        _isMergeableChanges< ((IDX>0)?(IDX-1):0), OT >(other, mergeableElements);
       }
     }
 
@@ -471,26 +471,26 @@ namespace datastructure { namespace versionedObject
 
     inline const M&           getMetaData() const { return _metaData; }
 
-    int merge(const SnapshotDataSet<M, T...>& other)
+    int mergeChanges(const SnapshotDataSet<M, T...>& other)
     {
-      this->_metaData.merge(other.getMetaData());
+      this->_metaData.mergeChanges(other.getMetaData());
 
-      return this->_merge(dynamic_cast<const _SnapshotDataSetBase<T...>& >(other));
+      return this->_mergeChanges(dynamic_cast<const _SnapshotDataSetBase<T...>& >(other));
     }
 
-    int merge(const ChangesInDataSet<M, T...>& other)
+    int mergeChanges(const ChangesInDataSet<M, T...>& other)
     {
-      this->_metaData.merge(other.getMetaData());
+      this->_metaData.mergeChanges(other.getMetaData());
 
-      return this->_merge(dynamic_cast<const _ChangesInDataSetBase<T...>& >(other));
+      return this->_mergeChanges(dynamic_cast<const _ChangesInDataSetBase<T...>& >(other));
     }
 
-    int merge(const SnapshotDataSet<T...>& other)
+    int mergeChanges(const SnapshotDataSet<T...>& other)
     {
         // special case: SnapshotDataSet<T...> is without metaInfo, as it's part of
         //               previous ChangesInDataSet<M, T...> OR SnapshotDataSet<M, T...>
         //               that's being appended here.
-      return this->_merge(dynamic_cast<const _SnapshotDataSetBase<T...>& >(other));
+      return this->_mergeChanges(dynamic_cast<const _SnapshotDataSetBase<T...>& >(other));
     }
 
     template<typename SH = typename M::t_StreamerHelper>
@@ -538,14 +538,14 @@ namespace datastructure { namespace versionedObject
       : _ChangesInDataSetBase<T1, TR...>(otherSnapDataset)
     {}
 
-    int merge(const SnapshotDataSet<T1, TR...>& other)
+    int mergeChanges(const SnapshotDataSet<T1, TR...>& other)
     {
-      return this->_merge(dynamic_cast<const _SnapshotDataSetBase<T1, TR...>& >(other));
+      return this->_mergeChanges(dynamic_cast<const _SnapshotDataSetBase<T1, TR...>& >(other));
     }
 
-    int merge(const ChangesInDataSet<T1, TR...>& other)
+    int mergeChanges(const ChangesInDataSet<T1, TR...>& other)
     {
-        return this->_merge(dynamic_cast<const _ChangesInDataSetBase<T1, TR...>& >(other));
+        return this->_mergeChanges(dynamic_cast<const _ChangesInDataSetBase<T1, TR...>& >(other));
     }
 
     ChangesInDataSet() = delete;

@@ -198,7 +198,7 @@ ANDHRA PAPER LIMITED,ANDPAPER,ANDHRAPAP,05-MAR-2020
               "ANDPAPER,ANDHRA PAPER LIMITED,EQ,10,1,INE435A01028,10,LISTED"    );
 
   TEST_WITH_METADATA(dsvo::MetaDataSource symChgNamChgMetaExp("symbolChange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::DELTACHANGE));
-  TEST_WITH_METADATA(symChgNamChgMetaExp.merge(dsvo::MetaDataSource{"nameChange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::DELTACHANGE}));
+  TEST_WITH_METADATA(symChgNamChgMetaExp.mergeChanges(dsvo::MetaDataSource{"nameChange" COMMA t_eDataBuild::FORWARD COMMA t_eDataPatch::DELTACHANGE}));
   t_dataSet companyRecordThirdExpected {TEST_WITH_METADATA(symChgNamChgMetaExp COMMA) companyInfoThird};
 
   t_versionObject::t_datasetLedger::const_iterator companyRecordThirdActual =

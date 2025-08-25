@@ -105,7 +105,7 @@ namespace datastructure { namespace versionedObject
     }
 #endif
 
-    void inline _updateComboDataSet(t_deltaEntriesMap& comboChgEntries)
+    void inline _updateComboDataSet(t_deltaEntriesMap& comboChgEntries) const
     {
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
       std::cout << "DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)" << std::endl;
@@ -178,6 +178,7 @@ namespace datastructure { namespace versionedObject
           eoss << "ERROR(2) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline() : for changeDate[";
           eoss << iterDelta->first << "] should NOT be marked as 'eBuildDirection::REVERSE', expected FORWARD" << std::endl;
           toStr(comboChgEntries, "VersionObjectBuilder :: ", eoss, t_StreamerHelper{});
+          eoss << std::endl;
           t_versionObjectStream::createVOstreamer(vo).toStr("VersionObject :: ", eoss, t_StreamerHelper{});
           throw Unexpected_BuildDirection_exception(eoss.str());
         }
@@ -293,10 +294,27 @@ namespace datastructure { namespace versionedObject
         return;
       }
 
+      { // Similar check not applicable for  _buildForwardTimeline
+        // This should be the first error check
+        auto iterDelta = comboChgEntries.begin();
+        t_versionDate firstDeltaChangeDate = iterDelta->first;
+        if( startDate >= firstDeltaChangeDate )
+        {
+          std::ostringstream eoss;
+          eoss << "ERROR(1) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline() : startDate[";
+          eoss << startDate << "] should be less than first-changeDate[" << firstDeltaChangeDate << "]" << std::endl;
+          eoss << "DataSet :: ";
+          comboChgEntries.begin()->second.toCSV(eoss, t_StreamerHelper{});
+          eoss << std::endl;
+          toStr(comboChgEntries, "VersionObjectBuilder :: ", eoss, t_StreamerHelper{});
+          throw FirstDeltaChange_Before_StartDate_Timeline_exception(eoss.str());
+        }
+      }
+
       if(vo.getDatasetLedger().empty())
       {
         std::ostringstream eoss;
-        eoss << "ERROR(1) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline() : "
+        eoss << "ERROR(2) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline() : "
                 "VersionObject cannot be empty." << std::endl;
         toStr(comboChgEntries, "VersionObjectBuilder :: ", eoss, t_StreamerHelper{});
         throw Empty_VersionObject_exception(eoss.str());
@@ -307,26 +325,12 @@ namespace datastructure { namespace versionedObject
         if(iterDelta->second.getBuildDirection() == eBuildDirection::FORWARD)
         {
           std::ostringstream eoss;
-          eoss << "ERROR(2) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline() : for changeDate[";
+          eoss << "ERROR(3) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline() : for changeDate[";
           eoss << iterDelta->first << "] should NOT be marked as 'eBuildDirection::FORWARD', expected REVERSE" << std::endl;
           toStr(comboChgEntries, "VersionObjectBuilder :: ", eoss, t_StreamerHelper{});
+          eoss << std::endl;
           t_versionObjectStream::createVOstreamer(vo).toStr("VersionObject :: ", eoss, t_StreamerHelper{});
           throw Unexpected_BuildDirection_exception(eoss.str());
-        }
-      }
-
-      { // Similar check not applicable for  _buildForwardTimeline
-        auto iterDelta = comboChgEntries.begin();
-        t_versionDate firstDeltaChangeDate = iterDelta->first;
-        if( startDate >= firstDeltaChangeDate )
-        {
-          std::ostringstream eoss;
-          eoss << "ERROR(3) : failure in _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline() : startDate[";
-          eoss << startDate << "] should be less than first-changeDate[" << firstDeltaChangeDate << "]" << std::endl;
-          eoss << "DataSet :: ";
-          comboChgEntries.begin()->second.toCSV(eoss, t_StreamerHelper{});
-          toStr(comboChgEntries, "VersionObjectBuilder :: ", eoss, t_StreamerHelper{});
-          throw FirstDeltaChange_Before_StartDate_Timeline_exception(eoss.str());
         }
       }
 
@@ -990,7 +994,10 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
     inline void toCSV(//const t_deltaEntriesMap& comboChgEntries,
                       const std::string& prefix, std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
-      toCSV(_deltaChgEntries, prefix, oss, streamerHelper);
+      t_deltaEntriesMap tmpComboChgEntries{_deltaChgEntries};
+      _updateComboDataSet(tmpComboChgEntries);
+
+      toCSV(tmpComboChgEntries, prefix, oss, streamerHelper);
     }
 
     template<typename SH = t_StreamerHelper>
@@ -1008,7 +1015,10 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
     inline void toCSV(//const t_deltaEntriesMap& comboChgEntries,
                       std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
-      toCSV(_deltaChgEntries, oss, streamerHelper);
+      t_deltaEntriesMap tmpComboChgEntries{_deltaChgEntries};
+      _updateComboDataSet(tmpComboChgEntries);
+
+      toCSV(tmpComboChgEntries, oss, streamerHelper);
     }
 
     template<typename SH = t_StreamerHelper>
@@ -1026,7 +1036,10 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
     inline void toStr(//const t_deltaEntriesMap& comboChgEntries,
                       const std::string& prefix, std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
-      toStr(_deltaChgEntries, prefix, oss, streamerHelper);
+      t_deltaEntriesMap tmpComboChgEntries{_deltaChgEntries};
+      _updateComboDataSet(tmpComboChgEntries);
+
+      toStr(tmpComboChgEntries, prefix, oss, streamerHelper);
     }
 
     template<typename SH = t_StreamerHelper>
@@ -1044,10 +1057,14 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
     inline void toStr(//const t_deltaEntriesMap& comboChgEntries,
                       std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
-      toStr(_deltaChgEntries, oss, streamerHelper);
+      t_deltaEntriesMap tmpComboChgEntries{_deltaChgEntries};
+      _updateComboDataSet(tmpComboChgEntries);
+
+      toStr(tmpComboChgEntries, oss, streamerHelper);
     }
 
     inline const t_deltaEntriesMap& getDeltaChangeMap() const { return _deltaChgEntries; }
+    inline const t_snapShotEntriesMap& getSnapShotMap() const { return _snapShotEntries; }
 
     virtual ~_VersionedObjectBuilderBase()
     {

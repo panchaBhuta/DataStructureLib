@@ -1,0 +1,184 @@
+TEST_LOG : FIRST VO load , no initial data. fresh start.
+DEBUG_LOG: vo.insertVersion() -> versionDate: 19-Feb-2020; DATASET{ALOKINDS,Alok Industries Limited,EQ,1,1,INE270A01029,1,LISTED}
+DEBUG_LOG: vo.insertVersion() insertResult=1
+DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=12-Dec-2000 : dataset={[REVERSE]:,Alok Textile Industries Ltd->Alok Industries Limited,,,,,,} : Insert success
+DEBUG_LOG:##VersionedObjectBuilder<VDT, T1, TR...>::buildBiDirectionalTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)
+DEBUG_LOG:  +++++before combo+++++++
+DEBUG_LOG:    _logDeltaEntriesMap(START)
+DEBUG_LOG:    versionDate[12-Dec-2000] : delta{[REVERSE]:,Alok Textile Industries Ltd->Alok Industries Limited,,,,,,}
+DEBUG_LOG:    _logDeltaEntriesMap(END)
+DEBUG_LOG:  ~~~~~~~~~~~~~~~~~~~~~~~~
+DEBUG_LOG:    _logSnapEntriesMap(START)
+DEBUG_LOG:    _logSnapEntriesMap(END)
+DEBUG_LOG:  -----before combo-------
+DEBUG_LOG:  +++++after combo+++++++
+DEBUG_LOG:    _logDeltaEntriesMap(START)
+DEBUG_LOG:    versionDate[12-Dec-2000] : delta{[REVERSE]:,Alok Textile Industries Ltd->Alok Industries Limited,,,,,,}
+DEBUG_LOG:    _logDeltaEntriesMap(END)
+DEBUG_LOG:  -----after combo-------
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(END)
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildBiDirectionalTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
+DEBUG_LOG:    list of startDates[19-Feb-2020,]
+DEBUG_LOG:    prebuild-VO: versionDate=19-Feb-2020, dataSet={ALOKINDS,Alok Industries Limited,EQ,1,1,INE270A01029,1,LISTED}
+DEBUG_LOG:   ReverseTimeline1 initialization  START <<<<<<<<<<<<<<<<<
+DEBUG_LOG:   iterComboChgEntries->first = 12-Dec-2000  : iterComboChgEntriesEnd->first(tentative) = END
+DEBUG_LOG:   iterISVOcopyBegin->first = 19-Feb-2020  : iterISVOcopyEnd->first(tentative) = END
+DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=12-Dec-2000 : dataset={[REVERSE]:,Alok Textile Industries Ltd->Alok Industries Limited,,,,,,} : Insert success
+DEBUG_LOG:   {iterComboChgEntriesStart->first[12-Dec-2000]..iterComboChgEntriesLast->first[12-Dec-2000]}
+DEBUG_LOG:   {iterISVOcopyStart->first[19-Feb-2020]..iterISVOcopyLast->first[19-Feb-2020]}
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)
+DEBUG_LOG:  +++++before combo+++++++
+DEBUG_LOG:    _logDeltaEntriesMap(START)
+DEBUG_LOG:    versionDate[12-Dec-2000] : delta{[REVERSE]:,Alok Textile Industries Ltd->Alok Industries Limited,,,,,,}
+DEBUG_LOG:    _logDeltaEntriesMap(END)
+DEBUG_LOG:  ~~~~~~~~~~~~~~~~~~~~~~~~
+DEBUG_LOG:    _logSnapEntriesMap(START)
+DEBUG_LOG:    _logSnapEntriesMap(END)
+DEBUG_LOG:  -----before combo-------
+DEBUG_LOG:  +++++after combo+++++++
+DEBUG_LOG:    _logDeltaEntriesMap(START)
+DEBUG_LOG:    versionDate[12-Dec-2000] : delta{[REVERSE]:,Alok Textile Industries Ltd->Alok Industries Limited,,,,,,}
+DEBUG_LOG:    _logDeltaEntriesMap(END)
+DEBUG_LOG:  -----after combo-------
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(END)
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline(START) : startDate=19-Feb-2020 :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
+DEBUG_LOG: vo.insertVersion() -> versionDate: 24-Aug-2021; DATASET{CHEMPLASTS,Chemplast Sanmar Limited,EQ,5,1,INE488A01050,5,LISTED}
+DEBUG_LOG: vo.insertVersion() insertResult=1
+DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=25-Jun-2012 : dataset={[FORWARD]:,,,,,,,DELISTED} : Insert success
+DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=04-Jul-1996 : dataset={[REVERSE]:,CHEMICALS AND PLASTICS (I) LTD.->Chemplast Sanmar Limited,,,,,,} : Insert success
+DEBUG_LOG:##VersionedObjectBuilder<VDT, T1, TR...>::buildBiDirectionalTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)
+DEBUG_LOG:  +++++before combo+++++++
+DEBUG_LOG:    _logDeltaEntriesMap(START)
+DEBUG_LOG:    versionDate[04-Jul-1996] : delta{[REVERSE]:,CHEMICALS AND PLASTICS (I) LTD.->Chemplast Sanmar Limited,,,,,,}
+DEBUG_LOG:    _logDeltaEntriesMap(END)
+DEBUG_LOG:  ~~~~~~~~~~~~~~~~~~~~~~~~
+DEBUG_LOG:    _logSnapEntriesMap(START)
+DEBUG_LOG:    versionDate[25-Jun-2012] : snap{[FORWARD]:,,,,,,,DELISTED}
+DEBUG_LOG:    _logSnapEntriesMap(END)
+DEBUG_LOG:  -----before combo-------
+DEBUG_LOG:  +++++after combo+++++++
+DEBUG_LOG:    _logDeltaEntriesMap(START)
+DEBUG_LOG:    versionDate[04-Jul-1996] : delta{[REVERSE]:,CHEMICALS AND PLASTICS (I) LTD.->Chemplast Sanmar Limited,,,,,,}
+DEBUG_LOG:    versionDate[25-Jun-2012] : delta{[FORWARD]:,,,,,,,...->DELISTED}
+DEBUG_LOG:    _logDeltaEntriesMap(END)
+DEBUG_LOG:  -----after combo-------
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(END)
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildBiDirectionalTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
+DEBUG_LOG:    list of startDates[24-Aug-2021,]
+DEBUG_LOG:    prebuild-VO: versionDate=24-Aug-2021, dataSet={CHEMPLASTS,Chemplast Sanmar Limited,EQ,5,1,INE488A01050,5,LISTED}
+DEBUG_LOG:   ReverseTimeline1 initialization  START <<<<<<<<<<<<<<<<<
+DEBUG_LOG:   iterComboChgEntries->first = 04-Jul-1996  : iterComboChgEntriesEnd->first(tentative) = END
+DEBUG_LOG:   iterISVOcopyBegin->first = 24-Aug-2021  : iterISVOcopyEnd->first(tentative) = END
+DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=04-Jul-1996 : dataset={[REVERSE]:,CHEMICALS AND PLASTICS (I) LTD.->Chemplast Sanmar Limited,,,,,,} : Insert success
+DEBUG_LOG:   {iterComboChgEntriesStart->first[04-Jul-1996]..iterComboChgEntriesLast->first[04-Jul-1996]}
+DEBUG_LOG:   {iterISVOcopyStart->first[24-Aug-2021]..iterISVOcopyLast->first[24-Aug-2021]}
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)
+DEBUG_LOG:  +++++before combo+++++++
+DEBUG_LOG:    _logDeltaEntriesMap(START)
+DEBUG_LOG:    versionDate[04-Jul-1996] : delta{[REVERSE]:,CHEMICALS AND PLASTICS (I) LTD.->Chemplast Sanmar Limited,,,,,,}
+DEBUG_LOG:    _logDeltaEntriesMap(END)
+DEBUG_LOG:  ~~~~~~~~~~~~~~~~~~~~~~~~
+DEBUG_LOG:    _logSnapEntriesMap(START)
+DEBUG_LOG:    _logSnapEntriesMap(END)
+DEBUG_LOG:  -----before combo-------
+DEBUG_LOG:  +++++after combo+++++++
+DEBUG_LOG:    _logDeltaEntriesMap(START)
+DEBUG_LOG:    versionDate[04-Jul-1996] : delta{[REVERSE]:,CHEMICALS AND PLASTICS (I) LTD.->Chemplast Sanmar Limited,,,,,,}
+DEBUG_LOG:    _logDeltaEntriesMap(END)
+DEBUG_LOG:  -----after combo-------
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(END)
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline(START) : startDate=24-Aug-2021 :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
+TEST_LOG : SECOND VO load , with existing data reloaded again. scenario after first load.
+DEBUG_LOG: vo.insertVersion() -> versionDate: 19-Feb-2020; DATASET{ALOKINDS,Alok Industries Limited,EQ,1,1,INE270A01029,1,LISTED}
+DEBUG_LOG: vo.insertVersion() insertResult=1
+DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=12-Dec-2000 : dataset={[REVERSE]:,Alok Textile Industries Ltd->Alok Industries Limited,,,,,,} : Insert success
+DEBUG_LOG:##VersionedObjectBuilder<VDT, T1, TR...>::buildBiDirectionalTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)
+DEBUG_LOG:  +++++before combo+++++++
+DEBUG_LOG:    _logDeltaEntriesMap(START)
+DEBUG_LOG:    versionDate[12-Dec-2000] : delta{[REVERSE]:,Alok Textile Industries Ltd->Alok Industries Limited,,,,,,}
+DEBUG_LOG:    _logDeltaEntriesMap(END)
+DEBUG_LOG:  ~~~~~~~~~~~~~~~~~~~~~~~~
+DEBUG_LOG:    _logSnapEntriesMap(START)
+DEBUG_LOG:    _logSnapEntriesMap(END)
+DEBUG_LOG:  -----before combo-------
+DEBUG_LOG:  +++++after combo+++++++
+DEBUG_LOG:    _logDeltaEntriesMap(START)
+DEBUG_LOG:    versionDate[12-Dec-2000] : delta{[REVERSE]:,Alok Textile Industries Ltd->Alok Industries Limited,,,,,,}
+DEBUG_LOG:    _logDeltaEntriesMap(END)
+DEBUG_LOG:  -----after combo-------
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(END)
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildBiDirectionalTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
+DEBUG_LOG:    list of startDates[19-Feb-2020,]
+DEBUG_LOG:    prebuild-VO: versionDate=19-Feb-2020, dataSet={ALOKINDS,Alok Industries Limited,EQ,1,1,INE270A01029,1,LISTED}
+DEBUG_LOG:   ReverseTimeline1 initialization  START <<<<<<<<<<<<<<<<<
+DEBUG_LOG:   iterComboChgEntries->first = 12-Dec-2000  : iterComboChgEntriesEnd->first(tentative) = END
+DEBUG_LOG:   iterISVOcopyBegin->first = 19-Feb-2020  : iterISVOcopyEnd->first(tentative) = END
+DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=12-Dec-2000 : dataset={[REVERSE]:,Alok Textile Industries Ltd->Alok Industries Limited,,,,,,} : Insert success
+DEBUG_LOG:   {iterComboChgEntriesStart->first[12-Dec-2000]..iterComboChgEntriesLast->first[12-Dec-2000]}
+DEBUG_LOG:   {iterISVOcopyStart->first[19-Feb-2020]..iterISVOcopyLast->first[19-Feb-2020]}
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)
+DEBUG_LOG:  +++++before combo+++++++
+DEBUG_LOG:    _logDeltaEntriesMap(START)
+DEBUG_LOG:    versionDate[12-Dec-2000] : delta{[REVERSE]:,Alok Textile Industries Ltd->Alok Industries Limited,,,,,,}
+DEBUG_LOG:    _logDeltaEntriesMap(END)
+DEBUG_LOG:  ~~~~~~~~~~~~~~~~~~~~~~~~
+DEBUG_LOG:    _logSnapEntriesMap(START)
+DEBUG_LOG:    _logSnapEntriesMap(END)
+DEBUG_LOG:  -----before combo-------
+DEBUG_LOG:  +++++after combo+++++++
+DEBUG_LOG:    _logDeltaEntriesMap(START)
+DEBUG_LOG:    versionDate[12-Dec-2000] : delta{[REVERSE]:,Alok Textile Industries Ltd->Alok Industries Limited,,,,,,}
+DEBUG_LOG:    _logDeltaEntriesMap(END)
+DEBUG_LOG:  -----after combo-------
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(END)
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline(START) : startDate=19-Feb-2020 :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
+DEBUG_LOG: vo.insertVersion() -> versionDate: 24-Aug-2021; DATASET{CHEMPLASTS,Chemplast Sanmar Limited,EQ,5,1,INE488A01050,5,LISTED}
+DEBUG_LOG: vo.insertVersion() insertResult=1
+DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=25-Jun-2012 : dataset={[FORWARD]:,,,,,,,DELISTED} : Insert success
+DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=04-Jul-1996 : dataset={[REVERSE]:,CHEMICALS AND PLASTICS (I) LTD.->Chemplast Sanmar Limited,,,,,,} : Insert success
+DEBUG_LOG:##VersionedObjectBuilder<VDT, T1, TR...>::buildBiDirectionalTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)
+DEBUG_LOG:  +++++before combo+++++++
+DEBUG_LOG:    _logDeltaEntriesMap(START)
+DEBUG_LOG:    versionDate[04-Jul-1996] : delta{[REVERSE]:,CHEMICALS AND PLASTICS (I) LTD.->Chemplast Sanmar Limited,,,,,,}
+DEBUG_LOG:    _logDeltaEntriesMap(END)
+DEBUG_LOG:  ~~~~~~~~~~~~~~~~~~~~~~~~
+DEBUG_LOG:    _logSnapEntriesMap(START)
+DEBUG_LOG:    versionDate[25-Jun-2012] : snap{[FORWARD]:,,,,,,,DELISTED}
+DEBUG_LOG:    _logSnapEntriesMap(END)
+DEBUG_LOG:  -----before combo-------
+DEBUG_LOG:  +++++after combo+++++++
+DEBUG_LOG:    _logDeltaEntriesMap(START)
+DEBUG_LOG:    versionDate[04-Jul-1996] : delta{[REVERSE]:,CHEMICALS AND PLASTICS (I) LTD.->Chemplast Sanmar Limited,,,,,,}
+DEBUG_LOG:    versionDate[25-Jun-2012] : delta{[FORWARD]:,,,,,,,...->DELISTED}
+DEBUG_LOG:    _logDeltaEntriesMap(END)
+DEBUG_LOG:  -----after combo-------
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(END)
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildBiDirectionalTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
+DEBUG_LOG:    list of startDates[24-Aug-2021,]
+DEBUG_LOG:    prebuild-VO: versionDate=24-Aug-2021, dataSet={CHEMPLASTS,Chemplast Sanmar Limited,EQ,5,1,INE488A01050,5,LISTED}
+DEBUG_LOG:   ReverseTimeline1 initialization  START <<<<<<<<<<<<<<<<<
+DEBUG_LOG:   iterComboChgEntries->first = 04-Jul-1996  : iterComboChgEntriesEnd->first(tentative) = END
+DEBUG_LOG:   iterISVOcopyBegin->first = 24-Aug-2021  : iterISVOcopyEnd->first(tentative) = END
+DEBUG_LOG:  insert ChangesInDataSet<MT...> : versionDate=04-Jul-1996 : dataset={[REVERSE]:,CHEMICALS AND PLASTICS (I) LTD.->Chemplast Sanmar Limited,,,,,,} : Insert success
+DEBUG_LOG:   {iterComboChgEntriesStart->first[04-Jul-1996]..iterComboChgEntriesLast->first[04-Jul-1996]}
+DEBUG_LOG:   {iterISVOcopyStart->first[24-Aug-2021]..iterISVOcopyLast->first[24-Aug-2021]}
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)
+DEBUG_LOG:  +++++before combo+++++++
+DEBUG_LOG:    _logDeltaEntriesMap(START)
+DEBUG_LOG:    versionDate[04-Jul-1996] : delta{[REVERSE]:,CHEMICALS AND PLASTICS (I) LTD.->Chemplast Sanmar Limited,,,,,,}
+DEBUG_LOG:    _logDeltaEntriesMap(END)
+DEBUG_LOG:  ~~~~~~~~~~~~~~~~~~~~~~~~
+DEBUG_LOG:    _logSnapEntriesMap(START)
+DEBUG_LOG:    _logSnapEntriesMap(END)
+DEBUG_LOG:  -----before combo-------
+DEBUG_LOG:  +++++after combo+++++++
+DEBUG_LOG:    _logDeltaEntriesMap(START)
+DEBUG_LOG:    versionDate[04-Jul-1996] : delta{[REVERSE]:,CHEMICALS AND PLASTICS (I) LTD.->Chemplast Sanmar Limited,,,,,,}
+DEBUG_LOG:    _logDeltaEntriesMap(END)
+DEBUG_LOG:  -----after combo-------
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(END)
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildReverseTimeline(START) : startDate=24-Aug-2021 :: file:include/versionedObject/VersionedObjectBuilder.h:line-number

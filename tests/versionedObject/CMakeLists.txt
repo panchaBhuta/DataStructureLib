@@ -100,6 +100,8 @@ add_unit_test(testBuildBidirectionTimelineNoMetaData_changeSplitList_Forward   0
 add_unit_test(testBuildBidirectionTimelineNoMetaData_changeFullList_Reverse    0  testReverseTimeLineCommon.cpp)
 add_unit_test(testBuildBidirectionTimelineNoMetaData_changeSplitList_Reverse   0  testReverseTimeLineCommon.cpp)
 
+add_unit_test(testBuildBidirectionTimelineNoMetaData_reverse_FirstDeltaChangeBeforeStartDate   0)   # error testing
+
 add_unit_test(testBuildBidirectionTimelineNoMetaData_multiForward              0  testForwardTimeLineCommon.cpp)
 add_unit_test(testBuildBidirectionTimelineNoMetaData_multiReverse_v1           0  testReverseTimeLineCommon.cpp)
 add_unit_test(testBuildBidirectionTimelineNoMetaData_multiReverse_v2           0  testReverseTimeLineCommon.cpp)
@@ -129,6 +131,8 @@ add_unit_test(testBuildBidirectionTimelineMetaData_changeSplitList_Forward   1  
 
 add_unit_test(testBuildBidirectionTimelineMetaData_changeFullList_Reverse    1  testReverseTimeLineCommon.cpp)
 add_unit_test(testBuildBidirectionTimelineMetaData_changeSplitList_Reverse   1  testReverseTimeLineCommon.cpp)
+
+add_unit_test(testBuildBidirectionTimelineMetaData_reverse_FirstDeltaChangeBeforeStartDate   1)   # error testing
 
 add_unit_test(testBuildBidirectionTimelineMetaData_multiForward              1  testForwardTimeLineCommon.cpp)
 add_unit_test(testBuildBidirectionTimelineMetaData_multiReverse_v1           1  testReverseTimeLineCommon.cpp)

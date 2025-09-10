@@ -80,7 +80,7 @@ namespace datastructure { namespace versionedObject
     }
 
 #if FLAG_VERSIONEDOBJECT_debug_log == 1
-    void inline _logDeltaEntriesMap(const t_deltaEntriesMap& deltaEntries)
+    void inline _logDeltaEntriesMap(const t_deltaEntriesMap& deltaEntries) const
     {
       std::cout << "DEBUG_LOG:    _logDeltaEntriesMap(START)" << std::endl;
       for(auto iterDelta: deltaEntries)
@@ -92,7 +92,7 @@ namespace datastructure { namespace versionedObject
       std::cout << "DEBUG_LOG:    _logDeltaEntriesMap(END)" << std::endl;
     }
 
-    void inline _logSnapEntriesMap(const t_snapShotEntriesMap& snapEntries)
+    void inline _logSnapEntriesMap(const t_snapShotEntriesMap& snapEntries) const
     {
       std::cout << "DEBUG_LOG:    _logSnapEntriesMap(START)" << std::endl;
       for(auto iterSnap: snapEntries)

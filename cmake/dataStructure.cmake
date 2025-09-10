@@ -137,7 +137,7 @@ macro(fetch_dependencies)
 
     FetchContent_Declare( ${CONVERTERLIB}
                           GIT_REPOSITORY https://github.com/panchaBhuta/converter.git
-                          GIT_TAG        v1.3.29)  # adjust tag/branch/commit as needed
+                          GIT_TAG        v1.4.30)  # adjust tag/branch/commit as needed
     FetchContent_MakeAvailable(${CONVERTERLIB})
 
     #[==================[
@@ -182,7 +182,7 @@ macro(dataStructure_check_cxx_compiler_flag_file_prefix_map)
             "-ffile-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}${_path_separator}=")
     else()
         # as of writing this code, clang does not support option '-ffile-prefix-map=...'
-        message(STATUS "dataStructure : compiler option '-ffile-prefix-map=old=new' NOT SUPPORTED")
+        message(STATUS "WARNING :: dataStructure : compiler option '-ffile-prefix-map=old=new' NOT SUPPORTED")
         string(LENGTH "${CMAKE_CURRENT_SOURCE_DIR}/" DATASTRUCTURE_SOURCE_PATH_SIZE)
         target_compile_definitions(dataStructure INTERFACE
                                         DATASTRUCTURE_USE_FILEPREFIXMAP=0

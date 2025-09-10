@@ -5,8 +5,8 @@
 
 #include <iostream>
 
-#include <converter/specializedTypes/date.h>
-#include <converter/specializedTypes/case_insensitive_string.h>
+#include <specializedTypes/date.h>
+#include <specializedTypes/case_insensitive_string.h>
 
 #include <versionedObject/VersionedObject.h>
 #include <versionedObject/VersionedObjectBuilder.h>
@@ -26,7 +26,7 @@
   #define TEST_ALTERNATE_METADATA(METADATA_ON, METADATA_OFF) METADATA_OFF
 #endif
 
-using t_fmtdbY = converter::format_year_month_day<converter::dbY_fmt, converter::FailureS2Tprocess::THROW_ERROR>;
+using t_fmtdbY = specializedTypes::format_year_month_day<converter::dbY_fmt, converter::FailureS2Tprocess::THROW_ERROR>;
 
 
 /*
@@ -44,7 +44,7 @@ NOTE: columns { SYMBOL, NAME OF COMPANY, ... }
 */
 
 using t_symbol      = std::string;
-using t_companyName = converter::ci_string; //std::string;  REFER test :test_caseInsensitive_companyName_BuildReverseTimelineNoMetaData
+using t_companyName = specializedTypes::ci_string; //std::string;  REFER test :test_caseInsensitive_companyName_BuildReverseTimelineNoMetaData
 using t_series      = std::string;
 using t_listingDate = t_fmtdbY; // std::chrono::year_month_day;
 using t_paidUpValue = uint16_t;

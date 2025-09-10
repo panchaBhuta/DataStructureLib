@@ -45,11 +45,12 @@ jobs:
           # g++-13  == 'MSVC 19'
           # clang   == 'MSVC 19'
           # ClangCl == 'Clang 16'
-        toolset_compiler: [ { compiler: default, toolset: -1, cmdShell: bash },
-                            { compiler: ClangCl, toolset:  1, cmdShell: bash },
+        toolset_compiler: [ { compiler: default, toolset: -1, cmdShell: bash,        rawCompiler: msbuild.exe,  compilerMacros: "echo msbuild_does_not_support" },    #  microsoft/setup-msbuild@v2
+                            #    on more details on  msbuild not supporting "-dM' option, refer https://stackoverflow.com/questions/4239993/determining-endianness-at-compile-time
+                            { compiler: ClangCl, toolset:  1, cmdShell: bash,        rawCompiler: clang++,      compilerMacros: "clang++  -dM -E -x c++ NUL:"   },    #  microsoft/setup-msbuild@v2
                             # https://github.com/ArchieAtkinson/CppTemplate
                             # https://github.com/scikit-build/scikit-build-core/blob/main/.github/workflows/ci.yml
-                            { compiler: g++,     toolset:  0, cmdShell: "msys2 {0}" } ]
+                            { compiler: g++,     toolset:  0, cmdShell: "msys2 {0}", rawCompiler: g++,          compilerMacros: "g++  -dM -E -x c++ /dev/null"  } ]   #  msys2/setup-msys2@v2
         #include:
         #  - os: windows-2019
         #      # ClangCl == 'Clang 12'
@@ -61,10 +62,10 @@ jobs:
         shell: ${{matrix.toolset_compiler.cmdShell}}
     steps:
       - name: Setup msbuild
-        if: matrix.toolset_compiler.compiler != 'g++'
+        if: matrix.toolset_compiler.compiler != 'g++'    #  cmdShell: bash
         uses: microsoft/setup-msbuild@v2
       - name : Setup msys2
-        if: matrix.toolset_compiler.compiler == 'g++'
+        if: matrix.toolset_compiler.compiler == 'g++'    #  cmdShell: "msys2 {0}"
         uses: msys2/setup-msys2@v2
         with:
           msystem: UCRT64
@@ -74,19 +75,32 @@ jobs:
             base-devel git
           pacboy: >-
             python:p python-pip:p gcc:p cmake:p
+      - name: Compiler Version  (compiler=default[msbuild.exe] OR clangCl)    -   cmdShell( bash )
+        if: matrix.toolset_compiler.compiler != 'g++'
+        run: echo "msbuild.exe --version"; msbuild.exe --version; echo ""; echo "clang++ --version"; clang++ --version;
+      - name: Compiler Version  (compiler=g++)     -   cmdShell( "msys2 {0}" )
+        if: matrix.toolset_compiler.compiler == 'g++'
+        run: echo "${{matrix.toolset_compiler.rawCompiler}} --version"; ${{matrix.toolset_compiler.rawCompiler}} --version
       - name: Checkout Repo
         uses: actions/checkout@v4
-      - name: Get Version
-        run: uname -a && echo "------------" && cmake --version
+      - name: Get Version (compiler==default[msbuild.exe])
+        if: matrix.toolset_compiler.compiler == 'default'
+        run: uname -a && echo "------------" && cmake --version && echo "------------"
+      - name: Get Version (compiler=clangCl OR g++)
+        if: matrix.toolset_compiler.compiler != 'default'
+        run: uname -a && echo "------------" && cmake --version && echo "------------"; ${{matrix.toolset_compiler.compilerMacros}} | egrep -i "(apple|mach|gnu|clang|llvm|linux|WIN|version|major|minor)"
       - name: Check Generators
         # https://stackoverflow.com/questions/25941536/what-is-a-cmake-generator
         run: cmake --help
+      - name: Compiler Macros Available
+        run: ${{matrix.toolset_compiler.compilerMacros}}
       #- name: Check mingw64-binaries
         #run: ls -l /mnt/c/msys64/mingw64/bin && echo "##### 'whereis g++'" && whereis g++ && "##### 'g++ --version'" && g++ --version
         #run: echo "##### 'where g++'" && where g++
         #shell: cmd
         #run: where gcc
       #- name: Set g++ to env-PATH
+        #                          refer -> https://github.com/msys2/setup-msys2/issues/104
         #run: echo "PATH=$PATH:C:\msys64\mingw64\bin" >> $GITHUB_ENV
       - name: Configure CMake (compiler=default) [Debug]
         # https://hungvu.tech/advanced-github-actions-conditional-workflow
@@ -104,9 +118,10 @@ jobs:
         run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-debug" -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug  -T "${{matrix.toolset_compiler.compiler}}"
       - name: Check Work-Around-Flags
         run: grep define "${{github.workspace}}/build-debug/_deps/converter-build/include/converter/_workaroundConfig.h" | grep -v -e "^//" -e " e_[^ ]*_FEATURE "
-      - name: Build compiler != g++ [Debug]
+      - name: Build compiler = msbuild.exe OR clangCl [Debug]
         if: matrix.toolset_compiler.compiler != 'g++'
-        run: cmake --build "${{github.workspace}}/build-debug" --config Debug -j$(nproc)   -- -m -nologo #-verbosity:quiet
+        #  https://learn.microsoft.com/en-us/visualstudio/msbuild/msbuild-command-line-reference?view=vs-2022
+        run: cmake --build "${{github.workspace}}/build-debug" --config Debug -j$(nproc)   -- -m -nologo -verbosity:normal
       - name: Build compiler == g++ [Debug]
         if: matrix.toolset_compiler.compiler == 'g++'
         run: cmake --build "${{github.workspace}}/build-debug" --config Debug -j$(nproc)
@@ -119,15 +134,15 @@ jobs:
       - name: Configure CMake (compiler=default) [Release]
         if: matrix.toolset_compiler.compiler == 'default'
         run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release
-      - name: Configure CMake (compiler=${{matrix.toolset_compiler.compiler}}) [Release]
+      - name: Configure CMake (compiler=g++) [Release]
         if: matrix.toolset_compiler.toolset == 0
         run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=${{matrix.toolset_compiler.compiler}}
-      - name: Configure CMake (toolset_compiler=${{matrix.toolset_compiler.compiler}}) [Release]
+      - name: Configure CMake (toolset_compiler=clangCl) [Release]
         if: matrix.toolset_compiler.toolset == 1
         run: cmake -S "${{github.workspace}}" -B "${{github.workspace}}/build-release" -DDATASTRUCTURE_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release  -T "${{matrix.toolset_compiler.compiler}}"
-      - name: Build compiler != g++ [Release]
+      - name: Build compiler = msbuild.exe OR clangCl [Release]
         if: matrix.toolset_compiler.compiler != 'g++'
-        run: cmake --build "${{github.workspace}}/build-release" --config Release -j$(nproc)   -- -m -nologo #-verbosity:quiet
+        run: cmake --build "${{github.workspace}}/build-release" --config Release -j$(nproc)   -- -m -nologo -verbosity:normal
       - name: Build compiler == g++ [Release]
         if: matrix.toolset_compiler.compiler == 'g++'
         run: cmake --build "${{github.workspace}}/build-release" --config Release -j$(nproc)

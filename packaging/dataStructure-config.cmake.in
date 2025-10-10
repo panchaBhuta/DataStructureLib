@@ -1,5 +1,13 @@
 @PACKAGE_INIT@
 
-include(${CMAKE_CURRENT_LIST_DIR}/@TARGETS_EXPORT_NAME@.cmake)
+
+
+## refer https://stackoverflow.com/questions/60458214/install-target-dependencies-with-cmake
+
+include(CMakeFindDependencyMacro)
+
+find_dependency(converter REQUIRED)
+
+include(${CMAKE_CURRENT_LIST_DIR}/@targets_export_name@.cmake)   # targets_export_name : donot change case
 check_required_components("@PROJECT_NAME@")
 

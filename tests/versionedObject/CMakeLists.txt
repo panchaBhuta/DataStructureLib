@@ -30,26 +30,71 @@ add_test_lib(testReverseTimeLineCommon 1)
 
 # Test function add_unit_test
 function(add_unit_test testname OPTION_ENABLE_METADATA)
-  if(CMAKE_BUILD_TYPE MATCHES "Debug")
+  if(CMAKE_BUILD_TYPE MATCHES "Debug"     OR
+     CMAKE_BUILD_TYPE MATCHES "MemCheck"  OR
+     CMAKE_BUILD_TYPE MATCHES "Coverage"  OR
+     CMAKE_BUILD_TYPE MATCHES "CpuProf"   OR
+     CMAKE_BUILD_TYPE MATCHES "MemProf"   OR
+     CMAKE_BUILD_TYPE MATCHES "CppCheck")
   #if(BUILD_TESTING)
+
     FILE(GLOB sourcesExe ${testname}.cpp)
     SET(sourcesFile main.cpp ${ARGN})   # ARGN here contains list of additional files if any
     LIST(TRANSFORM sourcesFile REPLACE [[\.cpp]] "_${OPTION_ENABLE_METADATA}"   OUTPUT_VARIABLE binaryLibs)
     message(STATUS "### TEST ${testname} :: sourcesFile[${sourcesFile}] -> libs[${binaryLibs}]")
     add_executable(${testname} ${sourcesExe})
-    if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    if (CMAKE_SYSTEM_NAME STREQUAL "Linux"   AND
+        CMAKE_BUILD_TYPE MATCHES   "Debug")
       # Linux-specific stuff
       add_test(NAME ${testname} COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/testRun.sh"   "${PROJECT_BINARY_DIR}/tests/versionedObject/${testname}")
     else()
       add_test(NAME ${testname} COMMAND "${PROJECT_BINARY_DIR}/tests/versionedObject/${testname}")
     endif ()
 
+    if(CMAKE_BUILD_TYPE MATCHES "MemCheck"  OR
+       CMAKE_BUILD_TYPE MATCHES "CpuProf"   OR
+       CMAKE_BUILD_TYPE MATCHES "MemProf")
+      # https://stackoverflow.com/questions/44102050/valgrind-leading-to-numeric-issues-with-long-doubles
+      #
+      target_compile_definitions(${testname} PRIVATE USE_VALGRIND)
+    endif()
+    #target_compile_definitions(${testname}
+    #            gives error as COMPILE_LANG_AND_ID is empty
+    #            $<$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang>:COMPILING_CXX_WITH_CLANG>
+    #            $<$<COMPILE_LANG_AND_ID:CXX,Intel>:COMPILING_CXX_WITH_INTEL>)
+
     target_include_directories(${testname} PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
-    target_link_libraries(${testname} dataStructure ${binaryLibs}) # donot specify PUBLIC here,
+    target_link_libraries(${testname} PRIVATE dataStructure ${binaryLibs}) # donot specify PUBLIC here,
     target_compile_definitions(${testname}    PRIVATE TEST_ENABLE_METADATA=$<BOOL:${OPTION_ENABLE_METADATA}>)
     # executable ${testname} has to have transitive association to all its dependencies(aka library chain)
     # refer   https://cmake.org/cmake/help/latest/manual/cmake-buildsystem.7.html#target-usage-requirements
     # refer   https://cmake.org/cmake/help/latest/command/target_link_libraries.html#libraries-for-a-target-and-or-its-dependents
+
+
+    if(CMAKE_BUILD_TYPE MATCHES "Coverage")
+      #refer   https://github.com/bilke/cmake-modules/blob/master/CodeCoverage.cmake
+      # compile with coverage options
+      target_compile_options(${testname} PRIVATE --coverage -O0)
+      target_link_options(${testname} PRIVATE --coverage)
+
+      # How to use gcovr for code coverage?
+      # If you have multiple compilers installed or if you are using Clang,
+      # you will likely need to tell gcovr which gcov executable to use.
+      # By default, gcovr just uses the program named gcov .
+      # This is fine for the default GCC compiler, e.g. gcc or g++ .
+      # Otherwise, you must use the --gcov-executable to tell gcovr what to use.
+
+      #  doesn't  work as expected, instead directly calling gcovr in make.sh
+      # add coverage target
+#      add_custom_target(coverage_${testname}
+        # gather data
+#        COMMAND ${LCOV_COMMAND} --directory . --capture --output-file coverage.info
+        # generate report
+#        COMMAND ${GENHTML_COMMAND} --demangle-cpp -o coverage coverage.info
+#        WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+
+    endif()
+
     set_target_properties(${testname} PROPERTIES  LINKER_LANGUAGE CXX)
   endif()
 endfunction(add_unit_test)

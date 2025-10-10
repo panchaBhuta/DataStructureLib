@@ -243,7 +243,7 @@ namespace datastructure { namespace versionedObject
 
           t_dataset dataset = _datasetFactory(iterDelta->second, record);
           VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: vo.insertVersion() -> versionDate: " << presentDeltaChangeDate << "; DATASET{" << dataset.toCSV(t_StreamerHelper{}) << "}");
-          bool insertResult = vo.insertVersion( presentDeltaChangeDate, dataset );
+          [[maybe_unused]] bool insertResult = vo.insertVersion( presentDeltaChangeDate, dataset );
           VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: vo.insertVersion() insertResult=" << insertResult);
         } catch (const std::exception& err) {
           std::ostringstream eoss;
@@ -398,7 +398,7 @@ namespace datastructure { namespace versionedObject
                                     rPastIterDelta->first  :
                                     startDate;
           VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: vo.insertVersion() -> versionDate: " << pastDeltaChangeDate << "; DATASET{" << dataset.toCSV(t_StreamerHelper{}) << "}");
-          bool insertResult = vo.insertVersion( pastDeltaChangeDate, dataset );
+          [[maybe_unused]] bool insertResult = vo.insertVersion( pastDeltaChangeDate, dataset );
           VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: vo.insertVersion() insertResult=" << insertResult);
         } catch (const std::exception& err) {
           std::ostringstream eoss;
@@ -554,7 +554,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
           for(auto iterISVOcopy = iterISVOcopyBegin; iterISVOcopy != iterISVOcopyEnd; ++iterISVOcopy )
           {
             VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: reverseBuildVO.insertVersion() -> versionDate: " << iterISVOcopy->first << "; DATASET{" << iterISVOcopy->second.toCSV(t_StreamerHelper{}) << "}");
-            //bool insertResult =
+            //[[maybe_unused]] bool insertResult =
             reverseBuildVO.insertVersion(iterISVOcopy->first, iterISVOcopy->second);
             //VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: reverseBuildVO.insertVersion() insertResult=" << insertResult); is always true
           }

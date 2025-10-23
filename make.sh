@@ -259,9 +259,8 @@ if [[ "${MEMCHECK}" == "1" ]]; then
   mkdir -p ./Testing/MemoryChecker/
   #find ./Testing/Temporary/ -type f -regex '.*/MemoryChecker\.[0-9]+\.log$'
   for FILE in $(find ./Testing/Temporary/ -type f -regex '.*/MemoryChecker\.[0-9]+\.log$'); do
-    #echo ">>>>>>>>>>>>>>>>>>>  ${FILE}"
     TEST_NAME=$(grep -E "==[0-9]+== Command: .*" ${FILE} | sed 's|.*/\([^/]\+\)$|\1|g')
-    #echo "<<<<<<<<<<<<<<<<<<<  ${TEST_NAME}"
+    echo "########  ${FILE}    >>>>>  ./Testing/MemoryChecker/${TEST_NAME}.log"
     cp ${FILE} ./Testing/MemoryChecker/${TEST_NAME}.log
   done
 
@@ -334,14 +333,13 @@ if [[ "${CPUPROF}" == "1" ]]; then
 
   echo "##### START(cpuProf) : project Test #####" && \
   ctest --verbose ${PARALLEL_PROCESS_ARGS} --test-action memcheck ${OPTIONAL_TEST_NAME} || \
-  exiterr "memCheck tests failed, exiting."
+  exiterr "cpuProf tests failed, exiting."
 
   mkdir -p ./Testing/CpuProfiling/
   #find ./tests/ -type f -regex '.*/callgrind\.out\.[0-9]+$'
   for FILE in $(find ./tests/ -type f -regex '.*/callgrind\.out\.[0-9]+$'); do
-    #echo ">>>>>>>>>>>>>>>>>>>  ${FILE}"
     TEST_NAME=$(grep -E '^cmd: ' ${FILE} | sed 's|.*/\([^/]\+\)$|\1|g')
-    #echo "<<<<<<<<<<<<<<<<<<<  ${TEST_NAME}"
+    echo "########  ${FILE}    >>>>>  ./Testing/CpuProfiling/callgrind.out.${TEST_NAME}"
     cp ${FILE} ./Testing/CpuProfiling/callgrind.out.${TEST_NAME}
   done
 
@@ -360,14 +358,13 @@ if [[ "${MEMPROF}" == "1" ]]; then
 
   echo "##### START(memProf) : project Test #####" && \
   ctest --verbose ${PARALLEL_PROCESS_ARGS} --test-action memcheck ${OPTIONAL_TEST_NAME} || \
-  exiterr "memCheck tests failed, exiting."
+  exiterr "memProf tests failed, exiting."
 
   mkdir -p ./Testing/MemProfiling/
   #find ./tests/ -type f -regex '.*/massif\.out\.[0-9]+$'
   for FILE in $(find ./tests/ -type f -regex '.*/massif\.out\.[0-9]+$'); do
-    #echo ">>>>>>>>>>>>>>>>>>>  ${FILE}"
     TEST_NAME=$(grep -E '^cmd: ' ${FILE} | sed 's|.*/\([^/]\+\)$|\1|g')
-    #echo "<<<<<<<<<<<<<<<<<<<  ${TEST_NAME}"
+    echo "########  ${FILE}    >>>>>  ./Testing/MemProfiling/massif.out.${TEST_NAME}"
     cp ${FILE} ./Testing/MemProfiling/massif.out.${TEST_NAME}
   done
 

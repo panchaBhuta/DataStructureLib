@@ -142,7 +142,7 @@ macro(fetch_dependencies)
 
     FetchContent_Declare( ${CONVERTERLIB}
                           GIT_REPOSITORY https://github.com/panchaBhuta/converter.git
-                          GIT_TAG        v1.4.31)  # adjust tag/branch/commit as needed
+                          GIT_TAG        v1.4.32)  # adjust tag/branch/commit as needed
     FetchContent_MakeAvailable(${CONVERTERLIB})
 
     #[==================[
@@ -339,7 +339,6 @@ macro(dataStructure_build)
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>/versionedObject/VersionedObjectPriorityMerge.h
             #$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>/biMap/BiMap.h
             $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>/dataStructure.h
-
     )
 endmacro(dataStructure_build)
 
@@ -464,7 +463,6 @@ function(dataStructure_install_logic)
             DESTINATION     ${DATASTRUCTURE_CMAKE_DIR}
             NAMESPACE       dataStructure::
         )
-
 
 
     # https://cmake.org/cmake/help/v3.27/command/export.html#command:export

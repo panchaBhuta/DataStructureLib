@@ -29,7 +29,7 @@ Unit-Test results of last run across multiple OS-versions and Compiler-versions 
 |------------|------------|------------------|--------------|--------------|--------------|--------------|
 | **Ubuntu&nbsp;24.04** | 14 ✅<br>13 ✅<br>12 ✅ | 18 ✅<br>17 ✅<br>16 ✅ | - | - | - | default: g++-13<br>clang: clang++-18 |
 | **Ubuntu&nbsp;24.04**<br>(ARM64) | 14 ✅<br>13 ✅<br>12 ✅ | 18 ✅<br>17 ✅<br>16 ✅ | - | - | - | default: g++-13<br>clang: clang++-18 |
-| **Ubuntu&nbsp;22.04** | 13 ❌<br> 12 ✅<br>11 ✅<br>&nbsp; | 15 ✅<br>14 ✅<br>13 ✅ | - | - | - | default: g++-11<br>clang: clang++-14 |
+| **Ubuntu&nbsp;22.04** | 13 ❌<br> 12 ✅<br>11 ✅ | 15 ✅<br>14 ✅<br>13 ✅ | - | - | - | default: g++-11<br>clang: clang++-14 |
 | **Ubuntu&nbsp;22.04**<br>(ARM64) | 13 ✅<br> 12 ✅<br>11 ✅ | 15 ✅<br>14 ✖️<br>13 ✖️ | - | - | - | default: g++-11<br>clang: clang++-14 |
 | **macOS-15**<br>(ARM64) | 14 ✖️<br> 13 ✖️<br>12 ✖️ | - | 16 ✅ | - | - | AppleClang&nbsp;16 |
 | **macOS-14**<br>(ARM64) | 14 ✅<br> 13 ✅<br>12 ✅ | - | 15 ✅ | - | - | AppleClang&nbsp;15 |
@@ -57,12 +57,4 @@ Unit-Test results of last run across multiple OS-versions and Compiler-versions 
 
 <br>
 
-❌1 : <span style="color:grey">macOS-13</span> : New linker breaks the build. Both Cmake and Linker needs an update for this fix.
-
-❌2 : <span style="color:grey">clang++ 13\#</span> : Last successful run with [Clang 13.0.1](https://github.com/panchaBhuta/converter/actions/runs/6524732682/job/17716666880) and `OS-id-version=Linux-6.2.0-1012-azure`. **\<chorno>** headers stopped compiling in Newer Ubuntu-image OS-version. Refer [ubuntu-latest runners have an incompatible combination of clang and libstdc++](https://github.com/actions/runner-images/issues/8659).
-
-❌2 : <span style="color:grey">clang++ 14\#</span> : Last successful run with [Clang 14.0.0](https://github.com/panchaBhuta/converter/actions/runs/6524732682/job/17716666951) and `OS-id-version=Linux-6.2.0-1012-azure`. **\<chorno>** headers stopped compiling in Newer Ubuntu-image OS-version. Refer [ubuntu-latest runners have an incompatible combination of clang and libstdc++](https://github.com/actions/runner-images/issues/8659).
-
-
-[//]:  ❌
 

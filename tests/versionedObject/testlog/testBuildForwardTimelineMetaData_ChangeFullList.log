@@ -15,7 +15,7 @@ debug_LOG: vo.insertVersion() -> listingDate-versionDate: 13-May-2004; DATASET{*
 debug_LOG: vo.insertVersion() insertResult=1
 DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=07-Apr-2021 : dataset={+|@marketLotSpot,[FORWARD]:,,,,2,,,} : Insert success
 DEBUG_LOG:##VersionedObjectBuilder<VDT, M, T...>::buildForwardTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
-DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::getCombinedChangeDataSet(START)
 DEBUG_LOG:  +++++before combo+++++++
 DEBUG_LOG:    _logDeltaEntriesMap(START)
 DEBUG_LOG:    versionDate[21-Jan-2014] : delta{+|%symbolChange,[FORWARD]:APPAPER->IPAPPM,,,,,,,}
@@ -37,7 +37,7 @@ DEBUG_LOG:    versionDate[05-Mar-2020] : delta{+|%symbolChange|@nameSpot,[FORWAR
 DEBUG_LOG:    versionDate[07-Apr-2021] : delta{+|@marketLotSpot,[FORWARD]:,,,,...->2,,,}
 DEBUG_LOG:    _logDeltaEntriesMap(END)
 DEBUG_LOG:  -----after combo-------
-DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(END)
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::getCombinedChangeDataSet(END)
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
 DEBUG_LOG:    prebuild-VO: versionDate=13-May-2004, dataSet={*|*manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    ** deltaEntryDate[21-Jan-2014] >> versionObjectDate[13-May-2004]:data{*|*manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED} << deltaChange{+|%symbolChange|@nameSpot,[FORWARD]:APPAPER->IPAPPM,...->International Paper APPM Limited,,,,,,}
@@ -76,7 +76,7 @@ debug_LOG: vo.insertVersion() -> listingDate-versionDate: 13-May-2004; DATASET{*
 debug_LOG: vo.insertVersion() insertResult=0
 DEBUG_LOG:  insert SnapshotDataSet<MT...> : versionDate=07-Apr-2021 : dataset={+|@marketLotSpot,[FORWARD]:,,,,2,,,} : Insert success
 DEBUG_LOG:##VersionedObjectBuilder<VDT, M, T...>::buildForwardTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
-DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::getCombinedChangeDataSet(START)
 DEBUG_LOG:  +++++before combo+++++++
 DEBUG_LOG:    _logDeltaEntriesMap(START)
 DEBUG_LOG:    versionDate[21-Jan-2014] : delta{+|%symbolChange,[FORWARD]:APPAPER->IPAPPM,,,,,,,}
@@ -98,7 +98,7 @@ DEBUG_LOG:    versionDate[05-Mar-2020] : delta{+|%symbolChange|@nameSpot,[FORWAR
 DEBUG_LOG:    versionDate[07-Apr-2021] : delta{+|@marketLotSpot,[FORWARD]:,,,,...->2,,,}
 DEBUG_LOG:    _logDeltaEntriesMap(END)
 DEBUG_LOG:  -----after combo-------
-DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(END)
+DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::getCombinedChangeDataSet(END)
 DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_buildForwardTimeline(START) :: file:include/versionedObject/VersionedObjectBuilder.h:line-number
 DEBUG_LOG:    prebuild-VO: versionDate=13-May-2004, dataSet={*|*manualDeduction,APPAPER,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}
 DEBUG_LOG:    prebuild-VO: versionDate=21-Jan-2014, dataSet={+|%symbolChange|@nameSpot,IPAPPM,International Paper APPM Limited,EQ,10,1,INE435A01028,10,LISTED}

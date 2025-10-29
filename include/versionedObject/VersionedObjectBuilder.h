@@ -105,34 +105,6 @@ namespace datastructure { namespace versionedObject
     }
 #endif
 
-    void inline _updateComboDataSet(t_deltaEntriesMap& comboChgEntries) const
-    {
-#if FLAG_VERSIONEDOBJECT_debug_log == 1
-      std::cout << "DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(START)" << std::endl;
-      std::cout << "DEBUG_LOG:  +++++before combo+++++++" << std::endl;
-      _logDeltaEntriesMap(comboChgEntries);
-      std::cout << "DEBUG_LOG:  ~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
-      _logSnapEntriesMap(_snapShotEntries);
-      std::cout << "DEBUG_LOG:  -----before combo-------" << std::endl;
-#endif
-      for( auto snapIter : _snapShotEntries)
-      {
-        if( auto comboIter  = comboChgEntries.find(snapIter.first);
-                 comboIter != comboChgEntries.end() )
-        {
-          comboIter->second.mergeChanges(snapIter.second);
-        } else {
-          comboChgEntries.emplace(snapIter.first, snapIter.second);
-        }
-      }
-#if FLAG_VERSIONEDOBJECT_debug_log == 1
-      std::cout << "DEBUG_LOG:  +++++after combo+++++++" << std::endl;
-      _logDeltaEntriesMap(comboChgEntries);
-      std::cout << "DEBUG_LOG:  -----after combo-------" << std::endl;
-      std::cout << "DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::_updateComboDataSet(END)" << std::endl;
-#endif
-    }
-
     void _buildForwardTimeline( // with filled VersionObject
                   t_versionedObject& vo,
                   const t_deltaEntriesMap& comboChgEntries)
@@ -559,8 +531,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
             //VERSIONEDOBJECT_DEBUG_MSG( "DEBUG_LOG: reverseBuildVO.insertVersion() insertResult=" << insertResult); is always true
           }
 
-          t_deltaEntriesMap tmpComboChgEntries{tempVOB._deltaChgEntries};
-          tempVOB._updateComboDataSet(tmpComboChgEntries);
+          t_deltaEntriesMap tmpComboChgEntries = tempVOB.getCombinedChangeDataSet();
 
           if(startDateIter >= startDates.size())
           {
@@ -645,8 +616,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
             ++iterISVOcopyBegin;
           }
 
-          t_deltaEntriesMap tmpComboChgEntries{tempVOB._deltaChgEntries};
-          tempVOB._updateComboDataSet(tmpComboChgEntries);
+          t_deltaEntriesMap tmpComboChgEntries = tempVOB.getCombinedChangeDataSet();
           tempVOB._buildForwardTimeline(forwardBuildVO, tmpComboChgEntries);
           tmpComboChgEntries.clear();
 
@@ -681,6 +651,37 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
     }
 
   public:
+
+    inline t_deltaEntriesMap getCombinedChangeDataSet() const
+    {
+      t_deltaEntriesMap comboChgEntries{_deltaChgEntries};
+#if FLAG_VERSIONEDOBJECT_debug_log == 1
+      std::cout << "DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::getCombinedChangeDataSet(START)" << std::endl;
+      std::cout << "DEBUG_LOG:  +++++before combo+++++++" << std::endl;
+      _logDeltaEntriesMap(comboChgEntries);
+      std::cout << "DEBUG_LOG:  ~~~~~~~~~~~~~~~~~~~~~~~~" << std::endl;
+      _logSnapEntriesMap(_snapShotEntries);
+      std::cout << "DEBUG_LOG:  -----before combo-------" << std::endl;
+#endif
+      for( auto snapIter : _snapShotEntries)
+      {
+        if( auto comboIter  = comboChgEntries.find(snapIter.first);
+                 comboIter != comboChgEntries.end() )
+        {
+          comboIter->second.mergeChanges(snapIter.second);
+        } else {
+          comboChgEntries.emplace(snapIter.first, snapIter.second);
+        }
+      }
+#if FLAG_VERSIONEDOBJECT_debug_log == 1
+      std::cout << "DEBUG_LOG:  +++++after combo+++++++" << std::endl;
+      _logDeltaEntriesMap(comboChgEntries);
+      std::cout << "DEBUG_LOG:  -----after combo-------" << std::endl;
+      std::cout << "DEBUG_LOG:  _VersionedObjectBuilderBase<VDT, MT...>::getCombinedChangeDataSet(END)" << std::endl;
+#endif
+      return comboChgEntries;
+    }
+
   inline bool insertDeltaVersion( const t_versionDate& forDate,
                                   const ChangesInDataSet<MT...>& chgEntry)
     {
@@ -994,8 +995,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
     inline void toCSV(//const t_deltaEntriesMap& comboChgEntries,
                       const std::string& prefix, std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
-      t_deltaEntriesMap tmpComboChgEntries{_deltaChgEntries};
-      _updateComboDataSet(tmpComboChgEntries);
+      t_deltaEntriesMap tmpComboChgEntries = getCombinedChangeDataSet();
 
       toCSV(tmpComboChgEntries, prefix, oss, streamerHelper);
     }
@@ -1015,8 +1015,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
     inline void toCSV(//const t_deltaEntriesMap& comboChgEntries,
                       std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
-      t_deltaEntriesMap tmpComboChgEntries{_deltaChgEntries};
-      _updateComboDataSet(tmpComboChgEntries);
+      t_deltaEntriesMap tmpComboChgEntries = getCombinedChangeDataSet();
 
       toCSV(tmpComboChgEntries, oss, streamerHelper);
     }
@@ -1036,8 +1035,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
     inline void toStr(//const t_deltaEntriesMap& comboChgEntries,
                       const std::string& prefix, std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
-      t_deltaEntriesMap tmpComboChgEntries{_deltaChgEntries};
-      _updateComboDataSet(tmpComboChgEntries);
+      t_deltaEntriesMap tmpComboChgEntries = getCombinedChangeDataSet();
 
       toStr(tmpComboChgEntries, prefix, oss, streamerHelper);
     }
@@ -1057,8 +1055,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
     inline void toStr(//const t_deltaEntriesMap& comboChgEntries,
                       std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
-      t_deltaEntriesMap tmpComboChgEntries{_deltaChgEntries};
-      _updateComboDataSet(tmpComboChgEntries);
+      t_deltaEntriesMap tmpComboChgEntries = getCombinedChangeDataSet();
 
       toStr(tmpComboChgEntries, oss, streamerHelper);
     }
@@ -1104,8 +1101,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
             VersionedObject<VDT, M, T...>&  vo)
     {
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:##VersionedObjectBuilder<VDT, M, T...>::buildForwardTimeline(START)");
-      t_deltaEntriesMap comboChgEntries{this->_deltaChgEntries};
-      this->_updateComboDataSet(comboChgEntries);
+      t_deltaEntriesMap comboChgEntries = this->getCombinedChangeDataSet();
       this->_buildForwardTimeline(vo, comboChgEntries);
       comboChgEntries.clear();
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:##VersionedObjectBuilder<VDT, M, T...>::buildForwardTimeline(END)");
@@ -1116,8 +1112,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
             VersionedObject<VDT, M, T...>& vo)
     {
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:##VersionedObjectBuilder<VDT, M, T...>::buildReverseTimeline(START) : startDate=" << startDate);
-      t_deltaEntriesMap comboChgEntries{this->_deltaChgEntries};
-      this->_updateComboDataSet(comboChgEntries);
+      t_deltaEntriesMap comboChgEntries = this->getCombinedChangeDataSet();
       this->_buildReverseTimeline(startDate, vo, comboChgEntries);
       comboChgEntries.clear();
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:##VersionedObjectBuilder<VDT, M, T...>::buildReverseTimeline(END)");
@@ -1130,8 +1125,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
             VersionedObject<VDT, M, T...>& vo)
     {
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:##VersionedObjectBuilder<VDT, M, T...>::buildBiDirectionalTimeline(START)");
-      t_deltaEntriesMap comboChgEntries{this->_deltaChgEntries};
-      this->_updateComboDataSet(comboChgEntries);
+      t_deltaEntriesMap comboChgEntries = this->getCombinedChangeDataSet();
       std::pair< t_deltaEntriesMap_iter_diff_type, t_deltaEntriesMap_iter_diff_type >
             ret = this->_buildBiDirectionalTimeline(startDates, vo, comboChgEntries);
       comboChgEntries.clear();
@@ -1164,8 +1158,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
             VersionedObject<VDT, T1, TR...>& vo) // when MetaData is NOT used
     {
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:##VersionedObjectBuilder<VDT, T1, TR...>::buildForwardTimeline(START)");
-      t_deltaEntriesMap comboChgEntries{this->_deltaChgEntries};
-      this->_updateComboDataSet(comboChgEntries);
+      t_deltaEntriesMap comboChgEntries = this->getCombinedChangeDataSet();
       this->_buildForwardTimeline(vo, comboChgEntries);
       comboChgEntries.clear();
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:##VersionedObjectBuilder<VDT, T1, TR...>::buildForwardTimeline(END)");
@@ -1176,8 +1169,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
             VersionedObject<VDT, T1, TR...>& vo) // when MetaData is NOT used
     {
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:##VersionedObjectBuilder<VDT, T1, TR...>::buildReverseTimeline(START) : startDate=" << startDate);
-      t_deltaEntriesMap comboChgEntries{this->_deltaChgEntries};
-      this->_updateComboDataSet(comboChgEntries);
+      t_deltaEntriesMap comboChgEntries = this->getCombinedChangeDataSet();
       this->_buildReverseTimeline(startDate, vo, comboChgEntries);
       comboChgEntries.clear();
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:##VersionedObjectBuilder<VDT, T1, TR...>::buildReverseTimeline(END)");
@@ -1190,8 +1182,7 @@ VERSIONEDOBJECT_DEBUG_MSG("DEBUG_LOG:   iterISVOcopyBegin->first = " << _checkDa
             VersionedObject<VDT, T1, TR...>& vo) // when MetaData is NOT used
     {
       VERSIONEDOBJECT_DEBUG_LOG("DEBUG_LOG:##VersionedObjectBuilder<VDT, T1, TR...>::buildBiDirectionalTimeline(START)");
-      t_deltaEntriesMap comboChgEntries{this->_deltaChgEntries};
-      this->_updateComboDataSet(comboChgEntries);
+      t_deltaEntriesMap comboChgEntries = this->getCombinedChangeDataSet();
       std::pair< t_deltaEntriesMap_iter_diff_type, t_deltaEntriesMap_iter_diff_type >
                 ret = this->_buildBiDirectionalTimeline(startDates, vo, comboChgEntries);
       comboChgEntries.clear();

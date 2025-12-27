@@ -78,6 +78,45 @@ namespace datastructure { namespace versionedObject
       return mergeableCount1;
     }
 
+    template<size_t IDX>
+    inline void print(std::ostream& oss) const
+    {
+      using t_idx_type = std::tuple_element_t<IDX, t_record>;
+      if( _modifiedElements.at(IDX) == eModificationPatch::SNAPSHOT ) // check if element is marked for change
+      {
+        const t_idx_type& newVal = std::get<IDX>(_newValues);
+        // NOTE :: will fail for types that donot support "operator<<"
+        oss << newVal;
+      }
+    }
+
+    template<size_t IDX>
+    inline std::string str() const
+    {
+      std::stringstream ss;
+      print<IDX>(ss);
+      return ss.str();
+    }
+
+    inline void strBuildDirection(std::ostream& oss) const
+    {
+      if(_buildDirection == eBuildDirection::FORWARD)
+      {
+        oss << "[FORWARD]";
+      } else if(_buildDirection == eBuildDirection::REVERSE) {
+        oss << "[REVERSE]";
+      } else {
+        oss << "[IsRECORD]";
+      }
+    }
+
+    inline std::string strBuildDirection() const
+    {
+      std::stringstream ss;
+      strBuildDirection(ss);
+      return ss.str();
+    }
+
   protected:
     _SnapshotDataSetBase( const std::array<bool, sizeof...(T)>& modifiedElements,
                           const t_record& snapshotValues,
@@ -100,31 +139,18 @@ namespace datastructure { namespace versionedObject
       }
     }
 
-    template<size_t IDX , typename SH = StreamerHelper>
+    template<size_t IDX , typename SH> // SH = typename M::t_StreamerHelper  OR  StreamerHelper
     inline void _toCSV(std::ostream& oss, const SH& streamerHelper = SH{}) const
     {
-      const SH& sh = streamerHelper;
       if constexpr( IDX == 0 )
       {
-        if(_buildDirection == eBuildDirection::FORWARD)
-        {
-          oss << "[FORWARD]:";
-        } else if(_buildDirection == eBuildDirection::REVERSE) {
-          oss << "[REVERSE]:";
-        } else {
-          oss << "[IsRECORD]:";
-        }
+        strBuildDirection(oss);
+        oss << streamerHelper.getDelimiterBuildDirection(); // ":"
       } else {
-        oss << sh.getDelimiterCSV();
+        oss << streamerHelper.getDelimiterCSV();
       }
 
-      using t_idx_type = std::tuple_element_t<IDX, t_record>;
-      if( _modifiedElements.at(IDX) == eModificationPatch::SNAPSHOT ) // check if element is marked for change
-      {
-        const t_idx_type& newVal = std::get<IDX>(_newValues);
-        // NOTE :: will fail for types that donot support "operator<<"
-        oss << newVal;
-      }
+      this->template print<IDX>(oss);
 
       if constexpr( IDX < (sizeof...(T)-1) )
       {

@@ -155,6 +155,7 @@ namespace datastructure { namespace versionedObject
   {
     char _delimiterMetaData;
     char _delimiterCSV;
+    char _delimiterBuildDirection;
 
   public:
     //StreamerHelper() = delete;
@@ -163,13 +164,17 @@ namespace datastructure { namespace versionedObject
     StreamerHelper& operator=(StreamerHelper const&) = default;
     bool operator==(StreamerHelper const& other) const = default;
 
-    StreamerHelper(char pDelimiterMetaData = '|', char pDelimiterCSV = ',')
+    StreamerHelper( char pDelimiterMetaData = '|',
+                    char pDelimiterCSV = ',',
+                    char pDelimiterBuildDirection = ':')
       : _delimiterMetaData{pDelimiterMetaData},
-        _delimiterCSV{pDelimiterCSV}
+        _delimiterCSV{pDelimiterCSV},
+        _delimiterBuildDirection{pDelimiterBuildDirection}
     {}
 
     inline char getDelimiterMetaData() const { return _delimiterMetaData; }
     inline char getDelimiterCSV() const { return _delimiterCSV; }
+    inline char getDelimiterBuildDirection() const { return _delimiterBuildDirection; }
   };
 
     // this is optional. A user can define their own MetaData class and pass it to "DataSet<>"
